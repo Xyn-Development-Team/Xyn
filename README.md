@@ -26,7 +26,7 @@ Xyn recently has moved into a multi-modules structure, that allows Xyn to be muc
 - /player | Sends an embed with music information and buttons to control the playback
 - /volume | Controls the volume for the current playback [ From 0% - 1000% ]
 - /queue | Shows what songs are in the queue
-- /purge | Deletes a specified ammount of messages, if they're younger than 15 days
+- /purge | Deletes a specified ammount of messages, if they're younger than 14 days
 - /reddit | Fetches a random post from the specified subreddit
 - /rename | Changes an user's nickname
 - /roleplay | Do one action from a list, and watch as a complementary gif is shown
