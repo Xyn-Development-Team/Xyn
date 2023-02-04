@@ -5,7 +5,4 @@ class modules:
     moderation = True
     fun = True
 
-activity = "playing"
-status = "you nerds"
-
 mode = "Development" #Development, Retail
