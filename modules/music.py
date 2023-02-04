@@ -1,6 +1,3 @@
-#Porting done
-#Translation done!
-
 import lightbulb
 from lightbulb.ext import tasks
 import hikari
@@ -252,7 +249,6 @@ async def play_command(ctx: lightbulb.context.Context,music=None):
             await lavalink.volume(ctx.guild_id,50) #Safe volume
         except:
             if await join(ctx) == "no_voice":
-                #await ctx.respond(gs.text('no_voice',gs.guild_language(ctx.guild_id),gs.get_uwu(ctx.guild_id)),flags=hikari.MessageFlag.EPHEMERAL)
                 return
             await lavalink.play(ctx.guild_id, result[0], ctx.author.id)  # play the first result
             await lavalink.volume(ctx.guild_id,50) #Safe volume
@@ -275,7 +271,6 @@ async def now_playing(ctx: lightbulb.context.Context):
     elif gs.read(ctx.guild_id,"services","yt_client",True,"YouTube") == "YouTube":
         uri = node.queue[0].uri
     await ctx.respond(f"{gs.text('now_playing',gs.guild_language(ctx.guild_id),gs.get_uwu(ctx.guild_id)).format(node.queue[0].title,uri)}")
-    # await ctx.respond(f"Now Playing...\n[{node.queue[0].title}]({node.queue[0].uri})")
 
 #/music_skip
 @music.command()
@@ -349,7 +344,6 @@ async def queue_command(ctx: lightbulb.context.Context):
         )
     await ctx.respond(emb)
 
-
 #/play_random
 @music.command()
 @lightbulb.command(name="play_random", description="Plays a random song from YouTube",auto_defer=True) 
@@ -361,7 +355,6 @@ async def play_random(ctx: lightbulb.context.Context):
     p = Playlist(f"https://www.youtube.com/playlist?list={random.choice(playlist_ids)}")
     music = random.randint(0,len(p.videos))
     query = p.video_urls[music]
-    #await ctx.respond(str(query))
 
     result = await lavalink.auto_search_tracks(query)  # search for the query
     if not result:
