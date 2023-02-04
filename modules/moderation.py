@@ -54,7 +54,7 @@ async def purge(ctx: lightbulb.SlashContext, count: int) -> None:
 @lightbulb.add_checks(lightbulb.checks.has_guild_permissions(hikari.Permissions.MANAGE_NICKNAMES))
 @lightbulb.option("user","Who do you want to change the nickname?",type=hikari.User)
 @lightbulb.option("nick","What do you want to call them?")
-@lightbulb.command("rename","Makes the bot say things")
+@lightbulb.command("rename","Changes an user's nickname")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def rename(ctx: lightbulb.Context):
     user = ctx.options.user
