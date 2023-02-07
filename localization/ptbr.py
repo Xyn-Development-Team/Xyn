@@ -1,4 +1,4 @@
-locale = {"generic_error":"Um erro ocorreu ao processar esse comando: ",
+locale = {"generic_error":"Um erro ocorreu ao processar o comando: {}",
 "no_dev":"Você não é um desenvolvedor(a) do Xyn",
 "cooldown":"Esse comando está em cooldown. Tente novamente em: ",
 "no_permission":"Você não tem permissão para usar esse comando",
