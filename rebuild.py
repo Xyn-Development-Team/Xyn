@@ -119,7 +119,7 @@ async def check_age(ctx: lightbulb.SlashContext):
 @lightbulb.command("Account's Age","See when this account was created.")
 @lightbulb.implements(lightbulb.UserCommand)
 async def check_age_menu(ctx: lightbulb.UserContext):
-    account = ctx.options.user
+    account = ctx.options.target
     raw_date = f"{account.created_at}"
     year = int(raw_date[0:4]) ; month = int(raw_date[5:7]) ; day = int(raw_date[8:10])
     hour = raw_date[11:13]
