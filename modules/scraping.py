@@ -64,12 +64,12 @@ async def reddit(ctx:lightbulb.SlashContext):
     
     await ctx.respond(f'{title}\n{url}')
 
-#/gelbooru_search
+#/gelbooru
 @scr.command
 @lightbulb.option("content","What tags do you want to search? (Split them by using ',')",required=True)
 @lightbulb.option("safe_mode","Enable Safe Mode?",choices=["Yes","No"],required=True)
 @lightbulb.option("ignore","Choose tags to ignore from your results (Split them by using ',')",required=False)
-@lightbulb.command("gelbooru_search","Search for a random image by tags on Gelbooru's website",auto_defer=True)
+@lightbulb.command("gelbooru","Search for a random image by tags on Gelbooru's website",auto_defer=True)
 @lightbulb.implements(lightbulb.SlashCommand)
 async def gelbooru_search(ctx: lightbulb.SlashContext):
     channel = ctx.get_channel()
@@ -86,7 +86,7 @@ async def gelbooru_search(ctx: lightbulb.SlashContext):
         if channel.is_nsfw == None:
             await ctx.respond(gs.text('no_nsfw',gs.guild_language(ctx.guild_id),gs.get_uwu(ctx.guild_id)),flags=hikari.MessageFlag.EPHEMERAL)
         else:
-            result = await gelbooru.search_posts(tags=tags,exclude_tags=[exclude_tags_string])
+            result = await gelbooru.search_posts(tags=tags,exclude_tags=exclude_tags_string)
             result = random.choice(result)
             await ctx.respond(result)
     elif ctx.options.safe_mode == "Yes":
