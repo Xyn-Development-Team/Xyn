@@ -143,9 +143,9 @@ async def gelbooru_search(ctx: lightbulb.SlashContext):
         await safe_gelbooru(ctx)
         return
 
-#/anime_quote Fixed!
+#/animequote
 @scr.command
-@lightbulb.command("anime_quote","Get a random anime quote!",auto_defer=True)
+@lightbulb.command("animequote","Get a random anime quote!",auto_defer=True)
 @lightbulb.implements(lightbulb.SlashCommand)
 async def anime_quote(ctx: lightbulb.SlashContext):
     r = requests.get("https://animechan.vercel.app/api/random")
