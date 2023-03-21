@@ -11,10 +11,10 @@ or if you want to contribute but doesn't know how to modify that file, please co
 Xyn recently has moved into a multi-modules structure, that allows Xyn to be much easier to create new commands for it, if you have any idea please share it with us, either through Github or through email kawaii.nyx.chan+NGC@gmail.com
 
 ## Commands
-- /anime_quote | Get's a random anime quote!
+- /animequote | Get's a random anime quote!
 - /ban | Bans someone... surprising insn't it?
 - /check_age | Checks how old an Discord user account is
-- /gelbooru_search | Fetches a random image from Gelbooru using your tags (Has SFW option!)
+- /gelbooru | Fetches a random image from Gelbooru using your tags (Has SFW option!)
 - /get_banner | Silently fetches an user banner
 - /get_pfp | Silently fetches an user pfp
 - /play | Adds a song from YouTube, Spotify or Souncloud to the queue
