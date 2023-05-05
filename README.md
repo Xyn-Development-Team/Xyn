@@ -2,38 +2,65 @@
 Xyn is a feature-rich yet not bloated Discord bot, it has most basic command you'll usually need like moderation commands and music!
 but also other really fun and usefull comands, from scraping websites to rolling dices, Xyn has you covered! >.<
 
+# What's the difference between Vanilla and Betafish
+**Vanilla** is the final version, the one that's as reliable as possible! While ***Betafish*** is basically the cutting edge and can have major instabilities, bugs, and other quirks but have really frequent updates
+
 ## Multi-languages support
-We're gladly accepting either new or improved translations for Xyn!
-To contribute all you have to do is submit a pull request with an translation file, the ones found at ./localization/
-or if you want to contribute but doesn't know how to modify that file, please contact [Dorkreamer](https://dorkreamer.carrd.co)!
+For now multi-language support is not implemented into V2 (This version!)!
 
 ## Module support
-Xyn recently has moved into a multi-modules structure, that allows Xyn to be much easier to create new commands for it, if you have any idea please share it with us, either through Github or through email kawaii.nyx.chan+NGC@gmail.com
+YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to add new commands to Xyn without messing around (much) with any of the other code.
 
 ## Commands
+
+### Music:
+- /play {query} | Plays a link or searches using terms given in the query in your current voice channel.
+- /pause | Pauses what's currently playing in your voice channel.
+- /resume | The exact opposite of the command above.
+- /skip | Skips the song that's currently playing in your voice channel.
+- /rewind | The exact opposite of the command above.
+- /volume {volume} | Changes the volume of what's currently playing in your current voice channel.
+- /queue | Shows what's in the current queue, limited to 4k characters!
+- /player | Shows a GUI-like player with buttons to control what's currently playing in your voice channel.
+- /stop | Stop's what's currently playing in your voice channel and disconnects Xyn from the voice channel.
+
+
+### osu!:
+- /recent {user} {mode}:optional | Show's which beatmaps the user lastly played and it's scores.
+- /profile {user} | Show's an user's profile.
+- /background | Gives you a random seasonal background.
+
+
+### Fun:
 - /animequote | Get's a random anime quote!
-- /ban | Bans someone... surprising insn't it?
-- /check_age | Checks how old an Discord user account is
-- /gelbooru | Fetches a random image from Gelbooru using your tags (Has SFW option!)
-- /get_banner | Silently fetches an user banner
-- /get_pfp | Silently fetches an user pfp
-- /play | Adds a song from YouTube, Spotify or Souncloud to the queue
-- /pause | Pauses the music that's currently playing
-- /resume | Resumes the current playback
-- /music_skip | Skips to the next song on the queue
-- /stop | Stops the music that's currently playing, and quits the Voice Channel
-- /play_random | Plays a random music from YouTube
-- /player | Sends an embed with music information and buttons to control the playback
-- /volume | Controls the volume for the current playback [ From 0% - 1000% ]
-- /queue | Shows what songs are in the queue
-- /purge | Deletes a specified ammount of messages, if they're younger than 14 days
-- /reddit | Fetches a random post from the specified subreddit
-- /rename | Changes an user's nickname
-- /roleplay | Do one action from a list, and watch as a complementary gif is shown
-- /roll_dice | Rolls an dice (either an D6 or D20)
-- /say | Makes the bot say anything you want
-- /server_language | Changes the language of Xyn's responses [ Admin Only ]
-- /translate | Translates anything you want, has a silent option!
-- /uwuify | M-Makes evewything yoyu wwite 1-10x betta!
-- /uwuify_server | I-Impwoves aww of Xyn's w-wesponses
-- /youtube_client | Changes which YouTube client will be used in Xyn's responses
+- /persona {username} {message} {pfp}:optional {last_pfp} | Allows you to send a message as a completely username and profile picture, with the option of reusing the last profile picture used in this command.
+- /local_persona {user} {message} | Same as above, but with a fellow Discord user in a server.
+- /arrest {user} | Generates an image of an user's profile picture behind prison bars.
+- /rip {user} {description} | Generates an image of a tombstone containing the user's profile picture, name and description engraved into it
+- /quote {user} {quote} | Generates an image in the style of a physological quote, containg the user's profile picture and quote
+- /diceroll {dice} | Let's you roll a dice of your choice.
+- /coinflip | Let's you flip a coin.
+- /roleplay {action} | Let's you roleplay using anime gifs to ilustrate the action provided.
+- /confess | Let's you confess anonymously
+
+### Scraping:
+- /reddit {subreddit} | Get's a random post from a specified subreddit.
+- /gelbooru {tags} {ignore_tags}:optional {safe_mode} | Get's a random image from gelbooru through the specified parameters, and blocks explicit imagery whenever safe_mode is enabled, if the user uses this command in a NSFW channel, they can turn off safe_mode and doing so, disabled the filter.
+- /pfp {user} | Get's the specified user's pfp.
+- /banner {user} | Same as above, but with their banner.
+
+
+### Moderation:
+- /confessions_reset | Reset's the confession counter for the current guild. [Manage Messages Permission necessary]
+- /purge {amount} | Deletes a specified amount of messages from 1 - 100
+
+
+### About:
+- /permissions | Explain why Xyn needs all of it's permissions, fully configurable through the settings.
+- /deployment | Shows information about the current deployment of Xyn
+- /credits | Shows who are the amazing people who are behind the current deployment.
+
+
+( More to come in the near future ;) )
+
+### 
