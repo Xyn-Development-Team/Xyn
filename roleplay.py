@@ -1,6 +1,6 @@
-actions = {"kiss":"<@{userId}> kissed {target}! <3",
-    "slap":"<@{userId}> slapped {target}!",
-    "punch":"<@{userId}> punched {target}!",
+actions = {"kiss":"<@{userID}> kissed {target}! <3",
+    "slap":"<@{userID}> slapped {target}!",
+    "punch":"<@{userID}> punched {target}!",
     "hug":"<@{userID}> hugged {target}!",
     "sleep":"<@{userID}> is sleeping with {target}! <3",
     "poke":"<@{userID}> is poking {target}!",
@@ -25,9 +25,7 @@ actions_solo = {"kiss":"<@{userID}> kissed themselves? 0_0",
         "stare":"<@{userID}> is staring themselves! 0_0",
     }
 
+
 def better_roleplay(action,ctx,target=None):
-    try:
-        rpString = actions[action] if target != None else actions_solo[action]
-        return rpString.format(userID = ctx.user.id, target=target)
-    except:
-        return f"<@{ctx.user.id}> came on catgirl. OWO?"
+    rpString = actions[action] if target != None else actions_solo[action]
+    return rpString.format(userID = ctx.user.id, target=target)
