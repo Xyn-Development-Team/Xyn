@@ -251,7 +251,7 @@ class music(commands.GroupCog, name="music"):
             try:
                 track = await wavelink.YouTubeTrack.search(query, return_first=True)
             except wavelink.NoTracksError:
-                print(f"fuck {query}")
+                print(f"{query} wasn't found") #Implement an actual response to this later
 
         vc.autoplay = False
         if vc.is_playing():
@@ -273,7 +273,7 @@ class music(commands.GroupCog, name="music"):
             else:
                 vc.queue.put(track)
                 try:
-                    await interaction.followup.send(embed=discord.Embed(title=f"**{track.title}**",url=track.uri).set_author(name="Added to queue").set_thumbnail(url=str(pytube.YouTube(track.uri).thumbnail_url)))
+                    await interaction.followup.send(embed=discord.Embed(title=f"**{track.title}**",url=track.uri).set_author(name="Added to queue").set_thumbnail(url=track.thumbnail))
                 except:
                     await interaction.followup.send(embed=discord.Embed(title=f"**{track.title}**",url=track.uri).set_author(name="Added to queue"))
 
