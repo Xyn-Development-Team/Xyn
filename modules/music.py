@@ -412,6 +412,6 @@ class music(commands.GroupCog, name="music"):
             await ctx.response.send_message("Okay! Stopped the current playback!")
 
 async def setup(bot: commands.Bot) -> None:
-    node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password='dummythicc')
+    node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password='')
     await wavelink.NodePool.connect(client=bot, nodes=[node],spotify=sc)
     await bot.add_cog(music(bot))
