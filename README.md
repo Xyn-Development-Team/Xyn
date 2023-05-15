@@ -23,6 +23,8 @@ YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to ad
 - /queue | Shows what's in the current queue, limited to 4k characters!
 - /player | Shows a GUI-like player with buttons to control what's currently playing in your voice channel.
 - /stop | Stop's what's currently playing in your voice channel and disconnects Xyn from the voice channel.
+- /nightcore | Turns the current playback into nightcore!
+- /karaoke | Muffles the current playback's vocals, so yours can shine... or rather shrill!
 
 
 ### osu!:
