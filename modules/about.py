@@ -6,7 +6,7 @@ from typing import Literal
 from typing import Optional
 import settings
 
-class info(commands.GroupCog, name="info"):
+class about(commands.GroupCog, name="about"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         super().__init__()  # this is now required in this context.
@@ -32,7 +32,7 @@ class info(commands.GroupCog, name="info"):
         await interaction.response.send_message(embed=embed)
 
     #/credits
-    @app_commands.command(name="credits",description="Here you can who are the amazing people behind this deployment")
+    @app_commands.command(name="credits",description="Check who are the amazing people behind this deployment")
     async def credits(self, interaction: discord.Interaction):
         embed = discord.Embed(title=f"Xyn ({settings.deploy.codename})",description=f"**Maintained by:** {settings.deploy.maintainers}").set_thumbnail(url=interaction.client.user.display_avatar.url)
         
@@ -43,4 +43,5 @@ class info(commands.GroupCog, name="info"):
 
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(info(bot))
+    print("About was loaded")
+    await bot.add_cog(about(bot))
