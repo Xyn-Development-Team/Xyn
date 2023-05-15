@@ -7,6 +7,7 @@ from io import BytesIO
 import re
 
 import time
+import random
 
 class effects:
     def invert(img,force=1):
@@ -70,7 +71,7 @@ def draw_center_text(
         **kwargs,
     )
 
-def get_pfp(pfp,resize=False,size=(300,300)):
+def get_image(image,resize=False,size=(300,300)):
     """Checks if the pfp is a url and if so, loads it locally, else it tries to load from a path
     ## pfp
     Can be either a url or a string containing the path to such file
@@ -78,16 +79,17 @@ def get_pfp(pfp,resize=False,size=(300,300)):
     Defines if you want to resize the image to the size contained in the next argument `size`
     ## size
     If `resize` is True, it will simply resite to this size, it's type is a `tuple!`"""
-    if any(["https://" in pfp]):
-        response = requests.get(pfp)
-        pfp = Image.open(BytesIO(response.content))
-    else:
-        pfp = Image.open(pfp)
-    pfp = pfp.convert("RGBA")
-    if resize:
-        return pfp.resize(size)
-    else:
-        return pfp
+    if image:
+        if any(["https://" in image]):
+            response = requests.get(image)
+            image = Image.open(BytesIO(response.content))
+        else:
+            image = Image.open(image)
+        image = image.convert("RGBA")
+        if resize:
+            return image.resize(size)
+        else:
+            return image
 
 def rip(id,username:str,description:str,pfp):
     """Generates the image of a tombstone with a pfp, name and description "engraved" in it!
@@ -100,7 +102,7 @@ def rip(id,username:str,description:str,pfp):
     If you put more than 72, expect some very weird text
     """
     #Load the pfp
-    pfp = get_pfp(pfp,resize=True)
+    pfp = get_image(pfp,resize=True)
 
     #Load the background
     tombstone = Image.open("./assets/tombstone.png")
@@ -130,8 +132,163 @@ def rip(id,username:str,description:str,pfp):
     tombstone.save(f"./temp/{id} {time.strftime('%H %M %S rip')}.png") 
     return f"./temp/{id} {time.strftime('%H %M %S rip')}.png"
 
+def draw_text_with_soft_shadow(image, position=(0,0,0), text="", font=ImageFont, text_color=(0,0,0), shadow_color=(0,0,0,128), shadow_offset=(0,10)):
+    # Create images for shadow and text
+    shadow_image = Image.new('RGBA', image.size)
+    text_image = Image.new('RGBA', image.size)
+
+    # Draw shadow
+    shadow_draw = ImageDraw.Draw(shadow_image)
+    shadow_draw.text((position[0] + shadow_offset[0], position[1] + shadow_offset[1]), text, font=font, fill=shadow_color)
+    shadow_image = shadow_image.filter(ImageFilter.GaussianBlur(3))
+
+    # Draw text
+    text_draw = ImageDraw.Draw(text_image)
+    text_draw.text(position, text, font=font, fill=text_color)
+
+    # Composite the shadow and text images
+    result_image = Image.alpha_composite(image, shadow_image)
+    result_image = Image.alpha_composite(result_image, text_image)
+
+    return result_image
+
+def achievement(id,name:str,description:str,platform:str,image):
+    def xbox360(name,**kwargs):
+        bg = Image.open("./assets/x360achievement.png")
+        font = ImageFont.truetype(r"./assets/fonts/NotoSans-Medium.ttf",79)
+
+        draw = ImageDraw.Draw(bg)
+        draw.text([425,200],f"{random.randint(0,999)}G - {name}",font=font)
+
+        bg.save(f"./temp/{id} {time.strftime('%H %M %S Xbox360 Achievement')}.png")
+        return f"./temp/{id} {time.strftime('%H %M %S Xbox360 Achievement')}.png"
+
+    def steam(image,name,description):
+        image = get_image(image,True,[400,400])
+
+        if not image:
+            image = Image.open("./assets/SteamLogo.png").resize([400,400])
+
+        bg = Image.open("./assets/SteamAchievement.png")
+        final_image = Image.new("RGBA",[bg.width,bg.height])
+        name_font = ImageFont.truetype(r"./assets/fonts/NotoSans-SemiBold.ttf",95)
+        description_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Medium.ttf",103)
+
+        draw = ImageDraw.Draw(bg)
+
+        draw.text([480,150],name,font=name_font)
+        
+        if description:
+            draw.text([480,280],description,font=description_font)
+
+        final_image.paste(image,[40,70])
+        final_image.paste(bg,mask=bg)
+
+        final_image.save(f"./temp/{id} {time.strftime('%H %M %S Steam Achievement')}.png")
+        return f"./temp/{id} {time.strftime('%H %M %S Steam Achievement')}.png"
+
+    def playstation5(image,name,*args,**kwargs):
+        trophy = Image.open(f"./assets/{random.choice(random.sample(['Bronze','Silver','Gold','Platinum'],3))}Trophy.png").resize([150,180])
+
+        image = get_image(image,True,[550,550])
+        
+        if not image:
+            image = Image.open("./assets/PlaystationLogo.png").resize([550,550])
+
+        bg = Image.open("./assets/PS5Achievement.png")
+        bg.paste(image,[150,150])
+        bg.paste(trophy,[840,220],trophy)
+        draw = ImageDraw.Draw(bg)
+
+        name_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Regular.ttf",160)
+
+        draw.text([1000,200],name,font=name_font)
+        
+        bg.save(f"./temp/{id} {time.strftime(f'%h %M %S PS5Trophy')}.png")
+        return f"./temp/{id} {time.strftime(f'%h %M %S PS5Trophy')}.png"
+
+    def playstation4(image,name,*args,**kwargs):
+        trophy = Image.open(f"./assets/{random.choice(random.sample(['Bronze','Silver','Gold','Platinum'],3))}Trophy.png").resize([70,80])
+
+        image = get_image(image,True,[250,250])
+
+        if not image:
+            image = Image.open("./assets/PlaystationLogo.png").resize([250,250])
+
+        bg = Image.open("./assets/PS4Achievement.png")
+        bg.paste(image,[240,120])
+        bg.paste(trophy,[550,270],trophy)
+        draw = ImageDraw.Draw(bg)
+
+        name_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Light.ttf",78)
+
+        draw.text([640,250],name,font=name_font,fill="black")
+        
+        bg.save(f"./temp/{id} {time.strftime(f'%h %M %S PS4Trophy')}.png")
+        return f"./temp/{id} {time.strftime(f'%h %M %S PS4Trophy')}.png"
+
+    def playstation3(image,name,*args,**kwargs):
+        trophy = Image.open(f"./assets/{random.choice(random.sample(['Bronze','Silver','Gold','Platinum'],3))}Trophy.png").resize([70,80])
+
+        image = get_image(image,True,[280,280])
+
+        if not image:
+            image = Image.open("./assets/PlaystationLogo.png").resize([280,280])
+
+        bg = Image.open("./assets/PS3Achievement.png")
+        bg.paste(image,[100,350])
+        bg.paste(trophy,[400,470],trophy)
+        draw = ImageDraw.Draw(bg)
+
+        name_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Medium.ttf",71)
+        draw_text_with_soft_shadow(bg,(470,460),name,name_font,text_color=(255,255,255),shadow_color=(0,0,0,128),shadow_offset=(0,8)).show()
+        
+        bg.save(f"./temp/{id} {time.strftime(f'%h %M %S PS3Trophy')}.png")
+        return f"./temp/{id} {time.strftime(f'%h %M %S PS3Trophy')}.png"
+
+    def osu(image,name,description):
+        image = get_image(image,True,[200,200])
+        if not image:
+            image = Image.open("./assets/osu!background.png").resize([200,200])
+
+        final_image = Image.new("RGBA",[1600,900])
+
+        badge_bg = Image.open("./assets/osu!medal.png")
+        
+        name_font = ImageFont.truetype(r"./assets/fonts/Inter-Bold.ttf",32)
+        description_font = ImageFont.truetype(r"./assets/fonts/Inter-Medium.ttf",25)
+
+        #Draw all the text
+        draw_center_text(badge_bg,[830,560],name,name_font)
+        if description:
+            draw_center_text(badge_bg,[830,600],description,description_font,fill="cyan")
+
+        #Paste everything together
+        final_image.paste(image,[730,250])
+        final_image.paste(badge_bg,[0,0],mask=badge_bg)
+
+        final_image.save(f"./temp/{id} {time.strftime('%H %M %S osu!medal')}.png")
+        return f"./temp/{id} {time.strftime('%H %M %S osu!medal')}.png"
+
+    platforms = {
+        "Xbox360":xbox360,
+        "xbox":None,
+        "Playstation 5":playstation5,
+        "Playstation 4":playstation4,
+        "Playstation 3":playstation3,
+        "Steam":steam,
+        "osu!":osu
+    }
+    
+    platform_callback = platforms.get(platform)
+    if platform_callback:
+        return platform_callback(image=image, name=name, description=description)
+    else:
+        raise Exception("Unsupported platform!")
+
+
 def quote(id,username:str,quote:str,pfp):
-    pfp = get_pfp(pfp)
+    pfp = get_image(pfp)
     pfp = pfp.resize([1200,1200])
 
     bg = Image.open("./assets/quote_bg_base.png")
@@ -157,4 +314,5 @@ def quote(id,username:str,quote:str,pfp):
     return f"./temp/{id} {time.strftime('%H %M %S quote')}.png"
 
 
-    
+if __name__ == "__main__":
+    achievement(id=69,name="Missed the fucking point, UwU",description="You finally did it! Great job!",platform="playstation3",image="https://cdn.discordapp.com/avatars/1052773724501323788/4197174342e2ec66fdb47ccc2503fc1a.png?size=1024")
