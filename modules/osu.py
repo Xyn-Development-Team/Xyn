@@ -72,8 +72,8 @@ class osu(commands.GroupCog, name="osu"):
     @app_commands.command(name="recent",description="Shows the most recent plays of an user!")
     @app_commands.describe(user="Who do you want to check? You can use either usernames or ID's!")
     async def recent(self, interaction: discord.Interaction, user:str,mode:Optional[Literal["osu!","osu!taiko","osu!catch","osu!mania"]]):        
+        await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  osu!xyn is thinking...",silent=True)
         webhook = await osu_webhook(interaction)
-        await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  {webhook.name} is thinking...",silent=True)
 
         user = api.user(user)
         if not mode:
@@ -96,9 +96,7 @@ class osu(commands.GroupCog, name="osu"):
         #message = await interaction.followup.send(f"{interaction.user.name} used /osu recent",silent=True)
         await interaction.delete_original_response()
         
-
         await webhook.send(embed=embed)
-        await webhook.delete()
 
     #/background
     @app_commands.command(name="background",description="Shows a random seasonal background from osu!")
