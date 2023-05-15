@@ -238,7 +238,6 @@ def achievement(id,name:str,description:str,platform:str,image):
         bg = Image.open("./assets/PS3Achievement.png")
         bg.paste(image,[100,350])
         bg.paste(trophy,[400,470],trophy)
-        draw = ImageDraw.Draw(bg)
 
         name_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Medium.ttf",71)
         draw_text_with_soft_shadow(bg,(470,460),name,name_font,text_color=(255,255,255),shadow_color=(0,0,0,128),shadow_offset=(0,8)).show()
@@ -302,10 +301,6 @@ def quote(id,username:str,quote:str,pfp):
     font = ImageFont.truetype(r'./assets/fonts/Roboto-Regular.ttf', 45)
     formatted_text = re.sub("(.{35})", "\\1-\n", quote, 0, re.DOTALL)
     draw_center_text(bg,[1550,350],f""" "{formatted_text}" """,font)
-
-    draw = ImageDraw.Draw(bg)
-
-    #draw.rectangle(((1450, 800), (1650, 830)), fill=accent_color)
     
     font2 = ImageFont.truetype(r'./assets/fonts/Roboto-Regular.ttf', 30)
     draw_center_text(bg,[1550,800],f"- {username}, {time.strftime('%Y')}",font2)
