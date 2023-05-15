@@ -41,7 +41,10 @@ YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to ad
 - /diceroll {dice} | Let's you roll a dice of your choice.
 - /coinflip | Let's you flip a coin.
 - /roleplay {action} | Let's you roleplay using anime gifs to ilustrate the action provided.
-- /confess | Let's you confess anonymously
+- /confess | Let's you confess anonymously.
+- /persona {username} {message} {last_pfp} {pfp}:optional | Allows you to send a message with a custom username and profile picture, with a bot tag next to it's username.
+- /local_persona {user} | Allows you to send a message copiying the username and pfp of another user, with a little bot tag next to the username.
+- /achievement {name} {platform} {description}:optional {image}:optional {pfp}:optional | Let's you create an image of an achievement, with custom name, description and even image.
 
 ### Scraping:
 - /reddit {subreddit} | Get's a random post from a specified subreddit.
