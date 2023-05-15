@@ -144,7 +144,7 @@ class fun(commands.GroupCog, name="fun"):
         os.remove(f"./temp/{user.id}.png")
 
     #/rip
-    @app_commands.command(name="rip",description="It's dead Jim")
+    @app_commands.command(name="rip",description="| Fun | It's dead Jim")
     @app_commands.describe(user="Who?",description="Ex: His last words were, I like ass, [Limited to 71 characters!]")
     async def rip(self,interaction: discord.Interaction, user:discord.User,description:Optional[app_commands.Range[str,1,71]]):
         await interaction.response.defer(thinking=True)
@@ -153,7 +153,7 @@ class fun(commands.GroupCog, name="fun"):
         os.remove(image)
 
     #/quote
-    @app_commands.command(name="quote",description="Someone said something quite poetic, huh?")
+    @app_commands.command(name="quote",description="| Fun | Someone said something quite poetic, huh?")
     @app_commands.describe(user="Who's the poetic menace?",quote="What was it?")
     async def quote(self,interaction: discord.Interaction, user:discord.User, quote:str):
         await interaction.response.defer(thinking=True)
@@ -161,10 +161,23 @@ class fun(commands.GroupCog, name="fun"):
         await interaction.followup.send(file=discord.File(image))
         os.remove(image)
 
+    #/achievement
+    @app_commands.command(name="achievement",description="| Fun | Someone has got an achievement, cool!")
+    @app_commands.describe(image="(Optional) What's the picture for this achievement?",pfp="(Optional) Use someone's pfp as a picture for this achievement",name="What's the name of this achievement? [Limited to 24 characters!]",description="What is this achievement about? (Only works on supported images) [Limited to 32 characters!]")
+    async def achievements(self, interaction:discord.Interaction,image:Optional[discord.Attachment], pfp:Optional[discord.User], name:app_commands.Range[str,1,24], description:Optional[app_commands.Range[str,1,32]],platform:Literal["Xbox360","Playstation 5","Playstation 4", "Playstation 3", "Steam", "osu!"]):
+        await interaction.response.defer(thinking=True)
+        if image and not pfp:
+            image = image.url
+        if pfp:
+            image = pfp.display_avatar.url
+        image = imagetools.achievement(interaction.user.id,name,description,platform,image)
+        await interaction.followup.send(file=discord.File(image))
+        os.remove(image)
+
     #/diceroll
     @app_commands.command(name="diceroll", description="| Fun | Rolls a dice for you")
     @app_commands.describe(dice="What type of dice do you want to roll?")
-    async def diceroll (self, ctx: discord.Interaction, dice: Literal["D6","D20"]):
+    async def diceroll(self, ctx: discord.Interaction, dice: Literal["D6","D20"]):
         if dice == "D6":
             result = random.randint(0, 5)
             sides = ["https://cdn.discordapp.com/emojis/1018347458897645629.webp?quality=lossless","https://cdn.discordapp.com/emojis/1018347460982218792.webp?quality=lossless","https://cdn.discordapp.com/emojis/1018347463259738142.webp?quality=lossless","https://cdn.discordapp.com/emojis/1018347465352687707.webp?quality=lossless","https://cdn.discordapp.com/emojis/1018347467621806090.webp?quality=lossless","https://cdn.discordapp.com/emojis/1018347470251626576.webp?quality=lossless"]
