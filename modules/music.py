@@ -1,28 +1,21 @@
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
-from discord.app_commands import Choice
-from typing import Literal
 from typing import Optional
 import wavelink
-from wavelink.ext import spotify
-import asyncio
 import settings
 from os import getenv
-from dotenv import load_dotenv
+from dotenv import load_dotenv ; load_dotenv()
 import time
-
-load_dotenv()
-
 import re
-
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-spotify_client = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=getenv("SPOTIPY_CLIENT_ID"),client_secret=getenv("SPOTIPY_CLIENT_SECRET")))
 
 import pytube
 from pytube import Playlist
-#import linktools
+
+from wavelink.ext import spotify
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+spotify_client = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=getenv("SPOTIPY_CLIENT_ID"),client_secret=getenv("SPOTIPY_CLIENT_SECRET")))
 
 sc = spotify.SpotifyClient(
     client_id=getenv("SPOTIPY_CLIENT_ID"),
@@ -31,6 +24,9 @@ sc = spotify.SpotifyClient(
 
 class spotipy:
     async def get(type,query):
+        """## Spotify iterator
+        `type`: `spotify.SpotifySearchType` object\n
+        `query`: URL to the song/playlist/album you're retrieving!"""
         if type == spotify.SpotifySearchType.track:
             track_name = spotify_client.track(query)["name"]
             artist = spotify_client.track(query)["artists"]
@@ -58,6 +54,9 @@ class spotipy:
             return sp_playlist
     
     async def list_name(type,query):
+        """This is a simple little function to grab the name of the requested album/playlist\n
+        `type`: `spotify.SpotifySearchType` object\n
+        `query`: URL to the album/playlist you want to retrieve the name from"""
         if type == spotify.SpotifySearchType.album:
             return spotify_client.album(query)["name"]
         if type == spotify.SpotifySearchType.playlist:
@@ -67,6 +66,15 @@ class music(commands.GroupCog, name="music"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         super().__init__()  # this is now required in this context.
+
+    async def connected_channels(self,guild_id):
+        guild = self.bot.get_guild(guild_id)
+        if not guild:
+            raise Exception(f"Xyn is not a member of the guild {guild_id}")
+        voice_state = guild._voice_states.get(self.bot.user.id)
+        if voice_state:
+            return voice_state.channel
+        return None
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackEventPayload) -> None:
@@ -78,27 +86,38 @@ class music(commands.GroupCog, name="music"):
         #REPLACED FINISHED
         if payload.reason == "FINISHED":
             try:
-                await payload.player.play(payload.player.queue[payload.player.queue.find_position(last_track)+1],replace=True)
-            except:
-                if payload.player.queue.loop:
-                    await payload.player.play(payload.player.queue[payload.player.queue.find_position(last_track)],replace=True)
-                else:
+                if payload.player.queue[payload.player.queue.find_position(last_track)+1] == payload.player.current:
                     await payload.player.stop()
-        # if payload.player.queue.find_position(last_track)+1 >= int(settings.music.max_rewind):
-        #     del payload.player.queue[0]
+                await payload.player.play(payload.player.queue[payload.player.queue.find_position(last_track)+1],replace=True)
+            except IndexError:
+                await payload.player.stop()
+        if payload.player.queue.find_position(last_track)+1 >= int(settings.music.max_rewind):
+            del payload.player.queue[0]
+
+    async def handle_event(event):
+        guild_id = int(event['d']['guild_id'])
+        guild = event.bot.get_guild(guild_id)
+
+        node = wavelink.NodePool.get_node()
+        player = node.get_player(guild_id)
+
+        await player.play(player.current,replace=True)
 
     #/resume
     @app_commands.command(name="resume",description="Resumes the song's playback")
     async def resume(self, interaction: discord.Interaction):
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         await player.resume()
         await interaction.response.send_message(embed=discord.Embed(title=f"**{player.current.title}**",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Resumed playing:"))
 
-
     #/pause
     @app_commands.command(name="pause",description="Pauses the song's playback")
     async def pause(self, interaction: discord.Interaction):
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         await player.pause()
@@ -132,7 +151,7 @@ class music(commands.GroupCog, name="music"):
         class PlayerView(discord.ui.View):
             def __init__(self):
                 super().__init__()
-                self.timeout = None
+                self.timeout = 20
                 
                 self.update_player.start()
                 global song
@@ -216,10 +235,8 @@ class music(commands.GroupCog, name="music"):
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
-        try:
-            vc: wavelink.Player = interaction.guild.voice_client
-        except:
-            return await interaction.followup.send("I'm not connected to any voice channels ¯\_(ツ)_/¯")
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         
         try:
             if "timescale" in player.filter:
@@ -232,17 +249,14 @@ class music(commands.GroupCog, name="music"):
             await player.set_filter(wavelink.Filter(karaoke=wavelink.Karaoke(level=1)))
             return await interaction.response.send_message("**Karaoke Enabled!!**")
 
-
     #/nightcore
     @app_commands.command(name="nightcore",description="| Music | Makes everything faster and cuter... I guess?")
     async def nightcore(self, interaction: discord.Interaction):
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
-        try:
-            vc: wavelink.Player = interaction.guild.voice_client
-        except:
-            return await interaction.followup.send("I'm not connected to any voice channels ¯\_(ツ)_/¯")
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         
         try:
             if "timescale" in player.filter:
@@ -256,7 +270,13 @@ class music(commands.GroupCog, name="music"):
             return await interaction.response.send_message("**Nightcore Enabled!!**")
 
     #/move
-    #@app_commands.command(name="move",description="| Music | Moves the current playback to another voice channel!")
+    @app_commands.command(name="move",description="| Music | Moves the current playback to another voice channel!")
+    @app_commands.describe(voice_channel="Where do you want to move it to?")
+    async def move(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel):
+        node = wavelink.NodePool.get_node()
+        player = node.get_player(interaction.guild_id)
+        await interaction.guild.change_voice_state(channel=voice_channel,self_deaf=True)
+        return await interaction.response.send_message(f"Moved the playback to <#{voice_channel.id}>!")
 
     #/play
     @app_commands.command(name="play",description="| Music | Searches/Plays a music URL from YouTube, YouTube Music, Spotify, SoundCloud")
@@ -273,14 +293,16 @@ class music(commands.GroupCog, name="music"):
         #Check if the user is in any voice channel
         if voice_channel:
             vc: wavelink.Player = await voice_channel.connect(cls=wavelink.Player)
+            await interaction.guild.change_voice_state(channel=voice_channel,self_deaf=True)
         else:
             try:
                 if not interaction.guild.voice_client:
                     vc: wavelink.Player = await interaction.user.voice.channel.connect(cls=wavelink.Player)
+                    await interaction.guild.change_voice_state(channel=interaction.user.voice.channel,self_deaf=True)
                 else:
                     vc: wavelink.Player = interaction.guild.voice_client
             except:
-                return await interaction.followup.send("I'm not connected to any voice channels ¯\_(ツ)_/¯")
+                return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
             vc.autoplay = False #Autoplay sucks, disable it
 
         #Format YouTube Music links to regular ones, usually avoids a ton of problems
@@ -416,18 +438,18 @@ class music(commands.GroupCog, name="music"):
         except:
             await interaction.followup.send(embed=discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_author(name="Now playing:"))
 
-    # #/stealth_skip
-    # @app_commands.command(name="stealth_skip",description="| Music / Debugging | Skips to the next song on the queue without replacing it")
-    # async def stealth_skip(self, interaction: discord.Interaction):
-    #     await interaction.response.defer(thinking=True)
-    #     node = wavelink.NodePool.get_node()
-    #     player = node.get_player(interaction.guild_id)
-    #     previous_song = player.current
+    #/stealth_skip
+    @app_commands.command(name="stealth_skip",description="| Music / Debugging | Skips to the next song on the queue without replacing it")
+    async def stealth_skip(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
+        node = wavelink.NodePool.get_node()
+        player = node.get_player(interaction.guild_id)
+        previous_song = player.current
 
-    #     await player.seek(player.current.duration)
+        await player.seek(player.current.duration)
 
-    #     next_song = player.queue[player.queue.find_position(player.current)+1]
-    #     await interaction.followup.send(embed=discord.Embed(title=f"**{next_song.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped without replacing (Stealth)!",url=next_song.uri).set_thumbnail(url=str(pytube.YouTube(next_song.uri).thumbnail_url)).set_author(name="Now playing:"))
+        next_song = player.queue[player.queue.find_position(player.current)+1]
+        await interaction.followup.send(embed=discord.Embed(title=f"**{next_song.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped without replacing (Stealth)!",url=next_song.uri).set_thumbnail(url=str(pytube.YouTube(next_song.uri).thumbnail_url)).set_author(name="Now playing:"))
 
     #/rewind
     @app_commands.command(name="rewind",description="| Music | Goes to the previous song in the queue")
@@ -447,8 +469,8 @@ class music(commands.GroupCog, name="music"):
     #/volume
     @app_commands.command(name="volume",description="Changes the playback's volume from 0 - 1000")
     async def volume(self, interaction: discord.Interaction,volume: app_commands.Range[int,0,1000]):
-        if not interaction.guild.voice_client:
-            await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯")
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         else:
             node = wavelink.NodePool.get_node()
             player = node.get_player(interaction.guild_id)
@@ -458,8 +480,8 @@ class music(commands.GroupCog, name="music"):
     #/queue
     @app_commands.command(name="queue",description="| Music | Shows all the songs in the current queue")
     async def queue(self, interaction: discord.Interaction):
-        if not interaction.guild.voice_client:
-            await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯")
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         else:
             node = wavelink.NodePool.get_node()
             player = node.get_player(interaction.guild_id)
@@ -501,6 +523,13 @@ class music(commands.GroupCog, name="music"):
             await ctx.response.send_message("Okay! Stopped the current playback!")
 
 async def setup(bot: commands.Bot) -> None:
+    if settings.music.autostart_lavalink:
+        import subprocess
+        print("Starting Lavalink!")
+        subprocess.Popen(["java","-jar","Lavalink.jar"],stdin=subprocess.PIPE,cwd="./Lavalink/")
+        time.sleep(4)
+
     node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password='dummythicc')
     await wavelink.NodePool.connect(client=bot, nodes=[node],spotify=sc)
+    print("Music was loaded!")
     await bot.add_cog(music(bot))
