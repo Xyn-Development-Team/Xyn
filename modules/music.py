@@ -151,11 +151,14 @@ class music(commands.GroupCog, name="music"):
         class PlayerView(discord.ui.View):
             def __init__(self):
                 super().__init__()
-                self.timeout = 20
+                self.timeout = 60
                 
                 self.update_player.start()
                 global song
                 song = player.current
+            
+            async def on_timeout(self):
+                return await interaction.message.delete()
             
             @discord.ui.button(emoji="⏪",custom_id="player_rewind_button")
             async def rewind_callback(self, interaction:discord.Interaction, button:discord.Button):
