@@ -438,18 +438,18 @@ class music(commands.GroupCog, name="music"):
         except:
             await interaction.followup.send(embed=discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_author(name="Now playing:"))
 
-    #/stealth_skip
-    @app_commands.command(name="stealth_skip",description="| Music / Debugging | Skips to the next song on the queue without replacing it")
-    async def stealth_skip(self, interaction: discord.Interaction):
-        await interaction.response.defer(thinking=True)
-        node = wavelink.NodePool.get_node()
-        player = node.get_player(interaction.guild_id)
-        previous_song = player.current
+    # #/stealth_skip
+    # @app_commands.command(name="stealth_skip",description="| Music / Debugging | Skips to the next song on the queue without replacing it")
+    # async def stealth_skip(self, interaction: discord.Interaction):
+    #     await interaction.response.defer(thinking=True)
+    #     node = wavelink.NodePool.get_node()
+    #     player = node.get_player(interaction.guild_id)
+    #     previous_song = player.current
 
-        await player.seek(player.current.duration)
+    #     await player.seek(player.current.duration)
 
-        next_song = player.queue[player.queue.find_position(player.current)+1]
-        await interaction.followup.send(embed=discord.Embed(title=f"**{next_song.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped without replacing (Stealth)!",url=next_song.uri).set_thumbnail(url=str(pytube.YouTube(next_song.uri).thumbnail_url)).set_author(name="Now playing:"))
+    #     next_song = player.queue[player.queue.find_position(player.current)+1]
+    #     await interaction.followup.send(embed=discord.Embed(title=f"**{next_song.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped without replacing (Stealth)!",url=next_song.uri).set_thumbnail(url=str(pytube.YouTube(next_song.uri).thumbnail_url)).set_author(name="Now playing:"))
 
     #/rewind
     @app_commands.command(name="rewind",description="| Music | Goes to the previous song in the queue")
