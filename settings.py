@@ -1,5 +1,8 @@
 #In which mode should Xyn run?
-mode = "Retail" #Retail, Development
+mode = "Development" #Retail, Development
+
+#Should the logo in the CLI Terminal appear?
+logo = True
 
 #Here you can enable/disable all of Xyn's addons, and maybe even add a couple of your own? >.o
 modules = {
@@ -9,7 +12,12 @@ modules = {
     "moderation":True,
     "osu":True,
     "about":True,
+    "analytics":True
     }
+
+class music:
+    max_rewind = 5 #How many songs that have to play before Xyn starts to wipe the list (Default is 5)
+    autostart_lavalink = False #This starts Lavalink alongside Xyn, whenever the music module is enabled, this **will** unite both outputs into a single terminal!
 
 #Here you may fill this with details about this deployment of Xyn
 class deploy:
@@ -40,4 +48,4 @@ class deploy:
 
                "Lead Branding/Design":"Moonlight Dorkreamer 🌓",
                
-               }
+               }#"Beta testers":"Moonlight Dorkreamer 🌓, Nyx_Chan, Tal o Maculado (Tô suave), SK Dino, Haru 乄, "}
