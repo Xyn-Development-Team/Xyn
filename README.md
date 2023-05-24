@@ -58,7 +58,7 @@ YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to ad
 ### Moderation:
 - /confessions_reset | Reset's the confession counter for the current guild. [Manage Messages Permission necessary]
 - /purge {amount} | Deletes a specified amount of messages from 1 - 100
-
+- /blacklist {add/remove/clear} {word} {regex:yes/no}| Adds or removes a word from the blacklist, not letting people say certain word.
 
 ### About:
 - /permissions | Explain why Xyn needs all of it's permissions, fully configurable through the settings.
