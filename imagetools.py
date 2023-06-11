@@ -129,8 +129,38 @@ def rip(id,username:str,description:str,pfp):
     #Fixes the lack of color in the image after pasting the embossed text
     tombstone = ImageEnhance.Contrast(tombstone).enhance(2)
     
-    tombstone.save(f"./temp/{id} {time.strftime('%H %M %S rip')}.png") 
-    return f"./temp/{id} {time.strftime('%H %M %S rip')}.png"
+    filename = f"./temp/{id} {time.strftime('%H %M %S rip')}.png"
+    tombstone.save(filename) 
+    return filename
+
+def get_accent_color(image):
+    # Load the image
+    image = get_image(image)
+
+    # Resize the image to a smaller size for faster processing
+    image = image.resize((100, 100))
+
+    # Get the RGB values of all pixels in the resized image
+    rgb_values = list(image.getdata())
+
+    # Count the occurrence of each RGB value
+    color_counts = {}
+    for rgb in rgb_values:
+        if rgb in color_counts:
+            color_counts[rgb] += 1
+        else:
+            color_counts[rgb] = 1
+
+    # Sort the RGB values based on their occurrence (descending order)
+    sorted_colors = sorted(color_counts, key=color_counts.get, reverse=True)
+
+    # Get the RGB values of the most dominant color
+    dominant_color = sorted_colors[0]
+
+    # Convert the RGB values to hexadecimal color code
+    hex_color = '#{:02x}{:02x}{:02x}'.format(*dominant_color)
+
+    return hex_color
 
 def draw_text_with_soft_shadow(image, position=(0,0,0), text="", font=ImageFont, text_color=(0,0,0), shadow_color=(0,0,0,128), shadow_offset=(0,10)):
     # Create images for shadow and text
@@ -160,8 +190,9 @@ def achievement(id,name:str,description:str,platform:str,image):
         draw = ImageDraw.Draw(bg)
         draw.text([425,200],f"{random.randint(0,999)}G - {name}",font=font)
 
-        bg.save(f"./temp/{id} {time.strftime('%H %M %S Xbox360 Achievement')}.png")
-        return f"./temp/{id} {time.strftime('%H %M %S Xbox360 Achievement')}.png"
+        filename = f"./temp/{id} {time.strftime('%H %M %S Xbox360 Achievement')}.png"
+        bg.save(filename)
+        return filename
 
     def steam(image,name,description):
         image = get_image(image,True,[400,400])
@@ -184,8 +215,9 @@ def achievement(id,name:str,description:str,platform:str,image):
         final_image.paste(image,[40,70])
         final_image.paste(bg,mask=bg)
 
-        final_image.save(f"./temp/{id} {time.strftime('%H %M %S Steam Achievement')}.png")
-        return f"./temp/{id} {time.strftime('%H %M %S Steam Achievement')}.png"
+        filename = f"./temp/{id} {time.strftime('%H %M %S Steam Achievement')}.png"
+        final_image.save(filename)
+        return filename
 
     def playstation5(image,name,*args,**kwargs):
         trophy = Image.open(f"./assets/{random.choice(random.sample(['Bronze','Silver','Gold','Platinum'],3))}Trophy.png").resize([150,180])
@@ -204,8 +236,9 @@ def achievement(id,name:str,description:str,platform:str,image):
 
         draw.text([1000,200],name,font=name_font)
         
-        bg.save(f"./temp/{id} {time.strftime(f'%h %M %S PS5Trophy')}.png")
-        return f"./temp/{id} {time.strftime(f'%h %M %S PS5Trophy')}.png"
+        filename = f"./temp/{id} {time.strftime(f'%h %M %S PS5Trophy')}.png"
+        bg.save(filename)
+        return filename
 
     def playstation4(image,name,*args,**kwargs):
         trophy = Image.open(f"./assets/{random.choice(random.sample(['Bronze','Silver','Gold','Platinum'],3))}Trophy.png").resize([70,80])
@@ -224,8 +257,9 @@ def achievement(id,name:str,description:str,platform:str,image):
 
         draw.text([640,250],name,font=name_font,fill="black")
         
-        bg.save(f"./temp/{id} {time.strftime(f'%h %M %S PS4Trophy')}.png")
-        return f"./temp/{id} {time.strftime(f'%h %M %S PS4Trophy')}.png"
+        filename = f"./temp/{id} {time.strftime(f'%h %M %S PS4Trophy')}.png"
+        bg.save(filename)
+        return filename
 
     def playstation3(image,name,*args,**kwargs):
         trophy = Image.open(f"./assets/{random.choice(random.sample(['Bronze','Silver','Gold','Platinum'],3))}Trophy.png").resize([70,80])
@@ -240,10 +274,11 @@ def achievement(id,name:str,description:str,platform:str,image):
         bg.paste(trophy,[400,470],trophy)
 
         name_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Medium.ttf",71)
-        draw_text_with_soft_shadow(bg,(470,460),name,name_font,text_color=(255,255,255),shadow_color=(0,0,0,128),shadow_offset=(0,8)).show()
+        bg = draw_text_with_soft_shadow(bg,(470,460),name,name_font,text_color=(255,255,255),shadow_color=(0,0,0,128),shadow_offset=(0,8))
         
-        bg.save(f"./temp/{id} {time.strftime(f'%h %M %S PS3Trophy')}.png")
-        return f"./temp/{id} {time.strftime(f'%h %M %S PS3Trophy')}.png"
+        filename = f"./temp/{id} {time.strftime(f'%h %M PS3Trophy')}.png"
+        bg.save(filename)
+        return filename
 
     def osu(image,name,description):
         image = get_image(image,True,[200,200])
@@ -266,8 +301,9 @@ def achievement(id,name:str,description:str,platform:str,image):
         final_image.paste(image,[730,250])
         final_image.paste(badge_bg,[0,0],mask=badge_bg)
 
-        final_image.save(f"./temp/{id} {time.strftime('%H %M %S osu!medal')}.png")
-        return f"./temp/{id} {time.strftime('%H %M %S osu!medal')}.png"
+        filename = f"./temp/{id} {time.strftime('%H %M %S osu!medal')}.png"
+        final_image.save(filename)
+        return filename
 
     platforms = {
         "Xbox360":xbox360,
@@ -305,8 +341,9 @@ def quote(id,username:str,quote:str,pfp):
     font2 = ImageFont.truetype(r'./assets/fonts/Roboto-Regular.ttf', 30)
     draw_center_text(bg,[1550,800],f"- {username}, {time.strftime('%Y')}",font2)
 
-    bg.save(f"./temp/{id} {time.strftime('%H %M %S quote')}.png")
-    return f"./temp/{id} {time.strftime('%H %M %S quote')}.png"
+    filename = f"./temp/{id} {time.strftime('%H %M %S quote')}.png"
+    bg.save(filename)
+    return filename
 
 
 if __name__ == "__main__":
