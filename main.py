@@ -1,19 +1,20 @@
-import discord
-from discord.ext import commands
-from colorama import Back, Fore, Style
-import time
-import platform
-from dotenv import load_dotenv ; load_dotenv()
-from os import getenv, makedirs, path, getcwd
-import settings
 import asyncio
+import inspect
+import platform
+import time
+from os import getcwd, getenv, makedirs, path
 
 import discord
+from colorama import Back, Fore, Style
 from discord.ext import commands
-import inspect
+
+from dotenv import load_dotenv ; load_dotenv()
+
+import settings
 
 
 class Bot(commands.Bot):
+    """Initializes the bot and it's modules, as well as the error handler"""
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('>.<'), intents=discord.Intents().all())
 
@@ -31,32 +32,34 @@ class Bot(commands.Bot):
             if isinstance(error.original, AttributeError):
                 if not path.isdir("./logs"):
                     makedirs("./logs")
-                try:
-                    await interaction.response.send_message(f"An uncaught `AttributeError` has occurred, this occurrence has been automatically reported to your maintainer!\nHere's the log:\n```{log}```")
-                except discord.errors.InteractionResponded:
-                    await interaction.followup.send(f"An uncaught `AttributeError` has occurred, this occurrence has been automatically reported to your maintainer!\nHere's the log:\n```{log}```")
-                logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H-%M-%S UTC')}.txt","w")
+                await interaction.response.send_message(f"An uncaught error has occurred, this occurrence has been automatically reported to your maintainer!\nHere's the log:\n```{log}```")
+                logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H-%M-%S UTC')}.txt","w",encoding="utf-8")
                 print(log,file=logger)
                 logger.close()
             
+            elif isinstance(error.original, discord.errors.InteractionResponded):
+                print(f"Interaction already acknowledged, {interaction.command.module}.{interaction.command.name}")
+
             elif isinstance(error.original, discord.app_commands.MissingPermissions):
-                await interaction.response.send_message("You don't have permission to run that command!",ephemeral=True)
+                try:
+                    await interaction.response.send_message("You don't have permission to run that command!",ephemeral=True)
+                except discord.errors.InteractionResponded:
+                    await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
             
             elif isinstance(error.original, discord.app_commands.BotMissingPermissions):
-                await interaction.response.send_message("I don't have permission to do that!",ephemeral=True)
+                try:
+                    await interaction.response.send_message("I don't have permission to do that!",ephemeral=True)
+                except discord.errors.InteractionResponded:
+                    await interaction.channel.send("I don't have permission to do that!",ephemeral=True)
             
             elif isinstance(error.original, discord.app_commands.MissingPermissions):
-                await interaction.response.send_message("You don't have permission to run that command!",ephemeral=True)
-
-            elif isinstance(error.original, discord.errors.InteractionResponded):
-                pass
-
-            else:
                 try:
-                    await interaction.response.send_message(f"An uncaught exception has occurred, this occurrence has been automatically reported to your maintainer!:\nHere's the log:\n```{log}```")
+                    await interaction.response.send_message("You don't have permission to run that command!",ephemeral=True)
                 except discord.errors.InteractionResponded:
-                    await interaction.followup.send(f"An uncaught exception has occurred, this occurrence has been automatically reported to your maintainer!:\nHere's the log:\n```{log}```")
-                logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H:%M:%S UTC')}.txt","w")
+                    await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
+            else:
+                await interaction.response.send_message(f"An uncaught exception has occurred, this occurrence has been automatically reported to your maintainer!:\nHere's the log:\n```{log}```")
+                logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H:%M:%S UTC')}.txt","w",encoding="utf-8")
                 print(log,file=logger)
                 logger.close()
 
@@ -67,7 +70,7 @@ class Bot(commands.Bot):
         await self.tree.sync()        
 
     async def on_ready(self):
-        #Status task, updates the bot's status every minute
+        #Status task, updates the bot's presence every minute
         async def status_task(self):
             while True:
                 await self.change_presence(activity=discord.Activity(type=discord.ActivityType.streaming,name="past you nerds!",url="https://www.youtube.com/watch?v=HZCKddHYgPM"))
@@ -81,8 +84,6 @@ class Bot(commands.Bot):
         print(prfx + " Bot ID " + Fore.YELLOW + str(self.user.id))
         print(prfx + " Discord.py Version " + Fore.CYAN + discord.__version__)
         print(prfx + " Python Version " + Fore.YELLOW + str(platform.python_version()) + Fore.WHITE)
-
-
 
 bot = Bot()
 if settings.mode.lower() == "retail":
