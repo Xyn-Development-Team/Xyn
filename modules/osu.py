@@ -14,6 +14,7 @@ import requests
 
 import pycountry
 import re
+import imagetools
 
 #Sets the credential to the API
 api = Ossapi(getenv('osu_client_id'), getenv('osu_client_secret'))
@@ -41,6 +42,7 @@ def get_flag(name:str=None,language:str=None,code:str=None):
     #Here's any other necessary modifications to adapt to Discord's emoji naming scheme!
     flag = re.sub("en","us",flag)
     flag = re.sub("uk","gb",flag)
+    flag = re.sub("zh","cn",flag)
     return flag
 
 
@@ -72,8 +74,11 @@ class osu(commands.GroupCog, name="osu"):
     @app_commands.command(name="recent",description="Shows the most recent plays of an user!")
     @app_commands.describe(user="Who do you want to check? You can use either usernames or ID's!")
     async def recent(self, interaction: discord.Interaction, user:str,mode:Optional[Literal["osu!","osu!taiko","osu!catch","osu!mania"]]):        
-        await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  osu!xyn is thinking...",silent=True)
-        webhook = await osu_webhook(interaction)
+        if interaction.guild:
+            await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  osu!xyn is thinking...",silent=True)
+            webhook = await osu_webhook(interaction)
+        else:
+            await interaction.response.defer(thinking=True)
 
         user = api.user(user)
         if not mode:
@@ -91,64 +96,76 @@ class osu(commands.GroupCog, name="osu"):
         for s in range(len(scores)):
             language = scores[s].beatmap.beatmapset().language["name"]
             flag = get_flag(language=language)
-            embed.add_field(name=f"{flag} {scores[s].beatmap.beatmapset().title} ({scores[s].beatmap.version}) * [{scores[s].beatmap.difficulty_rating}⭐]",value=f"{'{:,.0f}'.format(scores[s].score)} / {0 if not scores[s].pp else scores[s].pp}pp / {round(scores[s].accuracy * 100, 2) / 1}%",inline=False)
+            embed.add_field(name=f"{flag} {scores[s].beatmap.beatmapset().title} ({scores[s].beatmap.version}) * [{scores[s].beatmap.difficulty_rating}⭐]",value=f"{'{:,.0f}'.format(scores[s].score)} / {0 if not scores[s].pp else scores[s].pp}pp / {round(scores[s].accuracy * 100, 2) / 1}% {'' if  str(scores[s].mods) == 'NM' else scores[s].mods}",inline=False)
 
         #message = await interaction.followup.send(f"{interaction.user.name} used /osu recent",silent=True)
-        await interaction.delete_original_response()
-        
-        await webhook.send(embed=embed)
+        if interaction.guild:
+            await interaction.delete_original_response()
+            await webhook.send(embed=embed)
+        else:
+            await interaction.followup.send(embed=embed)
 
     #/background
     @app_commands.command(name="background",description="Shows a random seasonal background from osu!")
     async def seasonal_background(self, interaction: discord.Interaction):
-        webhook = osu_webhook(interaction)
-        await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  {webhook.name} is thinking...",silent=True)
+        if interaction.guild:
+            webhook = await osu_webhook(interaction)
+            await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  {webhook.name} is thinking...",silent=True)
+        else:
+            await interaction.response.defer(thinking=True)
         
         backgrounds = api.seasonal_backgrounds()
         
-        await interaction.delete_original_response()
-        await webhook.send(random.choice(backgrounds.backgrounds).url)
-    
+        if interaction.guild:
+            await interaction.delete_original_response()
+            await webhook.send(random.choice(backgrounds.backgrounds).url)
+        else:
+            await interaction.followup.send(random.choice(backgrounds.backgrounds).url)
+
     #/profile
     @app_commands.command(name="profile",description="Shows the specified user's osu!profile page!")
     @app_commands.describe(user="Who do you want to check? You can use either usernames or ID's!")
     async def profile(self,interaction: discord.Interaction, user:str):
-        webhook = await osu_webhook(interaction)
-        await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  {webhook.name} is thinking...",silent=True)
+        if interaction.guild:
+            webhook = await osu_webhook(interaction)
+            await interaction.response.send_message(f"<a:osuxynloading:1103271887158640651>  {webhook.name} is thinking...",silent=True)
+        else:
+            await interaction.response.defer(thinking=True)
         
         user = api.user(user)
+
+        if not user.profile_colour:
+            accent_color = imagetools.get_accent_color(image=user.avatar_url)
+        else:
+            accent_color = user.profile_colour
         
-        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}{':robot:' if user.is_bot else ''} {':crown:' if user.is_admin else ''} {':x:' if user.is_deleted else ''} {user.username} {':green_circle:' if user.is_online else ':red_circle:'}").set_thumbnail(url=user.avatar_url).set_image(url=user.cover_url)
-            
-        embed.add_field(name="Followers:",value=user.follower_count)
-   
-        if user.rank_history:
-            embed.add_field(name="Rank:",value=f"{user.rank_history.data[-1]}")
+        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}{':robot:' if user.is_bot else ''} {':crown:' if user.is_admin else ''} {':x:' if user.is_deleted else ''} {user.username} {':green_circle:' if user.is_online else ':red_circle:'}",color=discord.Color.from_str(accent_color)).set_thumbnail(url=user.avatar_url).set_image(url=user.cover_url)
 
-        if user.playmode:
-            embed.add_field(name="Playmode:",value=f"[{user.playmode}]({osu_wiki_urls.gamemodes[user.playmode]})")
+        fields = {
+            "Followers:": '{:,}'.format(user.follower_count),
+            "Rank:": f"# {'{:,}'.format(user.rank_history.data[-1])}" if user.rank_history else None,
+            "Playmode:": f"[{user.playmode}]({osu_wiki_urls.gamemodes[user.playmode]})" if user.playmode else None,
+            "Playstyle:": re.sub("\|", ", ", str(user.playstyle.name).title()) if user.playstyle else None,
+            "Location": user.location,
+            "Occupation": user.occupation,
+            "Interests": user.interests,
+            "Twitter": f"[@{user.twitter}](https://twitter.com/{user.twitter})" if user.twitter else None,
+            "Discord": f"[{user.discord}](https://discord.com/users/{user.discord})" if user.discord else None
+        }
 
-        if user.playstyle:
-            embed.add_field(name="Playstyle:",value=re.sub("\|",", ",str(user.playstyle.name).title()))
+        for name, value in fields.items():
+            if value:
+                if value != "None":
+                    embed.add_field(name=name, value=value)
 
-        if user.location:
-            embed.add_field(name="Location",value=user.location)
-        
-        if user.occupation:
-            embed.add_field(name="Occupation",value=user.occupation)
 
-        if user.interests:
-            embed.add_field(name="Interests",value=user.interests)
-
-        if user.twitter:
-            embed.add_field(name="Twitter",value=f"[@{user.twitter}](https://twitter.com/{user.twitter})")
-        
-        if user.discord:
-            embed.add_field(name="Discord",value=f"[{user.discord}](https://discord.com/users/{user.discord})")
-
-        await interaction.delete_original_response()
-        await webhook.send(embed=embed)
+        if interaction.guild:
+            await interaction.delete_original_response()
+            await webhook.send(embed=embed)
+        else:
+            await interaction.followup.send(embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:
+    print("osu! was loaded!")
     await bot.add_cog(osu(bot))
