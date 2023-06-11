@@ -60,38 +60,42 @@ class fun(commands.GroupCog, name="fun"):
         await interaction.followup.send(file=discord.File(image))
         os.remove(image)
 
-    #/animequote
-    @app_commands.command(name="animequote",description="| Fun | Gets a random quote from a random anime")
-    async def animequote(self, ctx:discord.Interaction):
-        r = requests.get("https://animechan.vercel.app/api/random")
-        content = r.json()
-        anime = content["anime"]
-        character = content["character"]
-        quote = content["quote"]
+    #This API was suspended, temporarily disabling this until new solution is implemented
+    # #/animequote
+    # @app_commands.command(name="animequote",description="| Fun | Gets a random quote from a random anime")
+    # async def animequote(self, ctx:discord.Interaction):
+    #     r = requests.get("https://animechan.vercel.app/api/random")
+    #     content = r.json()
+    #     anime = content["anime"]
+    #     character = content["character"]
+    #     quote = content["quote"]
 
-        emb = discord.Embed(title=f"{anime}",description=f"From: {character}")
-        emb.add_field(name="Says:",value=f"\"{quote}\"")
+    #     emb = discord.Embed(title=f"{anime}",description=f"From: {character}")
+    #     emb.add_field(name="Says:",value=f"\"{quote}\"")
 
-        foldername = str(time.strftime('%H')) + str(time.strftime('%M')) + str(time.strftime('%S'))
-        await ctx.response.defer(ephemeral=False,thinking=True)
-        try:
-            google_Crawler = GoogleImageCrawler(storage = {'root_dir': rf'{foldername}'})
-            photo = google_Crawler.crawl(keyword = f"{character} {anime}", max_num = 1)
-            try:
-                photo = discord.File(f"./{foldername}/000001.png",filename="000001.png")
-                emb.set_thumbnail(url=f"attachment://000001.png")
-            except:
-                photo = discord.File(f"./{foldername}/000001.jpg",filename="000001.jpg")
-                emb.set_thumbnail(url=f"attachment://000001.jpg")
-        except IndexError:
-            photo = "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fcdn.onlinewebfonts.com%2Fsvg%2Fimg_355542.png&f=1&nofb=1"
-        await ctx.followup.send(file=photo,embed=emb)
-        shutil.rmtree(f"./{foldername}")
+    #     foldername = str(time.strftime('%H')) + str(time.strftime('%M')) + str(time.strftime('%S'))
+    #     await ctx.response.defer(ephemeral=False,thinking=True)
+    #     try:
+    #         google_Crawler = GoogleImageCrawler(storage = {'root_dir': rf'{foldername}'})
+    #         photo = google_Crawler.crawl(keyword = f"{character} {anime}", max_num = 1)
+    #         try:
+    #             photo = discord.File(f"./{foldername}/000001.png",filename="000001.png")
+    #             emb.set_thumbnail(url=f"attachment://000001.png")
+    #         except:
+    #             photo = discord.File(f"./{foldername}/000001.jpg",filename="000001.jpg")
+    #             emb.set_thumbnail(url=f"attachment://000001.jpg")
+    #     except IndexError:
+    #         photo = "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fcdn.onlinewebfonts.com%2Fsvg%2Fimg_355542.png&f=1&nofb=1"
+    #     await ctx.followup.send(file=photo,embed=emb)
+    #     shutil.rmtree(f"./{foldername}")
 
     #/local_persona
     @app_commands.command(name="local_persona",description="""Allows you to send a message as "another user" """)
     @app_commands.describe(user="Who do you want to impersonate?",message="""What do you want "them" to say?""")
     async def local_persona(self, interaction: discord.Interaction, user:discord.User, message:str):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+        
         await interaction.response.send_message(f"{interaction.client.user.name} is thinking...",ephemeral=True)
 
         time.sleep(0.2)
@@ -105,6 +109,9 @@ class fun(commands.GroupCog, name="fun"):
     @app_commands.command(name="persona",description="Allows you to send a message as someone completely different, with a BOT tag at the username :3")
     @app_commands.describe(username="Which username do you want to use?",pfp="Keep the file size less than 8MB, it'll use this as a profile picture",message="What do you want to say?",last_pfp="Do you want to reuse the last pfp?")
     async def persona(self, interaction: discord.Interaction, username:str, pfp:Optional[discord.Attachment],message:str,last_pfp:Literal["Yes","No"]):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+
         await interaction.response.send_message(f"{interaction.client.user.name} is thinking...",ephemeral=True)
         
         if pfp:
@@ -133,15 +140,16 @@ class fun(commands.GroupCog, name="fun"):
         jail.resize(pfp.size)
         pfp.paste(jail,mask=jail)
 
-        pfp.save(f"./temp/{user.id} {time.strftime('%H %M %S arrest')}.png")
+        filename = f"./temp/{user.id} {time.strftime('%H %M %S arrest')}.png"
+        pfp.save(filename)
         jail.close()
         pfp.close()
 
         if reason:
             await interaction.response.send_message(f"<@{interaction.user.id}> arrested <@{user.id}> for {reason}!",file=discord.File(f"./temp/{user.id} {time.strftime('%H %M %S arrest')}.png"))
         else:
-            await interaction.response.send_message(f"<@{interaction.user.id}> arrested <@{user.id}>!",file=discord.File(f"./temp/{user.id} {time.strftime('%H %M %S arrest')}.png"))
-        os.remove(f"./temp/{user.id}.png")
+            await interaction.response.send_message(f"<@{interaction.user.id}> arrested <@{user.id}>!",file=discord.File(filename))
+        os.remove(filename)
 
     #/rip
     @app_commands.command(name="rip",description="| Fun | It's dead Jim")
@@ -206,21 +214,27 @@ class fun(commands.GroupCog, name="fun"):
     #/roleplay
     @app_commands.command(name="roleplay",description="| Fun | Let's you roleplay using anime gifs")
     @app_commands.describe(action="What do you want to do?",together="With/To who do you want to do this?")
-    async def roleplay(self, ctx: discord.Interaction, action:Literal["Slap","Kiss","Hug","Sleep","Punch","Cuddle","Blush","Pat","Smug","Poke","Run","Stare"], together:discord.Member=None):
+    async def roleplay(self, interaction: discord.Interaction, action:Literal["Slap","Kiss","Hug","Sleep","Punch","Cuddle","Blush","Pat","Smug","Poke","Run","Stare"], together:discord.User=None):
         try:
             image_request = requests.get(f"https://api.otakugifs.xyz/gif?reaction={action.lower()}")
             response = image_request.json()
             image = response["url"]
         except:
             image = "https://pbs.twimg.com/media/DKs2G92X0AEjh3Z.jpg"
-        emb = discord.Embed(description=roleplay.better_roleplay(action.lower(),ctx,target=f"<@{together.id}>"))
+        if together:
+            emb = discord.Embed(description=roleplay.better_roleplay(action.lower(),interaction,target=f"<@{together.id}>"))
+        else:
+            emb = discord.Embed(description=roleplay.better_roleplay(action.lower(),interaction))
         emb.set_image(url=str(image))
-        await ctx.response.send_message(embed=emb)
+        await interaction.response.send_message(embed=emb)
 
     #/confess
     @app_commands.command(name = "confess", description = "| Fun | Let's you make a completely anonymous confession")
-    async def confess(self, interatcion: discord.Interaction):
-        await interatcion.response.send_modal(Confession())
+    async def confess(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+        await interaction.response.send_modal(Confession())
 
 async def setup(bot: commands.Bot) -> None:
+    print("Fun was loaded!")
     await bot.add_cog(fun(bot))
