@@ -32,7 +32,7 @@ def get_reddit(subreddit,count,listing,timeframe):
 class scr(commands.GroupCog, name="scraping"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        super().__init__()  # this is now required in this context.
+        super().__init__()
 
         pfp_context_menu = app_commands.ContextMenu(
             name="Get user's pfp",
@@ -62,16 +62,13 @@ class scr(commands.GroupCog, name="scraping"):
     #/pfp
     @app_commands.command(name="pfp",description="Gets a user's server pfp")
     async def get_pfp(self, interaction: discord.Interaction, user: discord.User, silent:Optional[Literal["Yes","No"]]):
-        await interaction.response.send_message(user.display_avatar.url,ephemeral=True) if silent.lower() == "yes" else await interaction.response.send_message(user.display_avatar.url)
+        await interaction.response.send_message(user.display_avatar.url,ephemeral=True) if silent and silent.lower() == "yes" else await interaction.response.send_message(user.display_avatar.url)
 
     #/banner
     @app_commands.command(name="banner",description="Gets a user's server banner")
     async def get_banner(self, interaction: discord.Interaction, user: discord.User, silent:Optional[Literal["Yes","No"]]):
         user = await self.bot.fetch_user(user.id)
-        if silent:
-            await interaction.response.send_message(user.banner.url,ephemeral=True) if silent.lower() == "yes" else await interaction.response.send_message(user.banner.url)
-        else:
-            await interaction.response.send_message(user.banner.url)
+        await interaction.response.send_message(user.banner.url,ephemeral=True) if silent and silent.lower() == "yes" else await interaction.response.send_message(user.banner.url)
 
     #/reddit
     @app_commands.command(name="reddit",description="| Scraping | Gets a random post from a subreddit")
@@ -106,7 +103,7 @@ class scr(commands.GroupCog, name="scraping"):
             exclude_tags = None
             exclude_tags_string = ""
         if safe_mode == "No":
-            if not channel.is_nsfw():
+            if interaction.guild and not channel.is_nsfw():
                 await interaction.followup.send("The Safe Mode can only be turned off in a NSFW channel!")
             else:
                 result = await gelbooru.search_posts(tags=tags,exclude_tags=exclude_tags_string)
@@ -168,4 +165,5 @@ class scr(commands.GroupCog, name="scraping"):
             return
 
 async def setup(bot: commands.Bot) -> None:
+    print("Scraping was loaded!")
     await bot.add_cog(scr(bot))
