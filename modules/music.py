@@ -106,6 +106,8 @@ class music(commands.GroupCog, name="music"):
     #/resume
     @app_commands.command(name="resume",description="Resumes the song's playback")
     async def resume(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         if not await self.connected_channels(interaction.guild_id):
             return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         node = wavelink.NodePool.get_node()
@@ -116,6 +118,8 @@ class music(commands.GroupCog, name="music"):
     #/pause
     @app_commands.command(name="pause",description="Pauses the song's playback")
     async def pause(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         if not await self.connected_channels(interaction.guild_id):
             return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         node = wavelink.NodePool.get_node()
@@ -141,6 +145,8 @@ class music(commands.GroupCog, name="music"):
     #/player
     @app_commands.command(name="player",description="| Music | Shows a pretty GUI player to control the current playback")
     async def player(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         #The constant defining of the node and player are in place to avoid any bugs when switching channels or similar situations
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
@@ -235,6 +241,8 @@ class music(commands.GroupCog, name="music"):
     #/karaoke
     @app_commands.command(name="karaoke",description="| Music | Muffles the vocals, so yours can shine... or rather shrill")
     async def karaoke(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
@@ -255,6 +263,8 @@ class music(commands.GroupCog, name="music"):
     #/nightcore
     @app_commands.command(name="nightcore",description="| Music | Makes everything faster and cuter... I guess?")
     async def nightcore(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
@@ -276,6 +286,8 @@ class music(commands.GroupCog, name="music"):
     @app_commands.command(name="move",description="| Music | Moves the current playback to another voice channel!")
     @app_commands.describe(voice_channel="Where do you want to move it to?")
     async def move(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         await interaction.guild.change_voice_state(channel=voice_channel,self_deaf=True)
@@ -285,6 +297,8 @@ class music(commands.GroupCog, name="music"):
     @app_commands.command(name="play",description="| Music | Searches/Plays a music URL from YouTube, YouTube Music, Spotify, SoundCloud")
     @app_commands.describe(voice_channel="Which voice channel do you want to play it, instead of your own")
     async def play(self, interaction: discord.Interaction, *, query: str, voice_channel:Optional[discord.VoiceChannel]):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         await interaction.response.defer(thinking=True)
         query = re.sub(re.escape("www."),"",query) #This avoids so many weird problems, it's unbelievable
 
@@ -428,6 +442,8 @@ class music(commands.GroupCog, name="music"):
     #/skip
     @app_commands.command(name="skip",description="| Music | Skips to the next song on the queue")
     async def skip(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         await interaction.response.defer(thinking=True)
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
@@ -457,6 +473,8 @@ class music(commands.GroupCog, name="music"):
     #/rewind
     @app_commands.command(name="rewind",description="| Music | Goes to the previous song in the queue")
     async def rewind(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         next_song = player.current
@@ -472,6 +490,8 @@ class music(commands.GroupCog, name="music"):
     #/volume
     @app_commands.command(name="volume",description="Changes the playback's volume from 0 - 1000")
     async def volume(self, interaction: discord.Interaction,volume: app_commands.Range[int,0,1000]):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         if not await self.connected_channels(interaction.guild_id):
             return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         else:
@@ -483,6 +503,8 @@ class music(commands.GroupCog, name="music"):
     #/queue
     @app_commands.command(name="queue",description="| Music | Shows all the songs in the current queue")
     async def queue(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message("This command doesn't work outside of a guild!")
         if not await self.connected_channels(interaction.guild_id):
             return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         else:
@@ -518,6 +540,8 @@ class music(commands.GroupCog, name="music"):
     #/stop
     @app_commands.command(name="stop",description="Stops the current playback, and disconnects from the voice channel")
     async def stop(self ,ctx: discord.Interaction) -> None:
+        if not ctx.guild:
+            return await ctx.response.send_message("This command doesn't work outside of a guild!")
         if not ctx.guild.voice_client:
             await ctx.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯")
         else:
