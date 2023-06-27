@@ -1,3 +1,10 @@
+class module:
+    name = "Music"
+    cog_name = "music"
+    description = "Plays music on voice channels"
+    author = "XDT (Xyn Development Team)"
+    xyn_version = "latest"
+
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -62,7 +69,7 @@ class spotipy:
         if type == spotify.SpotifySearchType.playlist:
             return spotify_client.playlist(query)["name"]
 
-class music(commands.GroupCog, name="music"):
+class music(commands.GroupCog, name=module.cog_name):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         super().__init__()  # this is now required in this context.
@@ -147,9 +154,18 @@ class music(commands.GroupCog, name="music"):
     async def player(self, interaction: discord.Interaction):
         if not interaction.guild:
             return await interaction.response.send_message("This command doesn't work outside of a guild!")
+        
         #The constant defining of the node and player are in place to avoid any bugs when switching channels or similar situations
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
+
+        idle_emb = discord.Embed(title="There's nothing playing",description="At the moment...").set_footer(text="Maybe 𝘆𝗼𝘂 can change that ;)")
+        if not player:
+            return await interaction.response.send_message(embed=idle_emb)
+        else:
+            if not player.is_playing():
+                return await interaction.response.send_message(embed=idle_emb)
+        
 
         global emb
         emb = discord.Embed(title=f"{player.current.title}",url=player.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(player.current.uri).thumbnail_url)
@@ -326,14 +342,17 @@ class music(commands.GroupCog, name="music"):
         if any(["music.youtube.com/playlist" in query]):
             query = re.sub(re.escape("https://music.youtube.com"),"https://youtube.com",query)
             query = re.sub(re.escape("http://music.youtube.com"),"https://youtube.com",query)
-            track = await wavelink.YouTubePlaylist.search(query)
+            search = await wavelink.YouTubePlaylist.search(query)
+            track = search[0]
             playlist = True
         elif any(["music.youtube.com" in query]):
-            track = await wavelink.YouTubeMusicTrack.search(query,return_first=True)
+            search = await wavelink.YouTubeMusicTrack.search(query)
+            track = search[0]
         
         #Set the flag for playlists if there's any YouTube playlist and searches accordingly
         elif any(["playlist?list=" in query]):
-            track = await wavelink.YouTubePlaylist.search(query)
+            search = await wavelink.YouTubePlaylist.search(query)
+            track = search[0]
             playlist = True
         
         #Set the flags for playlists/albums from Spotify to search accordingly
@@ -342,6 +361,8 @@ class music(commands.GroupCog, name="music"):
             decoded = spotify.decode_url(query)
             if decoded and decoded['type'] is spotify.SpotifySearchType.track:
                 track = await spotify.SpotifyTrack.search(query=decoded["id"], type=decoded["type"])
+                search = await wavelink.YouTubeTrack.search(f"{track[0].name} - {track[0].artists[0]}")
+                track = search[0]
                 spotify_type = spotify.SpotifySearchType.track
 
             elif decoded and decoded['type'] is spotify.SpotifySearchType.playlist:
@@ -355,14 +376,17 @@ class music(commands.GroupCog, name="music"):
         #Just any regular search that doesn't match the patterns above
         else:
             try:
-                track = await wavelink.YouTubeTrack.search(query, return_first=True) #Regular search
+                search = await wavelink.YouTubeTrack.search(query)
+                track = search[0]
             except:
                 try:
-                    track = await wavelink.YouTubeMusicTrack.search(query, return_first=True) #YT Music search
+                    search = await wavelink.YouTubeMusicTrack.search(query)
+                    track = search[0] #YT Music search
                 except (wavelink.exceptions.WavelinkException, wavelink.NoTracksError):
                     try:
                         if any(["https://youtube.com" in query]): #Check if the query is a YouTube URL
-                            track = await wavelink.YouTubeTrack.search(f"{pytube.YouTube(query).title} {pytube.YouTube(query).author}",return_first=True) #Searches using the video's title instead (solves the "Track failed to load." issue)                 
+                            search = await wavelink.YouTubeTrack.search(f"{pytube.YouTube(query).title} {pytube.YouTube(query).author}")
+                            track = search[0]
                     except wavelink.NoTracksError: #In case it's hopeless
                         return await interaction.followup.send("Unfortunately this song couldn't be found!")
 
@@ -375,7 +399,8 @@ class music(commands.GroupCog, name="music"):
                 #Iterate through the playlist/album
                 for track in await spotipy.get(type=spotify_type,query=query):
                     try:
-                        await vc.queue.put_wait(await wavelink.YouTubeTrack.search(track,return_first=True))
+                        search = await vc.queue.put_wait(await wavelink.YouTubeTrack.search(track))
+                        await vc.queue.put_wait(search[0])
                         counter+=1
                     except wavelink.NoTracksError:
                         await interaction.followup.send(f"Couldn't find {track} on YouTube!")
@@ -407,7 +432,8 @@ class music(commands.GroupCog, name="music"):
                     if counter < 1:
                         #Tries to load the first song from the list before adding anything else, avoids an unecessary delay to start playing
                         try:
-                            await vc.queue.put_wait(await wavelink.YouTubeTrack.search(track,return_first=True))
+                            search = await wavelink.YouTubeTrack.search(track)
+                            await vc.queue.put_wait(search[0])
                             await vc.play(vc.queue[0])
                             counter+=1
                         except wavelink.NoTracksError:
@@ -415,7 +441,8 @@ class music(commands.GroupCog, name="music"):
                     #For the rest of the songs...
                     else:
                         try:                
-                            await vc.queue.put_wait(await wavelink.YouTubeTrack.search(track,return_first=True))
+                            search = await wavelink.YouTubeTrack.search(track)
+                            await vc.queue.put_wait(search[0])
                             counter+=1
                         except wavelink.NoTracksError:
                             pass
