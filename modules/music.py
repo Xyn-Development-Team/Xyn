@@ -16,6 +16,7 @@ from dotenv import load_dotenv ; load_dotenv()
 import time
 import re
 
+import imagetools
 import pytube
 from pytube import Playlist
 
@@ -90,8 +91,10 @@ class music(commands.GroupCog, name=module.cog_name):
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEventPayload) -> None:
-        #REPLACED FINISHED
-        if payload.reason == "FINISHED":
+        #REPLACED / FINISHED / STOPPED
+        if payload.reason == "STOPPED":
+            return
+        elif payload.reason == "FINISHED":
             try:
                 if payload.player.queue[payload.player.queue.find_position(last_track)+1] == payload.player.current:
                     await payload.player.stop()
@@ -180,7 +183,7 @@ class music(commands.GroupCog, name=module.cog_name):
                 song = player.current
             
             async def on_timeout(self):
-                return await interaction.message.delete()
+                return await discord.Message.delete(await interaction.original_response())
             
             @discord.ui.button(emoji="⏪",custom_id="player_rewind_button")
             async def rewind_callback(self, interaction:discord.Interaction, button:discord.Button):
@@ -241,12 +244,15 @@ class music(commands.GroupCog, name=module.cog_name):
             async def update_player(self):
                 global song
                 try:
-                    if song != player.current:
-                        song = player.current
-                        emb.title = f"{song.title}" ; emb.url = song.uri
-                        emb.description = None
-                        emb.set_thumbnail(url=pytube.YouTube(song.uri).thumbnail_url)
-                        await discord.Message.edit(await interaction.original_response(),embed=emb,view=PlayerView())
+                    if player.is_playing:
+                        if song != player.current:
+                            song = player.current
+                            emb.title = f"{song.title}" ; emb.url = song.uri
+                            emb.description = None
+                            emb.set_thumbnail(url=pytube.YouTube(song.uri).thumbnail_url)
+                            await discord.Message.edit(await interaction.original_response(),embed=emb,view=PlayerView())
+                        else:
+                            pass
                     else:
                         pass
                 except NameError:
@@ -265,6 +271,7 @@ class music(commands.GroupCog, name=module.cog_name):
         if not await self.connected_channels(interaction.guild_id):
             return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
         
+        #Need some more debugguing, as it doesn't disable for some odd reason
         try:
             if "timescale" in player.filter:
                 await player.set_filter(wavelink.Filter(karaoke=wavelink.Karaoke(level=0)))
@@ -400,10 +407,11 @@ class music(commands.GroupCog, name=module.cog_name):
                 for track in await spotipy.get(type=spotify_type,query=query):
                     try:
                         search = await vc.queue.put_wait(await wavelink.YouTubeTrack.search(track))
+                        print(search)
                         await vc.queue.put_wait(search[0])
                         counter+=1
-                    except wavelink.NoTracksError:
-                        await interaction.followup.send(f"Couldn't find {track} on YouTube!")
+                    except TypeError:
+                        await interaction.followup.send(f"Couldn't find {track} on YouTube!",ephemeral=True)
                 await interaction.followup.send(embed=discord.Embed(title=f"**{counter} Songs!**",description=f"From the Spotify playlist/album:[{await spotipy.list_name(spotify_type,query)}]({query})").set_author(name="Added to queue"))
             #If it's a playlist but not a spotify one
             elif playlist and not spotify_query:
@@ -447,7 +455,7 @@ class music(commands.GroupCog, name=module.cog_name):
                         except wavelink.NoTracksError:
                             pass
                 try:
-                    await interaction.followup.send(embed=discord.Embed(title=f"**{vc.current.title}**",description=f"From the Spotify playlist/album: [{await spotipy.list_name(spotify_type,query)}]({query})",url=vc.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(vc.current.uri).thumbnail_url))
+                    await interaction.followup.send(embed=discord.Embed(title=f"**{vc.current.title}**",description=f"From the Spotify playlist/album: [{await spotipy.list_name(spotify_type,query)}]({query})",url=vc.current.uri).set_author(name="Now playing:",color=discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(vc.current.uri).thumbnail_url))).set_thumbnail(url=pytube.YouTube(vc.current.uri).thumbnail_url))
                 except:
                     await interaction.followup.send(embed=discord.Embed(title=f"**{vc.current.title}**",description=f"From the Spotify playlist/album: [{await spotipy.list_name(spotify_type,query)}]({query})",url=vc.current.uri).set_author(name="Now playing:"))
 
@@ -456,13 +464,13 @@ class music(commands.GroupCog, name=module.cog_name):
                 for track in track.tracks:
                     vc.queue.put(track)
                 await vc.play(vc.queue.get())
-                await interaction.followup.send(embed=discord.Embed(title=f"{vc.current.title}",description=f"From the playlist: **[{Playlist(query).title}]({query})**",url=vc.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(vc.current.uri).thumbnail_url))
+                await interaction.followup.send(embed=discord.Embed(title=f"{vc.current.title}",description=f"From the playlist: **[{Playlist(query).title}]({query})**",url=vc.current.uri).set_author(name="Now playing:",color=discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(vc.current.uri).thumbnail_url))).set_thumbnail(url=pytube.YouTube(vc.current.uri).thumbnail_url))
             
             #Else if it's neither a playlist nor from Spotify
             else:
                 vc.queue.put(track)
                 await vc.play(track)
-                embed = discord.Embed(title=f"**{vc.current.title}**",url=vc.current.uri).set_author(name="Now playing:")
+                embed = discord.Embed(title=f"**{vc.current.title}**",url=vc.current.uri,color=discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(vc.current.uri).thumbnail_url))).set_author(name="Now playing:")
                 embed.set_thumbnail(url=str(pytube.YouTube(vc.current.uri).thumbnail_url))
                 await interaction.followup.send(embed=embed)
 
@@ -480,7 +488,7 @@ class music(commands.GroupCog, name=module.cog_name):
         except:
             await player.play(player.queue[0],replace=True)
         try:
-            await interaction.followup.send(embed=discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Now playing:"))
+            await interaction.followup.send(embed=discord.Embed(color=discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(vc.current.uri).thumbnail_url)),title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Now playing:"))
         except:
             await interaction.followup.send(embed=discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_author(name="Now playing:"))
 
@@ -510,7 +518,7 @@ class music(commands.GroupCog, name=module.cog_name):
         except ValueError:
             return await interaction.response.send_message("Already playing the first song in the queue!")
         try:
-            await interaction.response.send_message(embed=discord.Embed(title=f"{player.current.title}",description=f"Rewinded from: [{next_song.title}]({next_song.uri})",url=player.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(player.current.uri).thumbnail_url))
+            await interaction.response.send_message(embed=discord.Embed(color=discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(vc.current.uri).thumbnail_url)),title=f"{player.current.title}",description=f"Rewinded from: [{next_song.title}]({next_song.uri})",url=player.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(player.current.uri).thumbnail_url))
         except:
             await interaction.response.send_message(embed=discord.Embed(title=f"{player.current.title}",description=f"Rewinded from: [{next_song.title}]({next_song.uri})",url=player.current.uri))
 
@@ -573,6 +581,8 @@ class music(commands.GroupCog, name=module.cog_name):
             await ctx.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯")
         else:
             vc: wavelink.Player = ctx.guild.voice_client
+            await vc.stop()
+            vc.queue.clear()
             await vc.disconnect()
             await ctx.response.send_message("Okay! Stopped the current playback!")
 
