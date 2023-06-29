@@ -183,6 +183,7 @@ class music(commands.GroupCog, name=module.cog_name):
                 song = player.current
             
             async def on_timeout(self):
+                self.update_player.cancel()
                 return await discord.Message.delete(await interaction.original_response())
             
             @discord.ui.button(emoji="⏪",custom_id="player_rewind_button")
