@@ -43,7 +43,7 @@ class Confession(discord.ui.Modal,title="Confession"):
             color=discord.Color.random(),
         )
         confessions = gs.read(interaction.guild_id,option="confessions",default=0)
-        gs.set(interaction.guild_id,option="confessions",value=int(confessions)+1)
+        gs.set(interaction.guild_id,option="confessions",value=int(confessions)+1 if confessions else 1)
         embed.title = f"Confession #{confessions+1} {self.user_title.value}"
         await interaction.channel.send(embed=embed)
         await interaction.response.send_message("Your confession has been posted successfully!",ephemeral=True)
