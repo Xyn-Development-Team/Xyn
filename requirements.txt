@@ -9,3 +9,4 @@ objdict
 colorama
 ossapi
 pycountry
+cpuinfo
