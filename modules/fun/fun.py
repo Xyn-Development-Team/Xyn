@@ -43,7 +43,7 @@ class Confession(discord.ui.Modal,title="Confession"):
             color=discord.Color.random(),
         )
         confessions = gs.read(interaction.guild_id,option="confessions",default=0)
-        gs.set(interaction.guild_id,option="confessions",value=confessions+1)
+        gs.set(interaction.guild_id,option="confessions",value=int(confessions)+1)
         embed.title = f"Confession #{confessions+1} {self.user_title.value}"
         await interaction.channel.send(embed=embed)
         await interaction.response.send_message("Your confession has been posted successfully!",ephemeral=True)
@@ -150,12 +150,13 @@ class fun(commands.GroupCog, name=module.cog_name):
     #/arrest
     @app_commands.command(name="arrest",description="Put someone in jail")
     async def arrest(self, interaction: discord.Interaction, user:discord.User, reason:Optional[str]):
+        await interaction.response.defer(thinking=True)
         await user.display_avatar.save(f"./temp/{user.id}.png")
         pfp = Image.open(f"./temp/{user.id}.png")
 
-        jail = Image.open("./assets/jail_bars.png")
+        jail = Image.open("./assets/jail_bars.png").resize([2048,2048])
 
-        jail.resize(pfp.size)
+        pfp.resize([2048,2048])
         pfp.paste(jail,mask=jail)
 
         filename = f"./temp/{user.id} {time.strftime('%H %M %S arrest')}.png"
@@ -164,9 +165,9 @@ class fun(commands.GroupCog, name=module.cog_name):
         pfp.close()
 
         if reason:
-            await interaction.response.send_message(f"<@{interaction.user.id}> arrested <@{user.id}> for {reason}!",file=discord.File(f"./temp/{user.id} {time.strftime('%H %M %S arrest')}.png"))
+            await interaction.followup.send(f"<@{interaction.user.id}> arrested <@{user.id}> for {reason}!",file=discord.File(filename))
         else:
-            await interaction.response.send_message(f"<@{interaction.user.id}> arrested <@{user.id}>!",file=discord.File(filename))
+            await interaction.followup.send(f"<@{interaction.user.id}> arrested <@{user.id}>!",file=discord.File(filename))
         os.remove(filename)
 
     #/rip
