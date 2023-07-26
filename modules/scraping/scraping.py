@@ -225,8 +225,4 @@ class scr(commands.GroupCog, name="scraping"):
 async def setup(bot: commands.Bot) -> None:
     print("Scraping was loaded!")
     await bot.add_cog(scr(bot))
-    try:
-        if settings.modules["scraping.steam"]:
-            await bot.add_cog(steam_cog(bot))
-    except KeyError:
-        print("[modules.scraping WARNING]scraping.steam wasn't added to your module settings, so it'll remain disabled!")
+    await bot.add_cog(steam_cog(bot))
