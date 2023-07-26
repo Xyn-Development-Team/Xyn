@@ -25,6 +25,8 @@ import random
 import imagetools
 import settings
 
+import modules.scraping.steam as steam
+
 #Define gelbooru with its credentials
 gelbooru = Gelbooru(os.getenv("gelbooru_api_key"), os.getenv("gelbooru_user_id"))
 
@@ -40,7 +42,6 @@ def get_reddit(subreddit,count,listing,timeframe):
 
 class steam_cog(commands.GroupCog,name="steam"):
     def __init__(self, bot: commands.Bot) -> None:
-        import modules.scraping.steam as steam
         self.bot = bot
         print("scraping.steam was loaded!")
         super().__init__()
