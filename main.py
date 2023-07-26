@@ -11,7 +11,8 @@ from discord.ext import commands
 from dotenv import load_dotenv ; load_dotenv()
 
 import settings
-
+import platform
+import cpuinfo
 
 class Bot(commands.Bot):
     """Initializes the bot and it's modules, as well as the error handler"""
@@ -32,7 +33,7 @@ class Bot(commands.Bot):
             if isinstance(error.original, AttributeError):
                 if not path.isdir("./logs"):
                     makedirs("./logs")
-                await interaction.response.send_message(f"An uncaught error has occurred, this occurrence has been automatically reported to your maintainer!\nHere's the log:\n```{log}```")
+                await interaction.channel.send(f"An uncaught error has occurred, this occurrence has been automatically reported to your maintainer!\nHere's the log:\n```{log}```")
                 logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H-%M-%S UTC')}.txt","w",encoding="utf-8")
                 print(log,file=logger)
                 logger.close()
@@ -41,33 +42,30 @@ class Bot(commands.Bot):
                 print(f"Interaction already acknowledged, {interaction.command.module}.{interaction.command.name}")
 
             elif isinstance(error.original, discord.app_commands.MissingPermissions):
-                try:
-                    await interaction.response.send_message("You don't have permission to run that command!",ephemeral=True)
-                except discord.errors.InteractionResponded:
-                    await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
+                await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
             
             elif isinstance(error.original, discord.app_commands.BotMissingPermissions):
-                try:
-                    await interaction.response.send_message("I don't have permission to do that!",ephemeral=True)
-                except discord.errors.InteractionResponded:
-                    await interaction.channel.send("I don't have permission to do that!",ephemeral=True)
+                await interaction.channel.send("I don't have permission to do that!",ephemeral=True)
             
             elif isinstance(error.original, discord.app_commands.MissingPermissions):
-                try:
-                    await interaction.response.send_message("You don't have permission to run that command!",ephemeral=True)
-                except discord.errors.InteractionResponded:
-                    await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
+                await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
             else:
-                await interaction.response.send_message(f"An uncaught exception has occurred, this occurrence has been automatically reported to your maintainer!:\nHere's the log:\n```{log}```")
+                await interaction.channel.send(f"An uncaught exception has occurred, this occurrence has been automatically reported to your maintainer!:\nHere's the log:\n```{log}```")
                 logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H:%M:%S UTC')}.txt","w",encoding="utf-8")
                 print(log,file=logger)
                 logger.close()
 
+
     async def setup_hook(self):
         for key, value in settings.modules.items():
             if value:
-                await self.load_extension(f"modules.{key}")
-        await self.tree.sync()        
+                if path.isfile(f"modules/{key}.py"):
+                    await self.load_extension(f"modules.{key}")
+                elif path.isdir(f"modules/{key}"):
+                    await self.load_extension(f"modules.{key}.{key}")
+                else:
+                    print(f"The module {key} files are missing!")
+        await self.tree.sync()       
 
     async def on_ready(self):
         #Status task, updates the bot's presence every minute
@@ -80,10 +78,14 @@ class Bot(commands.Bot):
 
         bot.loop.create_task(status_task(self))
         prfx = (Back.BLACK + Fore.MAGENTA + time.strftime("%H:%M:%S UTC", time.gmtime()) + Back.RESET + Fore.WHITE + Style.BRIGHT)
-        print(prfx + " Logged in as " + Fore.MAGENTA + self.user.name)
-        print(prfx + " Bot ID " + Fore.YELLOW + str(self.user.id))
-        print(prfx + " Discord.py Version " + Fore.CYAN + discord.__version__)
+        print(prfx + f" Logged in as {Fore.MAGENTA}{self.user.name}{Fore.RESET}")
+        print(prfx + f" Running on {Fore.GREEN}{settings.mode.lower()}{Fore.RESET} mode")
+        print(prfx + f" OS: {Fore.CYAN}{platform.platform()} / {platform.release()}{Fore.RESET}")
+        print(prfx + f" CPU: {Fore.CYAN}{cpuinfo.get_cpu_info()['brand_raw']}{Fore.RESET}")
         print(prfx + " Python Version " + Fore.YELLOW + str(platform.python_version()) + Fore.WHITE)
+        print(prfx + " Discord.py Version " + Fore.YELLOW + discord.__version__ + Fore.RESET)
+        
+
 
 bot = Bot()
 if settings.mode.lower() == "retail":
