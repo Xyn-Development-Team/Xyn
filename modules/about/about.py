@@ -14,6 +14,7 @@ from typing import Optional
 import settings
 import importlib
 import imagetools
+from os import path
 
 class about(commands.GroupCog, name=module.cog_name):
     def __init__(self, bot: commands.Bot) -> None:
@@ -36,8 +37,11 @@ class about(commands.GroupCog, name=module.cog_name):
         embed = discord.Embed(title=f"Xyn ({settings.deploy.codename})",description=f"**Maintained by:** {settings.deploy.maintainers}\n\n**Modules loaded:**",color=discord.Color.from_str(imagetools.get_accent_color(self.bot.user.display_avatar.url))).set_thumbnail(url=interaction.client.user.display_avatar.url)
         
         for key, value in settings.modules.items():
-            if value:
-                module = importlib.import_module(f"modules.{key}")
+            if value:               
+                if path.isfile(f"modules/{key}.py"):
+                    module = importlib.import_module(f"modules.{key}")
+                elif path.isdir(f"modules/{key}"):
+                    module = importlib.import_module(f"modules.{key}.{key}")
             embed.add_field(name=module.module.name,value="Enabled" if value else "Disabled")
         await interaction.response.send_message(embed=embed)
 
