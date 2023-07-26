@@ -26,7 +26,7 @@ class moderation(commands.GroupCog, name="moderation"):
             return await interaction.response.send_message("This command doesn't work outside of a guild!")
         if interaction.user.guild_permissions.manage_messages:
             gs.set(interaction.guild_id,"confessions",0)
-            interaction.response.send_message("The confessions counter has been reset to **0!**")
+            await interaction.response.send_message("The confessions counter has been reset to **0!**")
         else:
             await interaction.response.send_message(f"You don't have permission to do that!")
 
