@@ -117,7 +117,7 @@ def rip(id,username:str,description:str,pfp):
 
     #Draw the name and description
     draw_center_text(text_layer,xy=[600,140],text=username,font=name_font,fill="white",stroke_fill="black",stroke_width=3,align="center")
-    draw_center_text(text_layer,xy=[600,540],text=textwrap.fill(description,35),font=description_font,fill="white",stroke_fill="black",stroke_width=3,align="center")
+    draw_center_text(text_layer,xy=[600,540],text=textwrap.fill(description,35) if description else "",font=description_font,fill="white",stroke_fill="black",stroke_width=3,align="center")
 
     #Applies the embossed effect to the layers and paste them into the background
     
