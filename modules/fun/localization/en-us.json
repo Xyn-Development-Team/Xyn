@@ -1,0 +1,12 @@
+{"confession.modal.title":"Confession",
+"confession.modal.title_label":"Title",
+"confession.modal.confession.label":"Confession",
+"confession.modal.confession.placeholder":"Type your confession here...",
+
+"confession.embed.title":"Confession #{} {}",
+"confession.sent":"Your confession has been posted successfully!",
+
+"coinflip.heads":"Heads",
+"conflip.tails":"Tails"
+
+}

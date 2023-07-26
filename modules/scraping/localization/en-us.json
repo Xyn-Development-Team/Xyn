@@ -1,0 +1,14 @@
+{"setup.loaded":"Scraping was loaded!",
+
+"steam.game.price":"Price",
+"steam.game.developer":"Developer",
+"steam.game.publisher":"Publisher",
+"steam.game.genre":"Genre",
+"steam.game.release_date":"Release date",
+
+"banner.no_banner":"The user <@{}> doesn't have a banner",
+
+"reddit.error":"There was an error fetching a post from this subreddit, check your spelling and try again later",
+"reddit.not_found":"This subreddit wasn't found, are you sure you spelled it correctly?",
+
+"gelbooru.no_nsfw":"The safe mode can only be turned off in NSFW channels"}
