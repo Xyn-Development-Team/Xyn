@@ -9,6 +9,8 @@ import re
 import time
 import random
 
+import textwrap
+
 class effects:
     def invert(img,force=1):
         invert = ImageEnhance.Contrast().enhance(int(f"-{force}"))
@@ -79,17 +81,16 @@ def get_image(image,resize=False,size=(300,300)):
     Defines if you want to resize the image to the size contained in the next argument `size`
     ## size
     If `resize` is True, it will simply resite to this size, it's type is a `tuple!`"""
-    if image:
-        if any(["https://" in image]):
-            response = requests.get(image)
-            image = Image.open(BytesIO(response.content))
-        else:
-            image = Image.open(image)
-        image = image.convert("RGBA")
-        if resize:
-            return image.resize(size)
-        else:
-            return image
+    if any(["https://" in image]):
+        response = requests.get(image)
+        image = Image.open(BytesIO(response.content))
+    else:
+        image = Image.open(image)
+    image = image.convert("RGBA")
+    if resize:
+        return image.resize(size)
+    else:
+        return image
 
 def rip(id,username:str,description:str,pfp):
     """Generates the image of a tombstone with a pfp, name and description "engraved" in it!
@@ -116,7 +117,7 @@ def rip(id,username:str,description:str,pfp):
 
     #Draw the name and description
     draw_center_text(text_layer,xy=[600,140],text=username,font=name_font,fill="white",stroke_fill="black",stroke_width=3,align="center")
-    draw_center_text(text_layer,xy=[600,540],text=re.sub("(.{35})", "\\1-\n", description, 0, re.DOTALL),font=description_font,fill="white",stroke_fill="black",stroke_width=3,align="center")
+    draw_center_text(text_layer,xy=[600,540],text=textwrap.fill(description,35),font=description_font,fill="white",stroke_fill="black",stroke_width=3,align="center")
 
     #Applies the embossed effect to the layers and paste them into the background
     
@@ -203,14 +204,14 @@ def achievement(id,name:str,description:str,platform:str,image):
         bg = Image.open("./assets/SteamAchievement.png")
         final_image = Image.new("RGBA",[bg.width,bg.height])
         name_font = ImageFont.truetype(r"./assets/fonts/NotoSans-SemiBold.ttf",95)
-        description_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Medium.ttf",103)
+        description_font = ImageFont.truetype(r"./assets/fonts/NotoSans-Medium.ttf",72)
 
         draw = ImageDraw.Draw(bg)
 
         draw.text([480,150],name,font=name_font)
         
         if description:
-            draw.text([480,280],description,font=description_font)
+            draw.text([480,280],description,font=description_font,fill="#d3d3d3")
 
         final_image.paste(image,[40,70])
         final_image.paste(bg,mask=bg)
@@ -335,8 +336,7 @@ def quote(id,username:str,quote:str,pfp):
     bg.paste(gradient,gradient)
 
     font = ImageFont.truetype(r'./assets/fonts/Roboto-Regular.ttf', 45)
-    formatted_text = re.sub("(.{35})", "\\1-\n", quote, 0, re.DOTALL)
-    draw_center_text(bg,[1550,350],f""" "{formatted_text}" """,font)
+    draw_center_text(bg,[1550,350],f""" "{textwrap.fill(quote,35)}" """,font)
     
     font2 = ImageFont.truetype(r'./assets/fonts/Roboto-Regular.ttf', 30)
     draw_center_text(bg,[1550,800],f"- {username}, {time.strftime('%Y')}",font2)
@@ -347,4 +347,4 @@ def quote(id,username:str,quote:str,pfp):
 
 
 if __name__ == "__main__":
-    achievement(id=69,name="Missed the fucking point, UwU",description="You finally did it! Great job!",platform="playstation3",image="https://cdn.discordapp.com/avatars/1052773724501323788/4197174342e2ec66fdb47ccc2503fc1a.png?size=1024")
+    achievement(id=69,name="Missed the fucking point, UwU",description="You fucking did it, didn't you?",platform="Steam",image="https://cdn.discordapp.com/avatars/1052773724501323788/4197174342e2ec66fdb47ccc2503fc1a.png?size=1024")
