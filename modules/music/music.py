@@ -368,8 +368,9 @@ class music(commands.GroupCog, name=module.cog_name):
             spotify_query = True
             decoded = spotify.decode_url(query)
             if decoded and decoded['type'] is spotify.SpotifySearchType.track:
-                track = await spotify.SpotifyTrack.search(query=decoded["id"], type=decoded["type"])
-                search = await wavelink.YouTubeTrack.search(f"{track[0].name} - {track[0].artists[0]}")
+                track = spotipy.get(type=spotify.SpotifySearchType.track,query=query)
+                #track = await spotify.SpotifyTrack.search(query=decoded["id"]) ## Currently broken
+                search = await wavelink.YouTubeTrack.search(track)
                 track = search[0]
                 spotify_type = spotify.SpotifySearchType.track
 
