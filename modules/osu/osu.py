@@ -24,7 +24,7 @@ import re
 import imagetools
 
 #Sets the credential to the API
-api = Ossapi(getenv('osu_client_id'), getenv('osu_client_secret'))
+api = Ossapi(getenv('osu_client_id'), getenv('osu_client_secret'),domain="lazer")
 
 async def loading_emoji(interaction:discord.Interaction):
     for emoji in interaction.guild.emojis:
@@ -57,6 +57,7 @@ def get_flag(name:str=None,language:str=None,code:str=None):
     flag = re.sub("en","us",flag)
     flag = re.sub("uk","gb",flag)
     flag = re.sub("zh","cn",flag)
+    flag = re.sub("ko","kr",flag)
     return flag
 
 
@@ -93,8 +94,15 @@ class osu(commands.GroupCog, name=module.cog_name):
             webhook = await osu_webhook(interaction)
         else:
             await interaction.response.defer(thinking=True)
-
-        user = api.user(user)
+        user = api.search(user,mode="user") ; user = user.users.data[0].expand()
+        
+        if not user.profile_colour:
+            accent_color = imagetools.get_accent_color(image=user.avatar_url)
+        else:
+            accent_color = user.profile_colour
+        
+        #user = api.user(user)
+        
         if not mode:
             mode = user.playmode
             scores = api.user_scores(user,"recent",include_fails=False,limit=5)
@@ -105,7 +113,7 @@ class osu(commands.GroupCog, name=module.cog_name):
                 search_mode = re.sub("!","",mode)
             scores = api.user_scores(user,"recent",mode=search_mode,include_fails=False,limit=5)
 
-        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}: {user.username}").set_author(name=f"Recent {mode} plays from:").set_thumbnail(url=user.avatar_url)
+        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}: {user.username}",color=discord.Color.from_str(accent_color)).set_author(name=f"Recent {mode} plays from:").set_thumbnail(url=user.avatar_url)
 
         for s in range(len(scores)):
             language = scores[s].beatmap.beatmapset().language["name"]
@@ -147,7 +155,7 @@ class osu(commands.GroupCog, name=module.cog_name):
         else:
             await interaction.response.defer(thinking=True)
         
-        user = api.user(user)
+        user = api.search(user,mode="user") ; user = user.users.data[0].expand()
 
         if not user.profile_colour:
             accent_color = imagetools.get_accent_color(image=user.avatar_url)
