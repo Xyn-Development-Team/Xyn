@@ -8,7 +8,7 @@ class module:
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
-from typing import Optional
+from typing import Optional, Union
 import wavelink
 import settings
 from os import getenv
@@ -157,19 +157,21 @@ class music(commands.GroupCog, name=module.cog_name):
     async def player(self, interaction: discord.Interaction):
         if not interaction.guild:
             return await interaction.response.send_message("This command doesn't work outside of a guild!")
-        
+        await interaction.response.defer()
         #The constant defining of the node and player are in place to avoid any bugs when switching channels or similar situations
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
         idle_emb = discord.Embed(title="There's nothing playing",description="At the moment...").set_footer(text="Maybe 𝘆𝗼𝘂 can change that ;)")
         if not player:
-            return await interaction.response.send_message(embed=idle_emb)
+            return await interaction.followup.send(embed=idle_emb)
         else:
             if not player.is_playing():
-                return await interaction.response.send_message(embed=idle_emb)
+                return await interaction.followup.send(embed=idle_emb)
         global emb
-        emb = discord.Embed(title=f"{player.current.title}",url=player.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(player.current.uri).thumbnail_url)
+        global accent_color
+        accent_color = discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(player.current.uri).thumbnail_url))
+        emb = discord.Embed(title=f"{player.current.title}",url=player.current.uri,color=accent_color).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(player.current.uri).thumbnail_url)
 
         class PlayerView(discord.ui.View):
             def __init__(self):
@@ -186,6 +188,7 @@ class music(commands.GroupCog, name=module.cog_name):
             
             @discord.ui.button(emoji="⏪",custom_id="player_rewind_button")
             async def rewind_callback(self, interaction:discord.Interaction, button:discord.Button):
+                await interaction.response.defer()
                 node = wavelink.NodePool.get_node()
                 player = node.get_player(interaction.guild_id)
                 next_song = player.current
@@ -193,35 +196,46 @@ class music(commands.GroupCog, name=module.cog_name):
                     await player.play(player.queue[player.queue.find_position(player.current)-1])
                 except ValueError:
                     await interaction.channel.send("You're already playing the first song in the queue!")
-                await interaction.response.edit_message(embed=discord.Embed(title=f"{player.current.title}",description=f"Rewinded from: [{next_song.title}]({next_song.uri})",url=player.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(player.current.uri).thumbnail_url),view=self)
+                await interaction.message.edit(embed=discord.Embed(title=f"{player.current.title}",description=f"Rewinded from: [{next_song.title}]({next_song.uri})",url=player.current.uri).set_author(name="Now playing:").set_thumbnail(url=pytube.YouTube(player.current.uri).thumbnail_url),view=self)
 
             @discord.ui.button(emoji= "▶️" if player.is_paused() else "⏸️",style=discord.ButtonStyle.green if player.is_paused() else discord.ButtonStyle.secondary,custom_id="player_pause_button")
             async def play_callback(self, interaction:discord.Interaction, button:discord.Button):
+                await interaction.response.defer()
+                
                 node = wavelink.NodePool.get_node()
                 player = node.get_player(interaction.guild_id)
-                accent_color = discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(player.current.uri).thumbnail_url))
+                
                 global song
                 global emb
+                global accent_color
                 song = player.current
                 if player.is_paused():
-                    emb = discord.Embed(title=f"**{song.title}**",url=song.uri).set_thumbnail(url=str(pytube.YouTube(song.uri).thumbnail_url)).set_author(name="Now playing:")
                     await player.resume()
+                    if song != emb.title:
+                        accent_color = discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(player.current.uri).thumbnail_url))
+                    emb = discord.Embed(title=f"**{song.title}**",url=song.uri,color=accent_color).set_thumbnail(url=str(pytube.YouTube(song.uri).thumbnail_url)).set_author(name="Now playing:")
                     button.emoji = "⏸️"
                     button.style = discord.ButtonStyle.secondary
-                    await interaction.response.edit_message(embed=emb,view=self)
+                    await interaction.message.edit(embed=emb,view=self)
                 elif not player.is_paused():
-                    accent_color = discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(player.current.uri).thumbnail_url))
-                    emb = discord.Embed(title=f"**{song.title}**",url=song.uri).set_thumbnail(url=str(pytube.YouTube(song.uri).thumbnail_url)).set_author(name="Paused:")
                     await player.pause()
+                    if song != emb.title:
+                        accent_color = discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(player.current.uri).thumbnail_url))
+                    emb = discord.Embed(title=f"**{song.title}**",url=song.uri,color=accent_color).set_thumbnail(url=str(pytube.YouTube(song.uri).thumbnail_url)).set_author(name="Paused:")
                     button.emoji = "▶️"
                     button.style = discord.ButtonStyle.green
-                    await interaction.response.edit_message(embed=emb,view=self)
+                    await interaction.message.edit(embed=emb,view=self)
 
 
             @discord.ui.button(emoji="⏭️",custom_id="player_skip_button")
             async def skip_callback(self, interaction:discord.Interaction, button:discord.Button):
                 global song
                 global emb
+                global accent_color
+
+                if song != emb.title:
+                    accent_color = discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(player.current.uri).thumbnail_url))
+                await interaction.response.defer()
                 node = wavelink.NodePool.get_node()
                 player = node.get_player(interaction.guild_id)
                 previous_song = player.current
@@ -229,11 +243,12 @@ class music(commands.GroupCog, name=module.cog_name):
                     await player.play(player.queue[player.queue.find_position(player.current)+1],replace=True)
                 except:
                     await player.play(player.queue[0],replace=True)
-                emb = discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Now playing:")
-                await interaction.response.edit_message(embed=emb)
+                emb = discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri,color=accent_color).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Now playing:")
+                await interaction.message.edit(embed=emb)
 
             @discord.ui.button(emoji="⏹️",style=discord.ButtonStyle.danger,custom_id="player_stop_button")
             async def stop_callback(self, interaction:discord.Interaction, button:discord.Button):
+                await interaction.response.defer()
                 node = wavelink.NodePool.get_node()
                 player = node.get_player(interaction.guild_id)    
                 self.update_player.cancel()
@@ -251,6 +266,7 @@ class music(commands.GroupCog, name=module.cog_name):
                             emb.title = f"{song.title}" ; emb.url = song.uri
                             emb.description = None
                             emb.set_thumbnail(url=pytube.YouTube(song.uri).thumbnail_url)
+                            emb.color = discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(player.current.uri).thumbnail_url))
                             await discord.Message.edit(await interaction.original_response(),embed=emb,view=PlayerView())
                         else:
                             pass
@@ -259,7 +275,7 @@ class music(commands.GroupCog, name=module.cog_name):
                 except NameError:
                     pass
         
-        await interaction.response.send_message(embed=emb,view=PlayerView())
+        await interaction.followup.send(embed=emb,view=PlayerView())
 
     #/karaoke
     @app_commands.command(name="karaoke",description="| Music | Muffles the vocals, so yours can shine... or rather shrill")
