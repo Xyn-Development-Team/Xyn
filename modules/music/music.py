@@ -332,11 +332,21 @@ class music(commands.GroupCog, name=module.cog_name):
         player = node.get_player(interaction.guild_id)
         await interaction.guild.change_voice_state(channel=voice_channel,self_deaf=True)
         return await interaction.response.send_message(f"Moved the playback to <#{voice_channel.id}>!")
-
     #/play
     @app_commands.command(name="play",description="| Music | Searches/Plays a music URL from YouTube, YouTube Music, Spotify, SoundCloud")
     @app_commands.describe(voice_channel="Which voice channel do you want to play it, instead of your own")
-    async def play(self, interaction: discord.Interaction, *, query: str, voice_channel:Optional[discord.VoiceChannel]):
+    async def play(self, interaction: discord.Interaction, *, query:Optional[str], file:Optional[discord.Attachment], voice_channel:Optional[discord.VoiceChannel]):
+        if not query and not file:
+            return await interaction.response.send_message("You'll have to provide either a url/search to the **query** or upload an **attachment!**")
+        
+        if file:
+            supported_extensions = ['mp3', 'wav', 'ogg', 'flac', 'webm', 'mka', 'aac', 'aiff', 'mid', 'midi', 'wma']
+            file_extension = file.filename.lower().split('.')[-1]  # Get the extension from the filename
+            
+            if file_extension not in supported_extensions:
+                return await interaction.response.send_message("This format isn't supported *yet!*")
+            query = file.url
+        
         if not interaction.guild:
             return await interaction.response.send_message("This command doesn't work outside of a guild!")
         await interaction.response.defer(thinking=True)
@@ -384,7 +394,7 @@ class music(commands.GroupCog, name=module.cog_name):
             spotify_query = True
             decoded = spotify.decode_url(query)
             if decoded and decoded['type'] is spotify.SpotifySearchType.track:
-                track = spotipy.get(type=spotify.SpotifySearchType.track,query=query)
+                track = await spotipy.get(type=spotify.SpotifySearchType.track,query=query)
                 #track = await spotify.SpotifyTrack.search(query=decoded["id"]) ## Currently broken
                 search = await wavelink.YouTubeTrack.search(track)
                 track = search[0]
