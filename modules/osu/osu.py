@@ -23,8 +23,14 @@ import pycountry
 import re
 import imagetools
 
+import aiordr
+
 #Sets the credential to the API
 api = Ossapi(getenv('osu_client_id'), getenv('osu_client_secret'),domain="lazer")
+std_api = Ossapi(getenv('osu_client_id'), getenv('osu_client_secret'))
+
+#Starts the client
+ordr = aiordr.ordrClient(verification_key=getenv("ordr_api_key"))
 
 async def loading_emoji(interaction:discord.Interaction):
     for emoji in interaction.guild.emojis:
@@ -85,6 +91,42 @@ class osu(commands.GroupCog, name=module.cog_name):
         self.bot = bot
         super().__init__()  # this is now required in this context.
 
+    #/replay
+    @app_commands.command(name="replay",description="Renders a replay in mp4 using o!rdr! | This command has a 5 minute cooldown! |")
+    @discord.app_commands.checks.cooldown(1, 300)
+    @app_commands.describe(file="The .osr file for your replay!",url="A url containing your replay!",username="Your osu! username!")
+    async def replay(self, interaction: discord.Interaction, file:Optional[discord.Attachment],url:Optional[str],username:str):
+        await interaction.response.send_message(f"Your replay is being uploaded to o!rdr...")
+        if file:
+            url = file.url
+        
+        render = await ordr.create_render(
+            username=username,
+            skin="FreedomDiveBTMC",
+            replay_url=url,
+            resolution="1280x720"
+        )
+        
+        @ordr.on_render_added
+        async def on_render_added(event: aiordr.models.RenderAddEvent) -> None:
+            if event.render_id == render.render_id:
+                await interaction.edit_original_response(content="Your replay is being rendered by o!rdr\nThis may take a while...")
+        
+        # @client.on_render_progress
+        # async def on_render_progress(event: aiordr.models.RenderProgressEvent) -> None:
+        #     if event.render_id == render.render_id:
+        #         print(event)
+        
+        @ordr.on_render_fail
+        async def on_render_fail(event: aiordr.models.RenderFailEvent) -> None:
+            if event.render_id == render.render_id:
+                return await interaction.edit_original_response(content=f"Your replay could not be rendered! Here's a log of the occurrence:\n{event}")
+            
+        @ordr.on_render_finish
+        async def on_render_finish(event: aiordr.models.RenderFinishEvent) -> None:
+            if event.render_id == render.render_id:
+                return await interaction.edit_original_response(content=event.video_url)
+        
     #/recent
     @app_commands.command(name="recent",description="Shows the most recent plays of an user!")
     @app_commands.describe(user="Who do you want to check? You can use either usernames or ID's!")
@@ -156,6 +198,7 @@ class osu(commands.GroupCog, name=module.cog_name):
             await interaction.response.defer(thinking=True)
         
         user = api.search(user,mode="user") ; user = user.users.data[0].expand()
+        user_std = std_api.user(user.id)
 
         if not user.profile_colour:
             accent_color = imagetools.get_accent_color(image=user.avatar_url)
@@ -166,7 +209,7 @@ class osu(commands.GroupCog, name=module.cog_name):
 
         fields = {
             "Followers:": '{:,}'.format(user.follower_count),
-            "Rank:": f"# {'{:,}'.format(user.rank_history.data[-1])}" if user.rank_history else None,
+            "Rank:": f"**Lazer:** {'{:,}'.format(user.rank_history.data[-1])} **Standard:** {'{:,}'.format(user_std.rank_history.data[-1])}" if user.rank_history else None,
             "Playmode:": f"[{user.playmode}]({osu_wiki_urls.gamemodes[user.playmode]})" if user.playmode else None,
             "Playstyle:": re.sub("\|", ", ", str(user.playstyle.name).title()) if user.playstyle else None,
             "Location": user.location,
