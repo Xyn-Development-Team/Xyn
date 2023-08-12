@@ -31,6 +31,7 @@ YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to ad
 - /recent {user} {mode}:optional | Show's which beatmaps the user lastly played and it's scores.
 - /profile {user} | Show's an user's profile.
 - /background | Gives you a random seasonal background.
+- /osu replay {username} optional:{file} optional:{url} | Renders a replay using o!rdr (This commands has a 5 minute cooldown)
 
 
 ### Fun:
@@ -47,6 +48,7 @@ YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to ad
 - /persona {username} {message} {last_pfp} {pfp}:optional | Allows you to send a message with a custom username and profile picture, with a bot tag next to it's username.
 - /local_persona {user} | Allows you to send a message copiying the username and pfp of another user, with a little bot tag next to the username.
 - /achievement {name} {platform} {description}:optional {image}:optional {pfp}:optional | Let's you create an image of an achievement, with custom name, description and even image.
+- /uselessfacts | Sends a random useless fact.
 
 ### Scraping:
 - /reddit {subreddit} | Get's a random post from a specified subreddit.
