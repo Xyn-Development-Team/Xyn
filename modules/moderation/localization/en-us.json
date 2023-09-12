@@ -1,0 +1,12 @@
+{
+    "setup.loaded":"moderation was loaded!",
+    
+    "invalid_language":"{} is an invalid language!",
+    "language.set":"This guild's language was set to English!",
+
+    "purging":"Purging **{}** messages!",
+    "purged":"Purged **{}** messages!",
+
+    "confessions.reset":"The confession counter has been reset successfully!"
+
+}

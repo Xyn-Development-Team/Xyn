@@ -25,6 +25,9 @@ import imagetools
 
 import aiordr
 
+import xyn_locale
+import settings
+
 #Sets the credential to the API
 api = Ossapi(getenv('osu_client_id'), getenv('osu_client_secret'),domain="lazer")
 std_api = Ossapi(getenv('osu_client_id'), getenv('osu_client_secret'))
@@ -96,7 +99,12 @@ class osu(commands.GroupCog, name=module.cog_name):
     @discord.app_commands.checks.cooldown(1, 300)
     @app_commands.describe(file="The .osr file for your replay!",url="A url containing your replay!",username="Your osu! username!")
     async def replay(self, interaction: discord.Interaction, file:Optional[discord.Attachment],url:Optional[str],username:str):
-        await interaction.response.send_message(f"Your replay is being uploaded to o!rdr...")
+        if interaction.guild:
+            language = gs.read(interaction.guild_id,"language","en-us")
+        else:
+            language = interaction.locale
+
+        await interaction.response.send_message(xyn_locale.locale("replay.uploading",language))
         if file:
             url = file.url
         
@@ -110,7 +118,7 @@ class osu(commands.GroupCog, name=module.cog_name):
         @ordr.on_render_added
         async def on_render_added(event: aiordr.models.RenderAddEvent) -> None:
             if event.render_id == render.render_id:
-                await interaction.edit_original_response(content="Your replay is being rendered by o!rdr\nThis may take a while...")
+                await interaction.edit_original_response(content=xyn_locale.locale("replay.rendering",language))
         
         # @client.on_render_progress
         # async def on_render_progress(event: aiordr.models.RenderProgressEvent) -> None:
@@ -120,7 +128,7 @@ class osu(commands.GroupCog, name=module.cog_name):
         @ordr.on_render_fail
         async def on_render_fail(event: aiordr.models.RenderFailEvent) -> None:
             if event.render_id == render.render_id:
-                return await interaction.edit_original_response(content=f"Your replay could not be rendered! Here's a log of the occurrence:\n{event}")
+                return await interaction.edit_original_response(content=xyn_locale.locale("replay.error",language).format(event))
             
         @ordr.on_render_finish
         async def on_render_finish(event: aiordr.models.RenderFinishEvent) -> None:
@@ -134,7 +142,9 @@ class osu(commands.GroupCog, name=module.cog_name):
         if interaction.guild:
             await interaction.response.send_message(f"{await loading_emoji(interaction)} osu!{self.bot.user.display_name} is thinking...",silent=True)
             webhook = await osu_webhook(interaction)
+            language = gs.read(interaction.guild_id,"language","en-us")
         else:
+            language = interaction.locale
             await interaction.response.defer(thinking=True)
         user = api.search(user,mode="user") ; user = user.users.data[0].expand()
         
@@ -142,8 +152,6 @@ class osu(commands.GroupCog, name=module.cog_name):
             accent_color = imagetools.get_accent_color(image=user.avatar_url)
         else:
             accent_color = user.profile_colour
-        
-        #user = api.user(user)
         
         if not mode:
             mode = user.playmode
@@ -155,7 +163,7 @@ class osu(commands.GroupCog, name=module.cog_name):
                 search_mode = re.sub("!","",mode)
             scores = api.user_scores(user,"recent",mode=search_mode,include_fails=False,limit=5)
 
-        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}: {user.username}",color=discord.Color.from_str(accent_color)).set_author(name=f"Recent {mode} plays from:").set_thumbnail(url=user.avatar_url)
+        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}: {user.username}",color=discord.Color.from_str(accent_color)).set_author(name=xyn_locale.locale("recent_plays",language).format(mode=mode)).set_thumbnail(url=user.avatar_url)
 
         for s in range(len(scores)):
             language = scores[s].beatmap.beatmapset().language["name"]
@@ -173,10 +181,12 @@ class osu(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="background",description="Shows a random seasonal background from osu!")
     async def seasonal_background(self, interaction: discord.Interaction):
         if interaction.guild:
+            language = gs.read(interaction.guild_id,"language","en-us")
             webhook = await osu_webhook(interaction)
             await interaction.response.send_message(f"{await loading_emoji(interaction)} osu!{self.bot.user.display_name} is thinking...",silent=True)
             #await interaction.response.send_message(f"<a:https://cdn.discordapp.com/emojis/1103271887158640651.gif?v=1>  {webhook.name} is thinking...",silent=True)
         else:
+            language = interaction.locale
             await interaction.response.defer(thinking=True)
         
         backgrounds = api.seasonal_backgrounds()
@@ -192,9 +202,11 @@ class osu(commands.GroupCog, name=module.cog_name):
     @app_commands.describe(user="Who do you want to check? You can use either usernames or ID's!")
     async def profile(self,interaction: discord.Interaction, user:str):
         if interaction.guild:
+            language = gs.read(interaction.guild_id,"language","en-us")
             webhook = await osu_webhook(interaction)
             await interaction.response.send_message(f"{await loading_emoji(interaction)} osu!{self.bot.user.display_name} is thinking...",silent=True)
         else:
+            language = interaction.locale
             await interaction.response.defer(thinking=True)
         
         user = api.search(user,mode="user") ; user = user.users.data[0].expand()
@@ -208,15 +220,15 @@ class osu(commands.GroupCog, name=module.cog_name):
         embed = discord.Embed(title=f"{get_flag(code=user.country_code)}{':robot:' if user.is_bot else ''} {':crown:' if user.is_admin else ''} {':x:' if user.is_deleted else ''} {user.username} {':green_circle:' if user.is_online else ':red_circle:'}",color=discord.Color.from_str(accent_color)).set_thumbnail(url=user.avatar_url).set_image(url=user.cover_url)
 
         fields = {
-            "Followers:": '{:,}'.format(user.follower_count),
-            "Rank:": f"**Lazer:** {'{:,}'.format(user.rank_history.data[-1])} **Standard:** {'{:,}'.format(user_std.rank_history.data[-1])}" if user.rank_history else None,
-            "Playmode:": f"[{user.playmode}]({osu_wiki_urls.gamemodes[user.playmode]})" if user.playmode else None,
-            "Playstyle:": re.sub("\|", ", ", str(user.playstyle.name).title()) if user.playstyle else None,
-            "Location": user.location,
-            "Occupation": user.occupation,
-            "Interests": user.interests,
-            "Twitter": f"[@{user.twitter}](https://twitter.com/{user.twitter})" if user.twitter else None,
-            "Discord": f"[{user.discord}](https://discord.com/users/{user.discord})" if user.discord else None
+            f"{xyn_locale.locale('profile.followers',gs.read(interaction.guild_id,'language','eng'))}": '{:,}'.format(user.follower_count),
+            f"{xyn_locale.locale('profile.rank',gs.read(interaction.guild_id,'language','eng'))}": f"**Lazer:** {'{:,}'.format(user.rank_history.data[-1])} **Standard:** {'{:,}'.format(user_std.rank_history.data[-1])}" if user.rank_history else None,
+            f"{xyn_locale.locale('profile.playmode',gs.read(interaction.guild_id,'language','eng'))}": f"[{user.playmode}]({osu_wiki_urls.gamemodes[user.playmode]})" if user.playmode else None,
+            f"{xyn_locale.locale('profile.playstyle',gs.read(interaction.guild_id,'language','eng'))}": re.sub("\|", ", ", str(user.playstyle.name).title()) if user.playstyle else None,
+            f"{xyn_locale.locale('profile.location',gs.read(interaction.guild_id,'language','eng'))}": user.location,
+            f"{xyn_locale.locale('profile.occupation',gs.read(interaction.guild_id,'language','eng'))}": user.occupation,
+            f"{xyn_locale.locale('profile.interests',gs.read(interaction.guild_id,'language','eng'))}": user.interests,
+            f"{xyn_locale.locale('profile.Twitter',gs.read(interaction.guild_id,'language','eng'))}": f"[@{user.twitter}](https://twitter.com/{user.twitter})" if user.twitter else None,
+            f"{xyn_locale.locale('profile.Discord',gs.read(interaction.guild_id,'language','eng'))}": f"[{user.discord}](https://discord.com/users/{user.discord})" if user.discord else None
         }
 
         for name, value in fields.items():
@@ -233,5 +245,5 @@ class osu(commands.GroupCog, name=module.cog_name):
 
 
 async def setup(bot: commands.Bot) -> None:
-    print("osu! was loaded!")
+    print(xyn_locale.locale("setup.loaded",settings.language))
     await bot.add_cog(osu(bot))

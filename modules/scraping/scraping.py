@@ -30,6 +30,10 @@ from bs4 import BeautifulSoup
 
 import modules.scraping.steam as steam
 
+import xyn_locale
+
+import guild_settings as gs
+
 #Define gelbooru with its credentials
 gelbooru = Gelbooru(os.getenv("gelbooru_api_key"), os.getenv("gelbooru_user_id"))
 
@@ -88,28 +92,29 @@ class steam_cog(commands.GroupCog,name="steam"):
         print("scraping.steam was loaded!")
         super().__init__()
         
+    #/steam game
     @app_commands.command(name="game",description="Shows info about a Steam game and it's price on a selected currency")
     async def game(self, interaction: discord.Interaction, name:Optional[str], app_id:Optional[int], currency:Optional[str]):
         if not name and not app_id:
-            return await interaction.response.send_message("Please specify a game!",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.locale("steam.no_game",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
 
         if currency != None and not currency in steam.currency_language_mapping:
-            return await interaction.response.send_message("Invalid currency! Please refer to the ISO-4217 currency codes\nhttps://en.wikipedia.org/wiki/ISO_4217",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.locale("steam.invalid_currency",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
   
         await interaction.response.defer(thinking=True)
         
         game = steam.game(app_id,currency,name)
         
         if not game:
-            return await interaction.followup.send("Please specify a valid game!",ephemeral=True)
+            return await interaction.followup.send(xyn_locale.locale("steam.no_game",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
         
         embed = discord.Embed(color=discord.Color.from_str(imagetools.get_accent_color(game["banner"])),title=game["title"],url=game["game_url"],description=f"{game['description']}").set_image(url=game["banner"])
         
-        fields = {"Price":game["price"],
-                  "Developer":f"[{game['developer']}]({game['developer_url']})",
-                  "Publisher":f"[{game['publisher']}]({game['publisher_url']})" if game["publisher"] != game["developer"] else None,
-                  "Genre":f"[{game['genre']}]({game['genre_url']})",
-                  "Release date":game["release_date"]
+        fields = {f"{xyn_locale.locale('steam.game.price',gs.read(interaction.guild_id,'language','en-us'))}":game["price"],
+                  f"{xyn_locale.locale('steam.game.developer',gs.read(interaction.guild_id,'language','en-us'))}":f"[{game['developer']}]({game['developer_url']})",
+                  f"{xyn_locale.locale('steam.game.publisher',gs.read(interaction.guild_id,'language','en-us'))}":f"[{game['publisher']}]({game['publisher_url']})" if game["publisher"] != game["developer"] else None,
+                  f"{xyn_locale.locale('steam.game.genre',gs.read(interaction.guild_id,'language','en-us'))}":f"[{game['genre']}]({game['genre_url']})",
+                  f"{xyn_locale.locale('steam.game.release_date',gs.read(interaction.guild_id,'language','en-us'))}":game["release_date"]
         }
         
         for name, value in fields.items():
@@ -120,15 +125,15 @@ class steam_cog(commands.GroupCog,name="steam"):
         await interaction.followup.send(embed=embed)
 
     #Unfinished
-    # @app_commands.command(name="profile",description="Shows info on a specified user")
-    # async def profile(self, interaction: discord.Interaction, id:str):
-    #     await interaction.response.defer(thinking=True)
+    @app_commands.command(name="profile",description="Shows info on a specified user")
+    async def profile(self, interaction: discord.Interaction, id:str):
+        await interaction.response.defer(thinking=True)
         
-    #     profile = steam.profile(id)
+        profile = steam.profile(id)
         
-    #     embed = discord.Embed(color=discord.Color.from_str(imagetools.get_accent_color(profile["pfp"])),title=profile["username"],description=profile["summary"]).set_thumbnail(url=profile["pfp"]).set_author(name=id,url=f"https://steamcommunity.com/id/{id}/")
+        embed = discord.Embed(color=discord.Color.from_str(imagetools.get_accent_color(profile["pfp"])),title=profile["username"],description=profile["summary"]).set_thumbnail(url=profile["pfp"]).set_author(name=id,url=f"https://steamcommunity.com/id/{id}/")
         
-    #     await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed)
 
 class scr(commands.GroupCog, name="scraping"):
     def __init__(self, bot: commands.Bot) -> None:
@@ -157,7 +162,7 @@ class scr(commands.GroupCog, name="scraping"):
         try:
             await interaction.response.send_message(user.banner.url,ephemeral=True)
         except:
-            await interaction.response.send_message(f"The user: <@{user.id}> Doesn't have a banner!",ephemeral=True)
+            await interaction.response.send_message(xyn_locale.locale("no_banner",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
 
 
     #/pfp
@@ -178,7 +183,7 @@ class scr(commands.GroupCog, name="scraping"):
         
         if safe_mode == "No":
             if interaction.guild and not interaction.channel.is_nsfw():
-                return await interaction.followup.send("The Safe Mode can only be turned off in a NSFW channel!")
+                return await interaction.followup.send(xyn_locale.locale("no_nsfw",gs.read(interaction.guild_id,"language","en-us")))
         
         subreddit = re.sub(r"r/", "", subreddit)
         try:
@@ -188,9 +193,9 @@ class scr(commands.GroupCog, name="scraping"):
                 url = random_post['url']
                 await interaction.followup.send(f'{title}\n{url}')
             else:
-                await interaction.followup.send("No suitable posts found (NSFW filtered)")
+                await interaction.followup.send(xyn_locale.locale("reddit.no_sfw",gs.read(interaction.guild_id,"language","en-us")))
         except KeyError:
-            await interaction.followup.send("The specified subreddit wasn't found, are you sure you spelled it correctly?")
+            await interaction.followup.send(xyn_locale.locale("reddit.not_found",gs.read(interaction.guild_id,"language","en-us")))
 
     #/gelbooru
     @app_commands.command(name="gelbooru",description="| Scraping | Gets a random image from the specified tags on Gelbooru")
@@ -204,12 +209,12 @@ class scr(commands.GroupCog, name="scraping"):
             tags.append("rating:general")
         else:
             if interaction.guild and not interaction.channel.is_nsfw():
-                return await interaction.followup.send("The Safe Mode can only be turned off in a NSFW channel!")
+                return await interaction.followup.send(xyn_locale.locale("no_nsfw",gs.read(interaction.guild_id,"language","en-us")))
         result = await gelbooru.search_posts(tags=tags,exclude_tags=exclude_tags if ignore_tags else None)
         result = random.choice(result)
         await interaction.followup.send(result)
 
 async def setup(bot: commands.Bot) -> None:
-    print("Scraping was loaded!")
+    print(xyn_locale.locale("setup.loaded",settings.language))
     await bot.add_cog(scr(bot))
     await bot.add_cog(steam_cog(bot))

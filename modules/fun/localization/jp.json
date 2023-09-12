@@ -1,0 +1,43 @@
+{
+  "setup.loaded": "funが読み込まれました！",
+  "confession.modal.title": "告白",
+  "confession.modal.title_label": "タイトル",
+  "confession.modal.title_placeholder": "素敵なタイトルを付けて告白してください",
+  "confession.modal.confession.label": "告白",
+  "confession.modal.confession.placeholder": "ここに告白内容を入力してください...",
+
+  "confession.embed.title": "告白 #{} {}",
+  "confession.sent": "あなたの告白が成功裏に投稿されました！",
+
+  "coinflip.heads": "表",
+  "coinflip.tails": "裏",
+
+  "persona_invalid.username": "以前のユーザー名が無効か、もう存在しません @_@\nユーザー名を入力してください！",
+  "persona_invalid.pfp": "以前のプロフィール写真が無効か、もう存在しません",
+  "persona.thinking": "{} は考え中です...",
+
+  "roleplay.actions.kiss": "<@{}> が <@{}> にキス！ <3",
+  "roleplay.actions.slap": "<@{}> が <@{}> をひっぱたいた！",
+  "roleplay.actions.punch": "<@{}> が <@{}> にパンチ！",
+  "roleplay.actions.hug": "<@{}> が <@{}> に抱きついた！ <3",
+  "roleplay.actions.sleep": "<@{}> が <@{}> と一緒に寝ています！ <3",
+  "roleplay.actions.poke": "<@{}> が <@{}> をつついています！",
+  "roleplay.actions.cuddle": "<@{}> が <@{}> とくっついています！ <3",
+  "roleplay.actions.blush": "<@{}> が <@{}> と赤面しています！ <3",
+  "roleplay.actions.pat": "<@{}> が <@{}> を撫でています！ <3",
+  "roleplay.actions.smug": "<@{}> が <@{}> と高慢そうにしています！",
+  "roleplay.actions.run": "<@{}> が <@{}> と一緒に走っています！",
+  "roleplay.actions.stare": "<@{}> が <@{}> をじっと見つめています 0_0 !",
+
+  "roleplay.solo.kiss": "<@{}> が自分自身にキスしている？？ 0_0",
+  "roleplay.solo.slap": "<@{}> が自分自身をひっぱたいています！",
+  "roleplay.solo.hug": "<@{}> が自分自身を抱きしめています @_@",
+  "roleplay.solo.sleep": "<@{}> が眠っています...",
+  "roleplay.solo.poke": "<@{}> が自分自身をつついています？？ 0_0",
+  "roleplay.solo.cuddle": "<@{}> が自分自身とくっついている？？ 0_0",
+  "roleplay.solo.blush": "<@{}> が赤面しています！ <3",
+  "roleplay.solo.pat": "<@{}> が自分自身を撫でています？？ 0_0",
+  "roleplay.solo.smug": "<@{}> が高慢そうです！",
+  "roleplay.solo.run": "<@{}> が走っています！",
+  "roleplay.solo.stare": "<@{}> がじっと見つめています..."
+}

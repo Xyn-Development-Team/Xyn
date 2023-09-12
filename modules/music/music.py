@@ -16,6 +16,9 @@ from dotenv import load_dotenv ; load_dotenv()
 import time
 import re
 
+import xyn_locale
+import guild_settings as gs
+
 import imagetools
 import pytube
 from pytube import Playlist
@@ -24,6 +27,7 @@ from wavelink.ext import spotify
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 spotify_client = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=getenv("SPOTIPY_CLIENT_ID"),client_secret=getenv("SPOTIPY_CLIENT_SECRET")))
+
 
 sc = spotify.SpotifyClient(
     client_id=getenv("SPOTIPY_CLIENT_ID"),
@@ -117,21 +121,21 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="resume",description="Resumes the song's playback")
     async def resume(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         if not await self.connected_channels(interaction.guild_id):
-            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         await player.resume()
-        await interaction.response.send_message(embed=discord.Embed(title=f"**{player.current.title}**",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Resumed playing:"))
+        await interaction.response.send_message(embed=discord.Embed(title=f"**{player.current.title}**",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name=xyn_locale.locale("resumed",gs.read(interaction.guild_id,"language","en-us"))))
 
     #/pause
     @app_commands.command(name="pause",description="Pauses the song's playback")
     async def pause(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         if not await self.connected_channels(interaction.guild_id):
-            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         await player.pause()
@@ -156,13 +160,13 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="player",description="| Music | Shows a pretty GUI player to control the current playback")
     async def player(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         await interaction.response.defer()
         #The constant defining of the node and player are in place to avoid any bugs when switching channels or similar situations
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
-        idle_emb = discord.Embed(title="There's nothing playing",description="At the moment...").set_footer(text="Maybe 𝘆𝗼𝘂 can change that ;)")
+        idle_emb = discord.Embed(title=xyn_locale.locale("nothing.embed.title",gs.read(interaction.guild_id,"language","en-us")),description="At the moment...").set_footer(text="Maybe 𝘆𝗼𝘂 can change that ;)")
         if not player:
             return await interaction.followup.send(embed=idle_emb)
         else:
@@ -243,7 +247,7 @@ class music(commands.GroupCog, name=module.cog_name):
                     await player.play(player.queue[player.queue.find_position(player.current)+1],replace=True)
                 except:
                     await player.play(player.queue[0],replace=True)
-                emb = discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri,color=accent_color).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Now playing:")
+                emb = discord.Embed(title=f"**{player.current.title}**",description=xyn_locale.locale("skipped",gs.read(interaction.guild_id,"language","en-us")).format(previous_song.title,previous_song.uri),url=player.current.uri,color=accent_color).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Now playing:")
                 await interaction.message.edit(embed=emb)
 
             @discord.ui.button(emoji="⏹️",style=discord.ButtonStyle.danger,custom_id="player_stop_button")
@@ -281,46 +285,46 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="karaoke",description="| Music | Muffles the vocals, so yours can shine... or rather shrill")
     async def karaoke(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
         if not await self.connected_channels(interaction.guild_id):
-            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
         
         #Need some more debugguing, as it doesn't disable for some odd reason
         try:
             if "timescale" in player.filter:
                 await player.set_filter(wavelink.Filter(karaoke=wavelink.Karaoke(level=0)))
-                return await interaction.response.send_message("Karaoke *Disabled!*")
+                return await interaction.response.send_message(xyn_locale.locale("karaoke.disabled",gs.read(interaction.guild_id,"language","en-us")))
             else:    
                 await player.set_filter(wavelink.Filter(karaoke=wavelink.Karaoke(level=1)))
-                return await interaction.response.send_message("**Karaoke Enabled!!**")
+                return await interaction.response.send_message(xyn_locale.locale("karaoke.enabled",gs.read(interaction.guild_id,"language","en-us")))
         except AttributeError:
             await player.set_filter(wavelink.Filter(karaoke=wavelink.Karaoke(level=1)))
-            return await interaction.response.send_message("**Karaoke Enabled!!**")
+            return await interaction.response.send_message(xyn_locale.locale("karaoke.enabled"))
 
     #/nightcore
     @app_commands.command(name="nightcore",description="| Music | Makes everything faster and cuter... I guess?")
     async def nightcore(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.loclae("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
 
         if not await self.connected_channels(interaction.guild_id):
-            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
         
         try:
             if "timescale" in player.filter:
                 await player.set_filter(wavelink.Filter(timescale=wavelink.Timescale(speed=1,pitch=1)))
-                return await interaction.response.send_message("Nightcore *Disabled!*")
+                return await interaction.response.send_message(xyn_locale.locale("nightcore.disabled",gs.read(interaction.guild_id,"language","en-us")))
             else:    
                 await player.set_filter(wavelink.Filter(timescale=wavelink.Timescale(speed=1.8,pitch=1.9)))
-                return await interaction.response.send_message("**Nightcore Enabled!!**")
+                return await interaction.response.send_message(xyn_locale.locale("nightcore.enabled",gs.read(interaction.guild_id,"language","en-us")))
         except AttributeError:
             await player.set_filter(wavelink.Filter(timescale=wavelink.Timescale(speed=1.8,pitch=1.9)))
-            return await interaction.response.send_message("**Nightcore Enabled!!**")
+            return await interaction.response.send_message(xyn_locale.locale("nightcore.enabled",gs.read(interaction.guild_id,"language","en-us")))
 
     #/move
     @app_commands.command(name="move",description="| Music | Moves the current playback to another voice channel!")
@@ -331,24 +335,25 @@ class music(commands.GroupCog, name=module.cog_name):
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         await interaction.guild.change_voice_state(channel=voice_channel,self_deaf=True)
-        return await interaction.response.send_message(f"Moved the playback to <#{voice_channel.id}>!")
+        return await interaction.response.send_message(xyn_locale.locale("moved",gs.read(interaction.guild_id,"language","en-us")).format(voice_channel.id))
+
     #/play
     @app_commands.command(name="play",description="| Music | Searches/Plays a music URL from YouTube, YouTube Music, Spotify, SoundCloud")
     @app_commands.describe(voice_channel="Which voice channel do you want to play it, instead of your own")
     async def play(self, interaction: discord.Interaction, *, query:Optional[str], file:Optional[discord.Attachment], voice_channel:Optional[discord.VoiceChannel]):
         if not query and not file:
-            return await interaction.response.send_message("You'll have to provide either a url/search to the **query** or upload an **attachment!**")
+            return await interaction.response.send_message(xyn_locale.locale("play.unspecified"))
         
         if file:
             supported_extensions = ['mp3', 'wav', 'ogg', 'flac', 'webm', 'mka', 'aac', 'aiff', 'mid', 'midi', 'wma']
             file_extension = file.filename.lower().split('.')[-1]  # Get the extension from the filename
             
             if file_extension not in supported_extensions:
-                return await interaction.response.send_message("This format isn't supported *yet!*")
+                return await interaction.response.send_message(xyn_locale.locale("formmat.unsupported",gs.read(interaction.guild_id,"language","en-us")))
             query = file.url
         
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         await interaction.response.defer(thinking=True)
         query = re.sub(re.escape("www."),"",query) #This avoids so many weird problems, it's unbelievable
 
@@ -369,7 +374,7 @@ class music(commands.GroupCog, name=module.cog_name):
                 else:
                     vc: wavelink.Player = interaction.guild.voice_client
             else:
-                return await interaction.followup.send("You're not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
+                return await interaction.followup.send(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
             vc.autoplay = False #Autoplay sucks, disable it
 
         #Format YouTube Music links to regular ones, usually avoids a ton of problems
@@ -423,7 +428,7 @@ class music(commands.GroupCog, name=module.cog_name):
                             search = await wavelink.YouTubeTrack.search(f"{pytube.YouTube(query).title} {pytube.YouTube(query).author}")
                             track = search[0]
                     except wavelink.NoTracksError: #In case it's hopeless
-                        return await interaction.followup.send("Unfortunately this song couldn't be found!")
+                        return await interaction.followup.send(xyn_locale.locale("not_found",gs.read(interaction.guild_id,"language","en-us")))
 
         #Check if there's already something playing
         if vc.is_playing():
@@ -439,7 +444,7 @@ class music(commands.GroupCog, name=module.cog_name):
                         await vc.queue.put_wait(search[0])
                         counter+=1
                     except TypeError:
-                        await interaction.followup.send(f"Couldn't find {track} on YouTube!",ephemeral=True)
+                        await interaction.followup.send(xyn_locale.locale("youtube.not_found",gs.read(interaction.guild_id,"language","en-us")).format(track),ephemeral=True)
                 await interaction.followup.send(embed=discord.Embed(title=f"**{counter} Songs!**",description=f"From the Spotify playlist/album:[{await spotipy.list_name(spotify_type,query)}]({query})").set_author(name="Added to queue"))
             #If it's a playlist but not a spotify one
             elif playlist and not spotify_query:
@@ -506,7 +511,10 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="skip",description="| Music | Skips to the next song on the queue")
     async def skip(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
+        
         await interaction.response.defer(thinking=True)
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
@@ -516,9 +524,9 @@ class music(commands.GroupCog, name=module.cog_name):
         except:
             await player.play(player.queue[0],replace=True)
         try:
-            await interaction.followup.send(embed=discord.Embed(color=discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(vc.current.uri).thumbnail_url)),title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name="Now playing:"))
+            await interaction.followup.send(embed=discord.Embed(color=discord.Color.from_str(imagetools.get_accent_color(pytube.YouTube(vc.current.uri).thumbnail_url)),title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_thumbnail(url=str(pytube.YouTube(player.current.uri).thumbnail_url)).set_author(name=xyn_locale.locale("now_playing",gs.read(interaction.guild_id,"language","en-us"))))
         except:
-            await interaction.followup.send(embed=discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_author(name="Now playing:"))
+            await interaction.followup.send(embed=discord.Embed(title=f"**{player.current.title}**",description=f"[{previous_song.title}]({previous_song.uri}) was skipped!",url=player.current.uri).set_author(name=xyn_locale.locale("now_playing",gs.read(interaction.guild_id,"language","en-us"))))
 
     # #/stealth_skip
     # @app_commands.command(name="stealth_skip",description="| Music / Debugging | Skips to the next song on the queue without replacing it")
@@ -537,7 +545,10 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="rewind",description="| Music | Goes to the previous song in the queue")
     async def rewind(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
+        if not await self.connected_channels(interaction.guild_id):
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
+        
         node = wavelink.NodePool.get_node()
         player = node.get_player(interaction.guild_id)
         next_song = player.current
@@ -554,27 +565,27 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="volume",description="Changes the playback's volume from 0 - 1000")
     async def volume(self, interaction: discord.Interaction,volume: app_commands.Range[int,0,1000]):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         if not await self.connected_channels(interaction.guild_id):
-            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
         else:
             node = wavelink.NodePool.get_node()
             player = node.get_player(interaction.guild_id)
             await player.set_volume(volume)
-            await interaction.response.send_message(f"The volume was set to {volume}%")
+            await interaction.response.send_message(xyn_locale.locale("volume",gs.read(interaction.guild_id,"language","en-us")))
 
     #/queue
     @app_commands.command(name="queue",description="| Music | Shows all the songs in the current queue")
     async def queue(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         if not await self.connected_channels(interaction.guild_id):
-            return await interaction.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯",ephemeral=True)
+            return await interaction.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
         else:
             node = wavelink.NodePool.get_node()
             player = node.get_player(interaction.guild_id)
 
-            embed=discord.Embed(title=f"Now playing:")
+            embed=discord.Embed(title=xyn_locale.locale("now_playing",gs.read(interaction.guild_id,"language","en-us")))
             embed.description = ""
 
             total_chars = 0
@@ -597,22 +608,22 @@ class music(commands.GroupCog, name=module.cog_name):
                 await interaction.response.send_message(embed=embed)
             else:
                 emb = discord.Embed(title="There's nothing playing",description="Maybe you can change that ;)")
-                emb.footer("To play a song, you can either search for it, or paste its link in the query inside the `/play` command!")
+                emb.footer(xyn_locale.locale("queue.nothing.footer",gs.read(interaction.guild_id,"language","en-us")))
                 await interaction.response.send_message(embed=emb)
 
     #/stop
     @app_commands.command(name="stop",description="Stops the current playback, and disconnects from the voice channel")
     async def stop(self ,ctx: discord.Interaction) -> None:
         if not ctx.guild:
-            return await ctx.response.send_message("This command doesn't work outside of a guild!")
+            return await ctx.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(ctx.guild_id,"language","en-us")))
         if not ctx.guild.voice_client:
-            await ctx.response.send_message("I'm not connected to any voice channels ¯\_(ツ)_/¯")
+            await ctx.response.send_message(xyn_locale.internal.locale("no_voice",gs.read(ctx.guild_id,"language","en-us")))
         else:
             vc: wavelink.Player = ctx.guild.voice_client
             await vc.stop()
             vc.queue.clear()
             await vc.disconnect()
-            await ctx.response.send_message("Okay! Stopped the current playback!")
+            await ctx.response.send_message(xyn_locale.locale("stopped",gs.read(ctx.guild_id,"language","en-us")))
 
 async def setup(bot: commands.Bot) -> None:
     if settings.music.autostart_lavalink:
@@ -621,7 +632,7 @@ async def setup(bot: commands.Bot) -> None:
         subprocess.Popen(["java","-jar","Lavalink.jar"],stdin=subprocess.PIPE,cwd="./Lavalink/")
         time.sleep(4)
 
-    node: wavelink.Node = wavelink.Node(uri='http://localhost:2333', password='dummythicc')
+    node: wavelink.Node = wavelink.Node(uri=settings.music.lavalink.uri, password=settings.music.lavalink.password)
     await wavelink.NodePool.connect(client=bot, nodes=[node],spotify=sc)
-    print("Music was loaded!")
+    print(xyn_locale.locale("setup.loaded",settings.language))
     await bot.add_cog(music(bot))

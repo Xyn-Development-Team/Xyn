@@ -1,0 +1,19 @@
+{
+    "setup.loaded": "osu! が読み込まれました！",
+        
+    "profile.followers": "フォロワー",
+    "profile.rank": "ランク",
+    "profile.playmode": "プレイモード",
+    "profile.playstyle": "プレイスタイル",
+    "profile.location": "場所",
+    "profile.occupation": "職業",
+    "profile.interests": "趣味",
+    "profile.Twitter": "Twitter",
+    "profile.Discord": "Discord",
+
+    "recent_plays": "最近の{mode}プレイ:",
+
+    "replay.uploading": "リプレイがo!rdrにアップロードされています...",
+    "replay.rendering": "リプレイがo!rdrによってレンダリングされています",
+    "replay.error": "リプレイをレンダリングできませんでした！発生のログは以下です:\n{}"
+}

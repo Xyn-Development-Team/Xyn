@@ -1,0 +1,12 @@
+{
+    "setup.loaded":"moderation foi carregado",
+
+    "invalid_language":"{} não é uma língua válida!",
+    "language.set":"O idioma desse servidor foi definido para Português Brasileiro!",
+
+    "purging":"Deletando **{}** mensagens...",
+    "purged":"**{}** mensagens foram deletadas!",
+
+    "confessions.reset":"O contador de confissões foi resetado com sucesso!"
+
+}

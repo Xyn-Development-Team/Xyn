@@ -20,20 +20,26 @@ import guild_settings as gs
 import user_settings as us
 import os
 
+import xyn_locale
+from dotenv import load_dotenv ; load_dotenv()
+from deep_translator import GoogleTranslator
+import pycountry
+import settings
+
 import imagetools
 from PIL import Image, ImageFilter, ImageFont, ImageDraw, ImageEnhance
 
 #Confession modal
 class Confession(discord.ui.Modal,title="Confession"):
     user_title = discord.ui.TextInput(
-        label="Title",
-        placeholder="Insert a nice title to your confession",
+        label=xyn_locale.locale("confession.modal.title_label"),
+        placeholder=xyn_locale.locale("confession.modal.title_placeholder"),
         max_length=40
     )
 
     confession = discord.ui.TextInput(
-        label="Confession",
-        placeholder="Type your confession here...",
+        label=xyn_locale.locale("confession.modal.confession.label"),
+        placeholder=xyn_locale.locale("confession.modal.confession.placeholder"),
         style=discord.TextStyle.long
     )
 
@@ -43,10 +49,16 @@ class Confession(discord.ui.Modal,title="Confession"):
             color=discord.Color.random(),
         )
         confessions = gs.read(interaction.guild_id,option="confessions",default=0)
-        gs.set(interaction.guild_id,option="confessions",value=int(confessions)+1 if confessions else 1)
-        embed.title = f"Confession #{confessions+1} {self.user_title.value}"
+        
+        #This should handle all known edge cases
+        try:
+            gs.set(interaction.guild_id,option="confessions",value=int(confessions)+1 if confessions else 1)
+        except TypeError:
+            gs.set(interaction.guild_id,option="confessions",value=1)
+
+        embed.title = xyn_locale.locale("confession.embed.title",gs.read(interaction.guild_id,"language","en-us")).format(confessions+1,self.user_title.value)
         await interaction.channel.send(embed=embed)
-        await interaction.response.send_message("Your confession has been posted successfully!",ephemeral=True)
+        await interaction.response.send_message(xyn_locale.locale("confession.sent",gs.read(interaction.guild_id,"language","en-us")),ephemeral=True)
 
 class fun(commands.GroupCog, name=module.cog_name):
     def __init__(self, bot: commands.Bot) -> None:
@@ -57,7 +69,14 @@ class fun(commands.GroupCog, name=module.cog_name):
             name="Quote this!",
             callback=self.quote_menu,
         )
+
+        translate_context_menu = app_commands.ContextMenu(
+            name="Translate this!",
+            callback=self.translate_menu,
+        )
+
         self.bot.tree.add_command(pfp_context_menu)
+        self.bot.tree.add_command(translate_context_menu)
     
     #Context Menu
     async def quote_menu(self, interaction: discord.Interaction, message: discord.Message):
@@ -65,11 +84,27 @@ class fun(commands.GroupCog, name=module.cog_name):
         image = imagetools.quote(message.author.id,message.author.display_name,message.content,message.author.display_avatar.url)
         await interaction.followup.send(file=discord.File(image))
         os.remove(image)
+    
+    async def translate_menu(self, interaction: discord.Interaction, message: discord.Message):
+        await interaction.response.defer(thinking=True,ephemeral=True)
+        locale = str(interaction.locale)[:-3]
+
+        await interaction.followup.send(GoogleTranslator(target=locale).translate(message.content),ephemeral=True)
 
     #/uselessfacts
-    @app_commands.command(name="uselessfacts",description="| Fun | Sends a random useless fact")
+    @app_commands.command(name="uselessfacts",description="| Fun | Sends a random useless fact",auto_locale_strings=True)
     async def uselessfacts(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f"\"{requests.get('https://useless-facts.sameerkumar.website/api').json()['data']}\"")
+        fact = f"\"{requests.get('https://useless-facts.sameerkumar.website/api').json()['data']}\""
+
+        language = gs.read(interaction.guild_id,"language","en-us").split("-")[0]
+        if language == "jp":
+            language = "ja"
+        if language == "en" or not language:
+            return await interaction.response.send_message(fact)
+
+        print("sending?")
+        await interaction.response.send_message(GoogleTranslator("en",target=language).translate(fact))
+
 
     #This API was suspended, temporarily disabling this until new solution is implemented
     # #/animequote
@@ -96,11 +131,11 @@ class fun(commands.GroupCog, name=module.cog_name):
     #     shutil.rmtree(f"./{foldername}")
 
     #/local_persona
-    @app_commands.command(name="local_persona",description="""Allows you to send a message as "another user" """)
+    @app_commands.command(name="local_persona",description="""Allows you to send a message as "another user" """,auto_locale_strings=True)
     @app_commands.describe(user="Who do you want to impersonate?",message="""What do you want "them" to say?""")
     async def local_persona(self, interaction: discord.Interaction, user:discord.User, message:str):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",gs.read(interaction.guild_id,"language","en-us")))
         
         await interaction.response.send_message(f"{interaction.client.user.name} is thinking...",ephemeral=True)
 
@@ -112,11 +147,11 @@ class fun(commands.GroupCog, name=module.cog_name):
         await webhook.delete()
 
     #/persona
-    @app_commands.command(name="persona",description="Allows you to send a message as someone completely different, with a BOT tag at the username :3")
+    @app_commands.command(name="persona",description="Allows you to send a message as someone completely different, with a BOT tag at the username :3",auto_locale_strings=True)
     @app_commands.describe(username="Which username do you want to use?",pfp="Keep the file size less than 8MB, it'll use this as a profile picture",message="What do you want to say?",last_pfp="Do you want to reuse the last pfp?")
     async def persona(self, interaction: discord.Interaction, username:Optional[str], pfp:Optional[discord.Attachment],message:str,last_pfp:Optional[Literal["Yes","No"]]):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild",lang=gs.read(interaction.guild_id,"language","en-us")))
 
         await interaction.response.send_message(f"{interaction.client.user.name} is thinking...",ephemeral=True)
         
@@ -148,7 +183,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         await webhook.delete()
 
     #/arrest
-    @app_commands.command(name="arrest",description="Put someone in jail")
+    @app_commands.command(name="arrest",description="Put someone in jail",auto_locale_strings=True)
     async def arrest(self, interaction: discord.Interaction, user:discord.User, reason:Optional[str]):
         await interaction.response.defer(thinking=True)
         await user.display_avatar.save(f"./temp/{user.id}.png")
@@ -171,7 +206,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         os.remove(filename)
 
     #/rip
-    @app_commands.command(name="rip",description="| Fun | It's dead Jim")
+    @app_commands.command(name="rip",description="| Fun | It's dead Jim",auto_locale_strings=True)
     @app_commands.describe(user="Who?",description="Ex: His last words were, I like ass, [Limited to 71 characters!]")
     async def rip(self,interaction: discord.Interaction, user:discord.User,description:Optional[app_commands.Range[str,1,71]]):
         await interaction.response.defer(thinking=True)
@@ -180,7 +215,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         os.remove(image)
 
     #/quote
-    @app_commands.command(name="quote",description="| Fun | Someone said something quite poetic, huh?")
+    @app_commands.command(name="quote",description="| Fun | Someone said something quite poetic, huh?",auto_locale_strings=True)
     @app_commands.describe(user="Who's the poetic menace?",quote="What was it?")
     async def quote(self,interaction: discord.Interaction, user:discord.User, quote:str):
         await interaction.response.defer(thinking=True)
@@ -189,7 +224,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         os.remove(image)
 
     #/achievement
-    @app_commands.command(name="achievement",description="| Fun | Someone has got an achievement, cool!")
+    @app_commands.command(name="achievement",description="| Fun | Someone has got an achievement, cool!",auto_locale_strings=True)
     @app_commands.describe(image="(Optional) What's the picture for this achievement?",pfp="(Optional) Use someone's pfp as a picture for this achievement",name="What's the name of this achievement? [Limited to 24 characters!]",description="What is this achievement about? (Only works on supported images) [Limited to 32 characters!]")
     async def achievements(self, interaction:discord.Interaction,image:Optional[discord.Attachment], pfp:Optional[discord.User], name:app_commands.Range[str,1,24], description:Optional[app_commands.Range[str,1,32]],platform:Literal["Xbox360","Playstation 5","Playstation 4", "Playstation 3", "Steam", "osu!"]):
         await interaction.response.defer(thinking=True)
@@ -202,7 +237,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         os.remove(image)
 
     #/diceroll
-    @app_commands.command(name="diceroll", description="| Fun | Rolls a dice for you")
+    @app_commands.command(name="diceroll", description="| Fun | Rolls a dice for you",auto_locale_strings=True)
     @app_commands.describe(dice="What type of dice do you want to roll?")
     async def diceroll(self, ctx: discord.Interaction, dice: Literal["D6","D20"]):
         if dice == "D6":
@@ -218,7 +253,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         await ctx.response.send_message(embed=emb)
 
     #/coinflip
-    @app_commands.command(name="coinflip",description="| Fun | Flips a coin")
+    @app_commands.command(name="coinflip",description="| Fun | Flips a coin",auto_locale_strings=True)
     async def coinflip(self, ctx: discord.Interaction):    
         result = random.randint(0,1)
         if result == 0:
@@ -234,26 +269,30 @@ class fun(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="roleplay",description="| Fun | Let's you roleplay using anime gifs")
     @app_commands.describe(action="What do you want to do?",together="With/To who do you want to do this?")
     async def roleplay(self, interaction: discord.Interaction, action:Literal["Slap","Kiss","Hug","Sleep","Punch","Cuddle","Blush","Pat","Smug","Poke","Run","Stare"], together:discord.User=None):
+        
+        #Grabs the localized string
+        roleplay = xyn_locale.locale(f"roleplay.{'actions' if together else 'solo'}.{str(action).lower()}",lang=gs.read(interaction.guild_id,"language","en-us"))
+        roleplay = roleplay.format(interaction.user.id, together.id if together else "OwO")
+
+        #Gets the image from the API
         try:
             image_request = requests.get(f"https://api.otakugifs.xyz/gif?reaction={action.lower()}")
             response = image_request.json()
             image = response["url"]
         except:
             image = "https://pbs.twimg.com/media/DKs2G92X0AEjh3Z.jpg"
-        if together:
-            emb = discord.Embed(description=roleplay.better_roleplay(action.lower(),interaction,target=f"<@{together.id}>"))
-        else:
-            emb = discord.Embed(description=roleplay.better_roleplay(action.lower(),interaction))
-        emb.set_image(url=str(image))
-        await interaction.response.send_message(embed=emb)
+
+        embed = discord.Embed(description=roleplay).set_image(url=image)
+
+        await interaction.response.send_message(embed=embed)
 
     #/confess
-    @app_commands.command(name = "confess", description = "| Fun | Let's you make a completely anonymous confession")
+    @app_commands.command(name = "confess", description = "| Fun | Let's you make a completely anonymous confession",auto_locale_strings=True)
     async def confess(self, interaction: discord.Interaction):
         if not interaction.guild:
-            return await interaction.response.send_message("This command doesn't work outside of a guild!")
+            return await interaction.response.send_message(xyn_locale.internal.locale("only_guild"))
         await interaction.response.send_modal(Confession())
 
 async def setup(bot: commands.Bot) -> None:
-    print("fun was loaded!")
+    print(xyn_locale.locale("setup.loaded",settings.language))
     await bot.add_cog(fun(bot))

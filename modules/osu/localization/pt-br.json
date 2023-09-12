@@ -1,0 +1,19 @@
+{
+    "setup.loaded": "osu! foi carregado!",
+    
+    "profile.followers": "Seguidores",
+    "profile.rank": "Rank",
+    "profile.playmode": "Modo de Jogo",
+    "profile.playstyle": "Estilo de Jogo",
+    "profile.location": "Localização",
+    "profile.occupation": "Ocupação",
+    "profile.interests": "Interesses",
+    "profile.Twitter": "Twitter",
+    "profile.Discord": "Discord",
+
+    "recent_plays": "Jogadas recentes em {mode} de:",
+
+    "replay.uploading": "Seu replay está sendo enviado para o o!rdr...",
+    "replay.rendering": "Seu replay está sendo processado pelo o!rdr",
+    "replay.error": "Seu replay não pôde ser processado! Aqui está um registro do ocorrido:\n{}"
+}

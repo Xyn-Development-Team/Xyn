@@ -1,0 +1,41 @@
+{
+    "setup.loaded": "music foi carregado!",
+    "setup.lavalink.starting": "Iniciando o Lavalink!",
+    
+    "resumed": "Retomou o playback",
+    "paused": "Pausou o playback",
+
+    "nothing.embed.title": "Nada está sendo reproduzido",
+    "player.nothing.embed.description": "No momento...",
+    "player.nothing.embed.footer": "Talvez você possa mudar isso ;)",
+    "queue.nothing.footer": "Para reproduzir uma música, você pode pesquisá-la ou colar sua URL na consulta do comando `/play`!",
+
+    "karaoke.enabled": "Karaoke **Ativado!!**",
+    "karaoke.disabled": "Karaoke *Desativado!*",
+
+    "nightcore.enabled": "Nightcore **Ativado!!**",
+    "nightcore.disabled": "Nightcore *Desativado!*",
+
+    "moved": "Moveu o playback para <#{}>!",
+
+    "not_found": "Infelizmente, essa música não pôde ser encontrada!",
+    "youtube.not_found": "Não foi possível encontrar {} no YouTube!",
+
+    "format.unsupported": "Este formato ainda não é suportado *por enquanto!*",
+    "play.unspecified": "Você precisará especificar uma URL ou termo de pesquisa para a **query** ou fazer upload de um **arquivo**",
+
+    "spotify.added.author": "Adicionado à fila",
+    "spotify.added.title": "**{}** músicas!",
+    "spotify.added.description": "Da playlist/álbum do Spotify: [{}]({})",
+
+    "added.description": "Da playlist/álbum",
+    "now_playing": "Tocando agora",
+
+    "skipped": "[{}]({}) foi pulado!",
+
+    "rewinded": "Voltou de: [{}]({})",
+
+    "volume": "O volume foi definido para {}%",
+
+    "stopped": "Ok! Parando o playback atual!"
+}

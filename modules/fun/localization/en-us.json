@@ -1,12 +1,44 @@
-{"confession.modal.title":"Confession",
-"confession.modal.title_label":"Title",
-"confession.modal.confession.label":"Confession",
-"confession.modal.confession.placeholder":"Type your confession here...",
+{
+    "setup.loaded":"fun was loaded!",
+    "confession.modal.title":"Confession",
+    "confession.modal.title_label":"Title",
+    "confession.modal.title_placeholder":"Give your confession a nice little title",
+    "confession.modal.confession.label":"Confession",
+    "confession.modal.confession.placeholder":"Type your confession here...",
 
-"confession.embed.title":"Confession #{} {}",
-"confession.sent":"Your confession has been posted successfully!",
+    "confession.embed.title":"Confession #{} {}",
+    "confession.sent":"Your confession has been posted successfully!",
 
-"coinflip.heads":"Heads",
-"conflip.tails":"Tails"
+    "coinflip.heads":"Heads",
+    "conflip.tails":"Tails",
+
+    "persona_invalid.username":"Your pervious username is either invalid or doesn't exist anymore @_@\nPlease insert a username!",
+    "persona_invalid.pfp":"Your previous pfp is either invalid or doesn't exist anymore",
+    "persona.thinking":"{} is thinking...",
+
+    "roleplay.actions.kiss":"<@{}> kissed <@{}>! <3",
+    "roleplay.actions.slap":"<@{}> slapped <@{}>!",
+    "roleplay.actions.punch:":"<@{}> punched <@{}>!",
+    "roleplay.actions.hug":"<@{}> hugged <@{}>!",
+    "roleplay.actions.sleep":"<@{}> is sleeping with <@{}>! <3",
+    "roleplay.actions.poke":"<@{}> is poking @<{}>!",
+    "roleplay.actions.cuddle":"<@{}> is cuddling with <@{}>! <3",
+    "roleplay.actions.blush":"<@{}> is blushing with <@{}>! <3",
+    "roleplay.actions.pat":"<@{}> is petting <@{}>! <3",
+    "roleplay.actions.smug":"<@{}> is being smug with <@{}>!",
+    "roleplay.actions.run":"<@{}> is running with <@{}>!",
+    "roleplay.actions.stare":"<@{}> is staring at <@{}> 0_0 !",
+
+    "roleplay.solo.kiss":"<@{}> kissed themselves?? 0_0",
+    "roleplay.solo.slap":"<@{}> slapped themselves!",
+    "roleplay.solo.hug": "<@{}> is hugging themselves @_@",
+    "roleplay.solo.sleep":"<@{}> is sleeping...",
+    "roleplay.solo.poke":"<@{}> is poking themselves? 0_0",
+    "roleplay.solo.cuddle":"<@{}> is cuddling with thenselves?? 0_0",
+    "roleplay.solo.blush":"<@{}> is blushing! <3",
+    "roleplay.solo.pat":"<@{}> is petting themselves?? 0_0",
+    "roleplay.solo.smug":"<@{}> is being smug!",
+    "roleplay.solo.run":"<@{}> is running!",
+    "roleplay.solo.stare":"<@{}> is staring..."
 
 }

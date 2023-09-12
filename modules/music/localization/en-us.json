@@ -1,38 +1,41 @@
-{"setup.loaded":"Music was loaded!",
-"setup.lavalink.starting":"Starting Lavalink!",
+{
+    "setup.loaded":"Music was loaded!",
+    "setup.lavalink.starting":"Starting Lavalink!",
     
-"resumed":"Resumed playing",
-"paused":"Paused playing",
+    "resumed":"Resumed playing",
+    "paused":"Paused playing",
 
-"nothing.embed.title":"There's nothing playing",
-"player.nothing.embed.description":"At the moment...",
-"player.nothing.embed.footer":"Maybe you can change that ;)",
-"queue.nothing.footer":"To play a song you can either search for it or paste it's url inside the query in the `/play` command!",
+    "nothing.embed.title":"There's nothing playing",
+    "player.nothing.embed.description":"At the moment...",
+    "player.nothing.embed.footer":"Maybe you can change that ;)",
+    "queue.nothing.footer":"To play a song you can either search for it or paste it's url inside the query in the `/play` command!",
 
-"karaoke.enabled":"Karaoke **Enabled!!**",
-"karaoke.disabled":"Karaoke *Disabled!*",
+    "karaoke.enabled":"Karaoke **Enabled!!**",
+    "karaoke.disabled":"Karaoke *Disabled!*",
 
-"nightcore.enabled":"Nightcore **Enabled!!**",
-"nightcore.disabled":"Nightcore *Disabled!*",
+    "nightcore.enabled":"Nightcore **Enabled!!**",
+    "nightcore.disabled":"Nightcore *Disabled!*",
 
-"moved":"Moved the playback to to <#{}>!",
+    "moved":"Moved the playback to to <#{}>!",
 
-"not_found":"Unfortunately this song couldn't be found!",
-"youtube.not_found":"Couldn't find {} on YouTube!",
+    "not_found":"Unfortunately this song couldn't be found!",
+    "youtube.not_found":"Couldn't find {} on YouTube!",
 
-"spotify.added.author":"Added to queue",
-"spotify.added.title":"**{}** Songs!",
-"spotify.added.description":"From the Spotify playlist/album:[{}]({})",
+    "format.unsupported":"This format isn't currently supported *yet!*",
+    "play.unspecified":"You'll need to specify either a url/search term to the **query** or upload an **attachment**",
 
-"added.description":"From the playlist/album",
-"now_playing":"Now playing",
+    "spotify.added.author":"Added to queue",
+    "spotify.added.title":"**{}** Songs!",
+    "spotify.added.description":"From the Spotify playlist/album:[{}]({})",
 
-"skipped":"[{}]({}) was skipped!",
+    "added.description":"From the playlist/album",
+    "now_playing":"Now playing",
 
-"rewinded":"Rewinded from: [{}]({})",
+    "skipped":"[{}]({}) was skipped!",
 
-"volume":"The volume was set to {}%",
+    "rewinded":"Rewinded from: [{}]({})",
 
-"stopped":"Okay! Stopped the current playback!"
+    "volume":"The volume was set to {}%",
 
+    "stopped":"Okay! Stopped the current playback!"
 }

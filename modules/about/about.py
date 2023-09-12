@@ -45,16 +45,6 @@ class about(commands.GroupCog, name=module.cog_name):
             embed.add_field(name=module.module.name,value="Enabled" if value else "Disabled")
         await interaction.response.send_message(embed=embed)
 
-    #/credits
-    @app_commands.command(name="credits",description="Check who are the amazing people behind this deployment")
-    async def credits(self, interaction: discord.Interaction):
-        embed = discord.Embed(title=f"Xyn ({settings.deploy.codename})",description=f"**Maintained by:** {settings.deploy.maintainers}",color=discord.Color.from_str(imagetools.get_accent_color(self.bot.user.display_avatar.url))).set_thumbnail(url=interaction.client.user.display_avatar.url)
-        
-        for key, value in settings.deploy.credits.items():
-            embed.add_field(name=key,value=value,inline=False)
-            
-        await interaction.response.send_message(embed=embed)
-
 
 async def setup(bot: commands.Bot) -> None:
     print("About was loaded")

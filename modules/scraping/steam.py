@@ -255,9 +255,12 @@ def game(app_id=None,currency=None,name=str):
     #Searches for the price
     soup = BeautifulSoup(response.content, 'html.parser')
     price_div = soup.find('div', class_='game_purchase_price')
+    discounted_price_div = soup.find('div',class_='discount_final_price')
     
     if price_div:
         game["price"] = price_div.get_text(strip=True)
+    elif discounted_price_div:
+        game["price"] = discounted_price_div.get_text(strip=True) 
 
     try:
         ## Title
@@ -301,8 +304,8 @@ def game(app_id=None,currency=None,name=str):
 
     return game
 
-#Example
+#Examples
 if __name__ == "__main__":
     print(profile(id="dorkreamer"))
-    #print(profile(id="whipv"))
-    #print(game(app_id="1091500",currency="CAD"))
+    print(profile(id="whipv"))
+    print(game(app_id="1091500",currency="CAD"))

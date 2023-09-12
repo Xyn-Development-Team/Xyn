@@ -1,0 +1,11 @@
+{
+  "setup.loaded": "Moderationが読み込まれました！",
+  
+  "invalid_language": "{}は無効な言語です！",
+  "language.set": "このギルドの言語は英語に設定されました！",
+
+  "purging": "**{}**件のメッセージを削除しています！",
+  "purged": "**{}**件のメッセージを削除しました！",
+
+  "confessions.reset": "告白カウンターは正常にリセットされました！"
+}
