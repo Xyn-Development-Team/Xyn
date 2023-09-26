@@ -35,7 +35,6 @@ YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to ad
 
 
 ### Fun:
-- /animequote | Get's a random anime quote!
 - /persona {username} {message} {pfp}:optional {last_pfp} | Allows you to send a message as a completely username and profile picture, with the option of reusing the last profile picture used in this command.
 - /local_persona {user} {message} | Same as above, but with a fellow Discord user in a server.
 - /arrest {user} | Generates an image of an user's profile picture behind prison bars.
