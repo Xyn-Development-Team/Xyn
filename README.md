@@ -6,7 +6,7 @@ but also other really fun and usefull comands, from scraping websites to rolling
 **Vanilla** is the final version, the one that's as reliable as possible! While ***Betafish*** is basically the cutting edge and can have major instabilities, bugs, and other quirks but have really frequent updates
 
 ## Multi-languages support
-For now multi-language support is not implemented into V2 (This version!)!
+Support to multiple languages by simply loading the json file of the respective language.
 
 ## Module support
 YOU! Yes You! Can make your own modules for Xyn! This makes extremely easy to add new commands to Xyn without messing around (much) with any of the other code.
