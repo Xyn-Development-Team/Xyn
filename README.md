@@ -1,3 +1,2 @@
 # WARNING
-This version is extremely experimental and is being coded on my streams :3
-https://www.twitch.tv/dorkreamer
+This version is extremely experimental and is slowly being rewritten by yours truly, Moonlight Dorkreamer 🌓
