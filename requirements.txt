@@ -1,12 +1,5 @@
 discord.py
-pygelbooru
-python-dotenv
-pytube
-spotipy
-wavelink
-icrawler
 objdict
-colorama
-ossapi
-pycountry
+Pillow
 py-cpuinfo
+colorama
