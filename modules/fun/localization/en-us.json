@@ -1,0 +1,22 @@
+{
+    "confession_title_label":"Title",
+    "confession_title_placeholder":"A nice eye-catching title",
+
+    "confession_label":"Confession",
+    "confession_placeholder":"Your confession...",
+
+    "confession_embed_title":"Confession #{confessiona} {title}",
+    "confession_sent":"Confession posted successfully",
+
+    "diceroll_embed_description":"has rolled a **{dice}!**",
+
+    "conflip_embed_description":"has flipped **{result}!**",
+    "coinflip_heads":"heads",
+    "conflip_tails":"tails",
+
+    "persona_no_username":"You need to provide an user name at least once to use this command!",
+    
+    "quote_error":"An error occurred trying to generate this quote image :c",
+
+    "loaded":"fun.py was loaded!"
+}
