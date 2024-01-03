@@ -13,6 +13,7 @@ from dotenv import load_dotenv ; load_dotenv()
 import settings
 import platform
 import cpuinfo
+import localization
 
 class Bot(commands.Bot):
     """Initializes the bot and it's modules, as well as the error handler"""
@@ -29,32 +30,24 @@ class Bot(commands.Bot):
             file_path = inspect.getframeinfo(frame).filename
             filename = path.basename(inspect.getframeinfo(frame).filename)
             log = f"{time.strftime('%d/%m/%Y %H:%M:%S UTC')}\nException: {interaction.command.module}.{interaction.command.name}:\nFile: {filename} {'(External)' if file_path != getcwd() else ''}, line {line_number}\n{error.original}"
-
-            if isinstance(error.original, AttributeError):
-                if not path.isdir("./logs"):
-                    makedirs("./logs")
-                await interaction.channel.send(f"An uncaught error has occurred, this occurrence has been automatically reported to your maintainer!\nHere's the log:\n```{log}```")
-                logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H-%M-%S UTC')}.txt","w",encoding="utf-8")
-                print(log,file=logger)
-                logger.close()
             
-            elif isinstance(error.original, discord.errors.InteractionResponded):
-                print(f"Interaction already acknowledged, {interaction.command.module}.{interaction.command.name}")
+            if isinstance(error.original, discord.errors.InteractionResponded):
+                # Interaction already acknowledged, {interaction.command.module}.{interaction.command.name}
+                print(str(localization.internal.read("interaction_acknowledged",settings.language)).format(module=interaction.command.module,command=interaction.command.name))
 
             elif isinstance(error.original, discord.app_commands.MissingPermissions):
-                await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
+                # You don't have permission to use this command!
+                await interaction.channel.send(localization.internal.read("user_no_permission",settings.language),ephemeral=True)
             
             elif isinstance(error.original, discord.app_commands.BotMissingPermissions):
-                await interaction.channel.send("I don't have permission to do that!",ephemeral=True)
-            
-            elif isinstance(error.original, discord.app_commands.MissingPermissions):
-                await interaction.channel.send("You don't have permission to run that command!",ephemeral=True)
+                # I don't have permission to do this!
+                await interaction.channel.send(localization.internal.read("bot_no_permission"),ephemeral=True)
             else:
-                await interaction.channel.send(f"An uncaught exception has occurred, this occurrence has been automatically reported to your maintainer!:\nHere's the log:\n```{log}```")
+                await interaction.channel.send(str(localization.internal.read("uncaught_exception",settings.language)).format(log=log))
+                # "An uncaught exception has occurred, this occurrence has been automatically reported to your maintainer!:\nHere's the log:\n```{log}```
                 logger = open(f"./logs/UncaughtException_{time.strftime('%d-%m-%Y %H:%M:%S UTC')}.txt","w",encoding="utf-8")
-                print(log,file=logger)
+                logger.write(log)
                 logger.close()
-
 
     async def setup_hook(self):
         for key, value in settings.modules.items():
@@ -65,7 +58,7 @@ class Bot(commands.Bot):
                     await self.load_extension(f"modules.{key}.{key}")
                 else:
                     print(f"The module {key} files are missing!")
-        await self.tree.sync()       
+        #await self.tree.sync()       
 
     async def on_ready(self):
         #Status task, updates the bot's presence every minute
@@ -77,15 +70,19 @@ class Bot(commands.Bot):
                 await asyncio.sleep(60)
 
         bot.loop.create_task(status_task(self))
-        prfx = (Back.BLACK + Fore.MAGENTA + time.strftime("%H:%M:%S UTC", time.gmtime()) + Back.RESET + Fore.WHITE + Style.BRIGHT)
-        print(prfx + f" Logged in as {Fore.MAGENTA}{self.user.name}{Fore.RESET}")
-        print(prfx + f" Running on {Fore.GREEN}{settings.mode.lower()}{Fore.RESET} mode")
-        print(prfx + f" OS: {Fore.CYAN}{platform.platform()} / {platform.release()}{Fore.RESET}")
-        print(prfx + f" CPU: {Fore.CYAN}{cpuinfo.get_cpu_info()['brand_raw']}{Fore.RESET}")
-        print(prfx + " Python Version " + Fore.YELLOW + str(platform.python_version()) + Fore.WHITE)
-        print(prfx + " Discord.py Version " + Fore.YELLOW + discord.__version__ + Fore.RESET)
-        
-
+        prfx = (Back.BLACK + Fore.MAGENTA + time.strftime("%H:%M:%S UTC", time.gmtime()) + Back.RESET + Fore.WHITE + Style.BRIGHT + " ")
+        # prfx + f" Logged in as {Fore.MAGENTA}{self.user.name}{Fore.RESET}"
+        print(prfx + str(localization.internal.read("logged_as",settings.language)).format(color=Fore.MAGENTA,user=self.user.name,reset=Fore.RESET))
+        # prfx + f" Running on {Fore.GREEN}{settings.mode.lower()}{Fore.RESET} mode"
+        print(prfx + str(localization.internal.read("running_on",settings.language)).format(color=Fore.GREEN,mode=str(localization.internal.read(settings.mode.lower(),settings.language)).lower(),reset=Fore.RESET))
+        # prfx + f" OS: {Fore.CYAN}{platform.platform()} / {platform.release()}{Fore.RESET}"
+        print(prfx + str(localization.internal.read("os",settings.language)).format(color=Fore.CYAN,os=platform.platform(),release=platform.release(),reset=Fore.RESET))
+        # prfx + f" CPU: {Fore.CYAN}{cpuinfo.get_cpu_info()['brand_raw']}{Fore.RESET}"
+        print(prfx + str(localization.internal.read("cpu",settings.language)).format(color=Fore.CYAN,cpu=cpuinfo.get_cpu_info()['brand_raw'],reset=Fore.RESET))
+        # prfx + " Python Version " + Fore.YELLOW + str(platform.python_version()) + Fore.WHITE"
+        print(prfx + str(localization.internal.read("python_version",settings.language)).format(color=Fore.YELLOW,version=str(platform.python_version()),reset=Fore.RESET))
+        # prfx + " Discord.py Version " + Fore.YELLOW + discord.__version__ + Fore.RESET"
+        print(prfx + str(localization.internal.read("discord.py_version")).format(color=Fore.YELLOW,version=discord.__version__,reset=Fore.RESET))
 
 bot = Bot()
 if settings.mode.lower() == "retail":
@@ -93,4 +90,4 @@ if settings.mode.lower() == "retail":
 elif settings.mode.lower() == "development":
     bot.run(getenv("development_token"))
 else:
-    print("You forgot to set the runtime mode, dumbass")
+    print(localization.internal.read("no_runtime",settings.language))
