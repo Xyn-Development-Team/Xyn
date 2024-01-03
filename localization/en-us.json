@@ -1,0 +1,21 @@
+{
+    "logged_as":"Logged in as {color}{user}{reset}",
+    "running_on":"Running on {color}{mode}{reset}",
+    
+    "development":"development",
+    "retail":"retail",
+    
+    "os":"OS: {color}{os} / {release}{reset}",
+    "cpu":"CPU: {color}{cpu}{reset}",
+    "python_version":"Python version: {color}{version}{reset}",
+    "discord.py_version":"Discord.py version: {color}{version}{reset}",
+
+    "no_runtime_mode":"You forgot to set the runtime mode, dummy",
+
+    "user_no_permission":"You aren't allowed to use this command!",
+    "bot_no_permission":"I don't have permission to do this!",
+
+    "uncaught_exception":"An uncaught exception has occurred, this occurrence has been reported to your maintainer!\nHere's the traceback:\n```{log}```",
+    "interaction_acknowledged":"Interaction has already been acknowledged! {module}.{command}",
+    "import_only":"This module is supposed to be imported by Xyn! You dummy!!!"
+}
