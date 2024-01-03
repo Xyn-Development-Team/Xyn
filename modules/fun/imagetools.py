@@ -45,7 +45,7 @@ def quote(id,username="Anonymous", pfp=None, quote=""):
     if __name__ == "__main__":
         background.show()
     else:
-        filename = f"{id}_{time.strftime("%d_%m_%Y_%H_%M_%S")}.png"
+        filename = f"{id}_{time.strftime('%d_%m_%Y_%H_%M_%S')}.png"
         background.save(f"./modules/fun/temp/{filename}")
         return "./modules/fun/temp/" + filename
 
@@ -59,7 +59,7 @@ def dice(id,number):
     if __name__ == "__main__":
         dice.show()
     else:
-        filename = f"{id}_{time.strftime("%d_%m_%Y_%H_%M_%S")}.png"
+        filename = f"{id}_{time.strftime('%d_%m_%Y_%H_%M_%S')}.png"
         dice.save(f"./modules/fun/temp/{filename}")
         return f"./modules/fun/temp/{filename}"
 
