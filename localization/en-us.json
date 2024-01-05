@@ -17,5 +17,8 @@
 
     "uncaught_exception":"An uncaught exception has occurred, this occurrence has been reported to your maintainer!\nHere's the traceback:\n```{log}```",
     "interaction_acknowledged":"Interaction has already been acknowledged! {module}.{command}",
-    "import_only":"This module is supposed to be imported by Xyn! You dummy!!!"
+    "import_only":"This module is supposed to be imported by Xyn! You dummy!!!",
+    "guild_only":"This command can only be used within a guild!",
+
+    "thinking":"{bot} is thinking..."
 }

@@ -10,7 +10,7 @@
 
     "diceroll_embed_description":"has rolled a **{dice}!**",
 
-    "conflip_embed_description":"has flipped **{result}!**",
+    "conflip_embed_title":"{user} has flipped **{result}!**",
     "coinflip_heads":"heads",
     "conflip_tails":"tails",
 
