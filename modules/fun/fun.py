@@ -8,6 +8,8 @@ class module:
 import os
 
 if __name__ == "__main__":
+    # This is supposed to be imported by Xyn! You dummy!!!
+    # We can't really localize this, since loading localization with this being directly executed would crash :c
     print("This is supposed to be imported by Xyn! You dummy!!!")
     os._exit(1)
 else:
@@ -19,6 +21,7 @@ else:
     import storage
     from typing import Optional
     import modules.fun.imagetools as imagetools
+    import localization
 
 class Confession(discord.ui.Modal,title="Confession"):
     user_title = discord.ui.TextInput(
@@ -63,7 +66,9 @@ class fun(commands.GroupCog, name=module.cog_name):
 
         thumbnail = discord.File(image,filename=f"dice_{dice}_xyn.png")
 
-        embed = discord.Embed(title=f"**{interaction.user.display_name}**",description=f"has rolled a **{dice}!**",color=discord.Color.from_str("#e8439c"))
+        # Title = **{user}**
+        # Description = has rolled a **{dice}!**
+        embed = discord.Embed(title=f"**{interaction.user.display_name}**",description=str(localization.external.read("diceroll_embed_description",storage.guild.read(interaction.guild.id,"language"))).format(dice=dice),color=discord.Color.from_str("#e8439c"))
         embed.set_thumbnail(url=f"attachment://dice_{dice}_xyn.png")
         
         await interaction.response.send_message(file=thumbnail,embed=embed)
@@ -76,32 +81,38 @@ class fun(commands.GroupCog, name=module.cog_name):
     async def coinflip(self, interaction: discord.Interaction):
         coin = random.randint(0,1)
         if coin < 1:
-            result = "Heads"
+            result = localization.external.read("heads",storage.guild.read(interaction.guild.id,"language"))
         else:
-            result = "Tails"
-        embed = discord.Embed(title=f"**{interaction.user.display_name}** has flipped **{result}!**")
+            result = localization.external.read("tails",storage.guild.read(interaction.guild.id,"language"))
+        # **{user}** has flipped **{result}!**
+        embed = discord.Embed(title=localization.external.read("coinflip_embed_title",storage.guild.read(interaction.guild.id,"language")))
         await interaction.response.send_message(embed=embed)
     
     #/uselessfacts
+    # TODO Implement Google Translate into the response in case the guild language isn't en-us
     @app_commands.command(name="uselessfacts",description="Gives you a random useless fact about za warudo")
     async def uselessfacts(self, interaction: discord.Interaction):
         fact = requests.get("https://useless-facts.sameerkumar.website/api").json()["data"]
         await interaction.response.send_message(fact)
 
+    #/persona
     @app_commands.command(name="persona",description="Allows u to send a message as \"another user\"")
     async def persona(self, interaction: discord.Interaction, message:str, username:Optional[str], pfp:Optional[discord.Attachment]):
         #DM's
         if not interaction.guild:
-            return await interaction.response.send_message("This command can only be used within a guild!")
+            # This command can only be used within a guild!
+            return await interaction.response.send_message(localization.internal.read("guild_only",storage.guild.read(interaction.guild.id,"language")))
         
         if not username:
             username = storage.user.read(interaction.user.id,"persona_username")
             if not username:
-                return await interaction.response.send_message("You need to provide an username at least once to use this command!")
+                #You need to provide an username at least once to use this command!
+                return await interaction.response.send_message(localization.external.read("persona_no_username"))
         else:
             storage.user.set(interaction.user.id,"persona_username",username)
 
-        await interaction.response.send_message(f"{interaction.client.user.name} is thinking...",ephemeral=True)
+        # {bot} is thinking...
+        await interaction.response.send_message(localization.internal.read("thinking",storage.guild.read(interaction.guild.id,"language")),ephemeral=True)
 
         if not pfp:
             pfp = storage.user.read(interaction.user.id,"persona_pfp")
@@ -117,6 +128,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         await webhook.send(message)
         await webhook.delete()
 
+    #/quote
     @app_commands.command(name="quote",description="Someone said something quite poetic, huh?")
     async def quote(self, interaction: discord.Interaction, quote:str, user:Optional[discord.User],name:Optional[str],pfp:Optional[discord.Attachment]):
         await interaction.response.defer(thinking=True)
@@ -129,14 +141,17 @@ class fun(commands.GroupCog, name=module.cog_name):
             await interaction.followup.send(file=discord.File(image))
             os.remove(image)
         else:
-            await interaction.followup.send("An error has occurred generating this quote image :c")
+            # An error has occurred generating this quote image :c
+            await interaction.followup.send(localization.external.read("quote_error",storage.guild.read(interaction.guild.id,"language")))
 
+    #/confess
     @app_commands.command(name="confess",description="Allows you to confess anonymously")
     async def confess(self, interaction: discord.Interaction):
         if interaction.guild:
             await interaction.response.send_modal(Confession())
         else:
-            await interaction.response.send_message("This command can only be used within a guild!")
+            # This command can only be used within a guild!
+            await interaction.response.send_message(localization.internal.read("guild_only",storage.guild.read(interaction.guild.id,"language")))
 
 async def setup(bot: commands.Bot) -> None:
     if not os.path.isdir("./modules/fun/temp"):
