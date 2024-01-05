@@ -14,6 +14,7 @@ import settings
 import platform
 import cpuinfo
 import localization
+import storage
 
 class Bot(commands.Bot):
     """Initializes the bot and it's modules, as well as the error handler"""
@@ -58,7 +59,17 @@ class Bot(commands.Bot):
                     await self.load_extension(f"modules.{key}.{key}")
                 else:
                     print(f"The module {key} files are missing!")
-        #await self.tree.sync()       
+        #await self.tree.sync() # Only uncomment this when implementing new commands, or you'll be rate limited pretty quickly!!
+
+    # Let's make sure we'll always have a language set for any new guilds
+    async def on_guild_join(self, guild):
+        if not storage.guild.read(guild.id, "language"):
+            storage.guild.set(guild.id,"language",settings.language)
+
+    # And also to ones we're already in
+    async def on_interaction(self, interaction:discord.Interaction):
+        if not storage.guild.read(interaction.guild.id,"language"):
+            storage.guild.set(interaction.guild.id,"language",settings.language)
 
     async def on_ready(self):
         #Status task, updates the bot's presence every minute
