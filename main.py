@@ -58,7 +58,8 @@ class Bot(commands.Bot):
                 elif path.isdir(f"modules/{key}"):
                     await self.load_extension(f"modules.{key}.{key}")
                 else:
-                    print(f"The module {key} files are missing!")
+                    # The module {module}'s files are missing!!
+                    print(str(localization.internal.read("module_missing",settings.language)))
         #await self.tree.sync() # Only uncomment this when implementing new commands, or you'll be rate limited pretty quickly!!
 
     # Let's make sure we'll always have a language set for any new guilds

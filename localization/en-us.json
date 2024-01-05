@@ -19,6 +19,7 @@
     "interaction_acknowledged":"Interaction has already been acknowledged! {module}.{command}",
     "import_only":"This module is supposed to be imported by Xyn! You dummy!!!",
     "guild_only":"This command can only be used within a guild!",
+    "module_missing":"The module {module}'s files are missing!!",
 
     "thinking":"{bot} is thinking..."
 }
