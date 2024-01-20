@@ -17,6 +17,7 @@
     "persona_no_username":"You need to provide an user name at least once to use this command!",
     
     "quote_error":"An error occurred trying to generate this quote image :c",
+    "starboard_setup":"Starboard was setup successfully!",
 
     "loaded":"fun.py was loaded!"
 }
