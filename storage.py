@@ -72,9 +72,8 @@ class guild:
                 except objdict.JsonDecodeError:
                     print(f"Data for the guild {id} is broken -_-")
                     shutil.move(f"./guilds/{id}.json",f"./guild/{id}_backup.json")   #Don't wanna lose user data UwU
-                    
-                data = ObjDict()
-                file.close()
+                    data = ObjDict()
+                    file.close()
             
         with open(f"./guilds/{id}.json","w") as file:
             data[option] = value 
