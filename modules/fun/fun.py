@@ -19,9 +19,10 @@ else:
     import random
     import requests
     import storage
-    from typing import Optional
+    from typing import Optional, Union
     import modules.fun.imagetools as imagetools
     import localization
+    import re
 
 class Confession(discord.ui.Modal,title="Confession"):
     user_title = discord.ui.TextInput(
@@ -53,10 +54,41 @@ class Confession(discord.ui.Modal,title="Confession"):
         await interaction.response.send_message("Confession posted successfully!",ephemeral=True)
         await interaction.channel.send(embed=embed)
 
+
 class fun(commands.GroupCog, name=module.cog_name):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         super().__init__()
+
+    #TODO add color based on the color most present in the user's pfp
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload:discord.RawReactionActionEvent):
+        emoji = payload.emoji
+        guild = self.bot.get_guild(payload.guild_id)
+        channel = guild.get_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+
+        for reaction in message.reactions:
+            if reaction.emoji == storage.guild.read(guild.id, "starboard_emoji") and reaction.count >= int(storage.guild.read(guild.id, "starboard_threshold")):
+                starboard_channel = guild.get_channel(storage.guild.read(guild.id, "starboard_channel"))
+                
+                embed = discord.Embed(title=message.author.display_name,description=f"\"{message.content}\"").set_thumbnail(url=message.author.display_avatar.url)
+
+                attachment_counter = 0
+                attachments = []
+                
+                for attachment in message.attachments:
+                    attachment_counter =+ 1
+                    attachments.append(attachment.url)
+                
+                if attachment_counter == 1:
+                    embed.set_image(url=attachments[0])
+
+                await starboard_channel.send(embed=embed)
+
+                if attachment_counter > 1:
+                    for attachment in attachments:
+                        await starboard_channel.send(attachment)
 
     #/diceroll
     @app_commands.command(name="diceroll",description="Allows you to roll a dice")
@@ -152,6 +184,22 @@ class fun(commands.GroupCog, name=module.cog_name):
         else:
             # This command can only be used within a guild!
             await interaction.response.send_message(localization.internal.read("guild_only",storage.guild.read(interaction.guild.id,"language")))
+
+    #/starboard_setups
+    @app_commands.command(name="starboard_setup",description="Setup how starboards behave")
+    @app_commands.default_permissions(manage_messages=True)
+    async def starboard_setup(self, interaction:discord.Interaction, channel:discord.TextChannel, emoji:str, threshold:int):
+        await interaction.response.defer(thinking=True,ephemeral=True)
+
+        emoji_pattern = re.compile(r'<:\w+:\d+>|[^\w\s,]')
+        emojis = emoji_pattern.findall(emoji)
+
+        storage.guild.set(interaction.guild_id, "starboard_channel", channel.id)
+        storage.guild.set(interaction.guild_id, "starboard_emoji", emojis[0])
+        storage.guild.set(interaction.guild_id, "starboard_threshold", threshold)
+
+        await interaction.followup.send(localization.external.read("starboard_setup", storage.guild.read(interaction.guild.id, "language")),ephemeral=True)
+
 
 async def setup(bot: commands.Bot) -> None:
     if not os.path.isdir("./modules/fun/temp"):
