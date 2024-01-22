@@ -144,7 +144,7 @@ class fun(commands.GroupCog, name=module.cog_name):
             storage.user.set(interaction.user.id,"persona_username",username)
 
         # {bot} is thinking...
-        await interaction.response.send_message(localization.internal.read("thinking",storage.guild.read(interaction.guild.id,"language")),ephemeral=True)
+        await interaction.response.send_message(str(localization.internal.read("thinking",storage.guild.read(interaction.guild.id,"language"))).format(bot=interaction.client.user.display_name), ephemeral=True)
 
         if not pfp:
             pfp = storage.user.read(interaction.user.id,"persona_pfp")
