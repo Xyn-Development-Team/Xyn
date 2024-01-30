@@ -110,6 +110,7 @@ class music(commands.GroupCog, name=module.cog_name):
 
     #/volume
     @app_commands.command(name="volume",description="Changes the volume of the current playback")
+    @app_commands.describe(volume="From [1% to 1000%]")
     async def volume(self, interaction:discord.Interaction, volume:app_commands.Range[int,1,1000]):
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
         if not player:
@@ -154,6 +155,7 @@ class music(commands.GroupCog, name=module.cog_name):
 
     #/play
     @app_commands.command(name="play",description="Starts playing a song or adds it to the current queue!")
+    @app_commands.describe(query="A YouTube or Spotify URL or search term!", vc="A voice chat fot that bot to connect, instead of your current one")
     async def play(self, interaction: discord.Interaction, query:str, vc: Optional[discord.VoiceChannel]):
         if not interaction.guild:
             return await interaction.response.send_message(str(localization.internal.read("guild_only")))
@@ -169,7 +171,7 @@ class music(commands.GroupCog, name=module.cog_name):
             if interaction.user.voice:
                 player = await interaction.user.voice.channel.connect(cls=wavelink.Player)
             else:
-                return await interaction.followup.send(localization.external.read("no_voice",storage.guild.read(interaction.guild.id,"language")))
+                return await interaction.followup.send(localization.external.read("no_voice_play",storage.guild.read(interaction.guild.id,"language")))
 
         player.autoplay = wavelink.AutoPlayMode.partial
         player.home = interaction.channel

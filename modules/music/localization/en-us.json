@@ -1,5 +1,6 @@
 {
-    "no_voice":"You need to either be in a voice channel or specify one in the `vc` argument to use this command!",
+    "no_voice_play":"You need to either be in a voice channel or specify one in the `vc` argument to use this command!",
+    "no_voice":"You need to be in a voice channel to use this command!",
     "not_connected":"I'm not connected to any voice channels!",
     "nothing_playing":"There's nothing playing at the moment!",
     "nothing_playing_tease":"Maybe you can change that ;)",
