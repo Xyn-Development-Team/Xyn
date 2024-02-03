@@ -127,3 +127,16 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Exception logs
+logs/*
+
+# Guild data
+guilds/*
+
+# User data
+users/*
+
+# Lavalink config + Credentials
+Lavalink/*
+modules/fun/temp/*
