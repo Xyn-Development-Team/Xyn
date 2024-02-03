@@ -3,3 +3,6 @@ objdict
 Pillow
 py-cpuinfo
 colorama
+uwuipy
+wavelink
+requests
