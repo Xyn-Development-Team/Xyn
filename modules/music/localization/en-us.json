@@ -1,17 +1,27 @@
 {
     "no_voice_play":"You need to either be in a voice channel or specify one in the `vc` argument to use this command!",
+    "no_source":"You need to provide either a search query/url for a song or a file to be queued!",
+    "unknown_format":"This file format is not supported, yet...",
     "no_voice":"You need to be in a voice channel to use this command!",
     "not_connected":"I'm not connected to any voice channels!",
-    "nothing_playing":"There's nothing playing at the moment!",
+    
+    "nothing_playing":"There's nothing queued at the moment!",
     "nothing_playing_tease":"Maybe you can change that ;)",
 
-    "now_playing":"Now playing",
+    "now_playing":"Now playing:",
     "volume_set":"Volume was set to {volume}",
 
     "playback_stopped":"Playback was stopped!",
 
     "not_found":"Couldn't find any tracks with that query. Make sure you spelled it correctly and please try again.",
 
-    "resumed":"{author} was **resumed!**"
+    "resumed":"{author} was **resumed!**",
+
+    "queued_playlist":"Queued {added} songs from the playlist:",
+    "queued_album":"Queued {added} songs from the album:",
+
+    "loop":"Looping the current song!",
+    "loop_all":"Looping this queue!",
+    "loop_disabled":"Looping was disabled!"
 
 }
