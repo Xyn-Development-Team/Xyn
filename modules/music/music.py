@@ -19,12 +19,13 @@ else:
     import random
     import requests
     import storage
-    from typing import Optional, Union, cast
+    from typing import Optional, Union, cast, Literal
     import localization
     import re
     import wavelink
     from dotenv import load_dotenv ; load_dotenv()
     from os import getenv
+    import imagetools
 
 class music(commands.GroupCog, name=module.cog_name):
     def __init__(self, bot: commands.Bot) -> None:
@@ -58,7 +59,9 @@ class music(commands.GroupCog, name=module.cog_name):
             original: wavelink.Playable | None = payload.original
             track: wavelink.Playable = payload.track
 
-            embed: discord.Embed = discord.Embed(title=track.title,url=track.uri).set_author(name="Now playing:")
+            language = storage.guild.read(player.guild.id, "language")
+
+            embed: discord.Embed = discord.Embed(title=track.title, url=track.uri, color=discord.Color.from_str(imagetools.get_accent_color(track.artwork))).set_author(name=localization.external.read("now_playing", language))
             if track.artist.url:
                 embed.description = f"[{track.author}]({track.artist.url})"
             else:
@@ -79,33 +82,35 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="skip",description="Skips to the next song!")
     async def skip(self, interaction:discord.Interaction):
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
         previous_song = player.current
         if not player:
             return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
 
         await player.skip(force=True)
         if player.current.artist.url:
-            embed = discord.Embed(title=player.current.title,description=f"[{player.current.author}]({player.current.artist.url})\nSkipped:[{previous_song.title}]({previous_song.uri})",url=player.current.uri)
+            embed = discord.Embed(title=player.current.title, description=f"[{player.current.author}]({player.current.artist.url})\nSkipped:[{previous_song.title}]({previous_song.uri})", url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random())
         else:
-            embed = discord.Embed(title=player.current.title,description=f"{player.current.author}\nSkipped:[{previous_song.title}]({previous_song.uri})",url=player.current.uri)
-        embed.set_thumbnail(url=player.current.artwork)
-        embed.set_author(name=f"Now playing:")
+            embed = discord.Embed(title=player.current.title, description=f"{player.current.author}\nSkipped:[{previous_song.title}]({previous_song.uri})", url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random())
+        if player.current.artwork:
+            embed.set_thumbnail(url=player.current.artwork)
+        embed.set_author(name=localization.external.read("now_playing", language))
 
         await interaction.response.send_message(embed=embed)
-        await interaction.response.send_message("OwO")
 
     #/now_playing
     @app_commands.command(name="now_playing",description="Take a peek at what's playing right now")
     async def now_playing(self, interaction:discord.Interaction):
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
         if not player:
             return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
         elif not player.playing:
             return await interaction.response.send_message(localization.external.read("nothing_playing", storage.guild.read(interaction.guild_id,"language")))
         if player.current.artist.url:
-            embed = discord.Embed(title=player.current.title,description=f"[{player.current.author}]({player.current.artist.url})",url=player.current.uri).set_thumbnail(url=player.current.artwork).set_author(name="Now playing:")
+            embed = discord.Embed(title=player.current.title, description=f"[{player.current.author}]({player.current.artist.url})", url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random()).set_thumbnail(url=player.current.artwork).set_author(name=localization.external.read("now_playing", language))
         else:
-            embed = discord.Embed(title=player.current.title,description=f"{player.current.author}",url=player.current.uri).set_thumbnail(url=player.current.artwork).set_author(name="Now playing:")
+            embed = discord.Embed(title=player.current.title, description=f"{player.current.author}", url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random()).set_thumbnail(url=player.current.artwork).set_author(name=localization.external.read("now_playing", language))
         await interaction.response.send_message(embed=embed)
 
     #/volume
@@ -113,14 +118,15 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.describe(volume="From [1% to 1000%]")
     async def volume(self, interaction:discord.Interaction, volume:app_commands.Range[int,1,1000]):
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
         if not player:
-            return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
+            return await interaction.response.send_message(localization.external.read("not_connected", language))
         await player.set_volume(volume)
-        embed = discord.Embed(title=player.current.title,url=player.current.uri).set_author(name=localization.external.read("now_playing", storage.guild.read(interaction.guild.id,"language"))).set_thumbnail(url=player.current.artwork)
+        embed = discord.Embed(title=player.current.title, url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random()).set_author(name=localization.external.read("now_playing", language)).set_thumbnail(url=player.current.artwork)
         if player.current.artist.url:
             embed.description = f"[{player.current.author}]({player.current.artist.url})\nVolume was set to {volume}%"
         else:
-            embed.description = f"{player.current.author}\n{str(localization.external.read('volume_set',storage.guild.read(interaction.guild.id,'language'))).format(volume=volume)}"
+            embed.description = f"{player.current.author}\n{str(localization.external.read('volume_set', language)).format(volume=volume)}"
 
         await interaction.response.send_message(embed=embed)
 
@@ -128,38 +134,71 @@ class music(commands.GroupCog, name=module.cog_name):
     @app_commands.command(name="pause",description="Pauses the current song!")
     async def pause(self, interaction:discord.Interaction):
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
         if not player:
-            return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
+            return await interaction.response.send_message(localization.external.read("not_connected", language))
         elif not player.playing:
-            return await interaction.response.send_message(localization.external.read("nothing_playing", storage.guild.read(interaction.guild_id,"language")))      
+            return await interaction.response.send_message(localization.external.read("nothing_playing", language))      
 
         await player.pause(True)
         if player.current.artist.url:
-            embed = discord.Embed(title=player.current.title,description=f"[{player.current.author}]({player.current.artist.url})\nwas **paused!**",url=player.current.uri).set_thumbnail(url=player.current.artwork)
+            embed = discord.Embed(title=player.current.title, description=f"[{player.current.author}]({player.current.artist.url})\nwas **paused!**", url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random()).set_thumbnail(url=player.current.artwork)
         else:
-            embed = discord.Embed(title=player.current.title,description=f"{player.current.author}\nwas **paused!**",url=player.current.uri).set_thumbnail(url=player.current.artwork)
+            embed = discord.Embed(title=player.current.title, description=f"{player.current.author}\nwas **paused!**", url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random()).set_thumbnail(url=player.current.artwork)
         await interaction.response.send_message(embed=embed)
 
     #/resume
     @app_commands.command(name="resume",description="Resumes playing the current song!")
     async def resume(self, interaction:discord.Interaction):
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
         if not player:
-            return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
+            return await interaction.response.send_message(localization.external.read("not_connected", language))
         elif not player.playing:
-            return await interaction.response.send_message(localization.external.read("nothing_playing", storage.guild.read(interaction.guild_id,"language")))      
+            return await interaction.response.send_message(localization.external.read("nothing_playing", language))      
 
         await player.pause(False)
-        embed = discord.Embed(title=player.current.title,description=str(localization.external.read("resumed",storage.guild.read(interaction.guild.id, "language"))).format(author=player.current.author),url=player.current.uri).set_thumbnail(url=player.current.artwork)
+        embed = discord.Embed(title=player.current.title, description=str(localization.external.read("resumed", language)).format(author=player.current.author), url=player.current.uri, color=discord.Color.from_str(imagetools.get_accent_color(player.current.artwork)) if player.current.artwork else discord.Color.random()).set_thumbnail(url=player.current.artwork)
         await interaction.response.send_message(embed=embed)
+
+    #/loop
+    @app_commands.command(name="loop", description="Loops through the queue in different manners!")
+    async def loop(self, interaction: discord.Interaction, mode:Literal["Song", "Queue", "Disabled"]):
+        player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
+        
+        if not player:
+            return await interaction.response.send_message(localization.external.read("not_connected", language))
+
+        if mode == "Song":
+            player.queue.mode = wavelink.QueueMode.loop
+            return await interaction.response.send_message(localization.external.read("loop", language))
+        elif mode == "Queue":
+            player.queue.mode = wavelink.QueueMode.loop_all
+            return await interaction.response.send_message(localization.external.read("loop_all", language))
+        elif mode == "Disabled":
+            player.queue.mode = wavelink.QueueMode.normal
+            return await interaction.response.send_message(localization.external.read("loop_disabled", language))
 
     #/play
     @app_commands.command(name="play",description="Starts playing a song or adds it to the current queue!")
     @app_commands.describe(query="A YouTube or Spotify URL or search term!", vc="A voice chat fot that bot to connect, instead of your current one")
-    async def play(self, interaction: discord.Interaction, query:str, vc: Optional[discord.VoiceChannel]):
+    async def play(self, interaction: discord.Interaction, query:Optional[str], file:Optional[discord.Attachment], vc:Optional[discord.VoiceChannel]):
+        language = storage.guild.read(interaction.guild.id, "language")
         if not interaction.guild:
-            return await interaction.response.send_message(str(localization.internal.read("guild_only")))
+            return await interaction.response.send_message(str(localization.internal.read("guild_only", language)))
         
+        if not query and not file:
+            return await interaction.response.send_message(localization.external.read("no_source", language))
+        
+        if file:
+            supported_extensions = ['mp3', 'wav', 'ogg', 'flac', 'webm', 'mka', 'aac', 'aiff', 'mid', 'midi', 'wma']
+            file_extension = file.filename.lower().split('.')[-1]  # Get the extension from the filename
+            
+            if file_extension not in supported_extensions:
+                return await interaction.response.send_message(localization.external.read("unknown_format", language))
+            query = file.url
+
         await interaction.response.defer(thinking=True)
 
         player = wavelink.Player
@@ -171,33 +210,33 @@ class music(commands.GroupCog, name=module.cog_name):
             if interaction.user.voice:
                 player = await interaction.user.voice.channel.connect(cls=wavelink.Player)
             else:
-                return await interaction.followup.send(localization.external.read("no_voice_play",storage.guild.read(interaction.guild.id,"language")))
+                return await interaction.followup.send(localization.external.read("no_voice_play", language))
 
         player.autoplay = wavelink.AutoPlayMode.partial
         player.home = interaction.channel
 
         tracks: wavelink.Search = await wavelink.Playable.search(query)
         if not tracks:
-            await interaction.followup.send(localization.external.read("not_found",storage.guild.read(interaction.guild.id, "language")))
+            await interaction.followup.send(localization.external.read("not_found", language))
             return
 
         if isinstance(tracks, wavelink.Playlist):
             # tracks is a playlist...
             added: int = await player.queue.put_wait(tracks)
-            embed = discord.Embed(title=tracks.name,url=tracks.url,description=tracks.author).set_author(name=f"Queued {added} songs from the playlist:").set_thumbnail(url=tracks.artwork)
+            embed = discord.Embed(title=tracks.name, url=tracks.url, description=tracks.author, color=discord.Color.from_str(imagetools.get_accent_color(tracks.artwork)) if tracks.artwork else discord.Color.random()).set_author(name=str(localization.external.read("added_playlist", language))).set_thumbnail(url=tracks.artwork)
             await interaction.followup.send(embed=embed)
             #await interaction.followup.send(f"Added the playlist **`{tracks.name}`** ({added} songs) to the queue.")
         elif isinstance(tracks, wavelink.Album):
             added: int = await player.queue.put_wait(tracks)
-            embed = discord.Embed(title=tracks.name,url=tracks.url,description=tracks.author).set_author(name=f"Queued {added} songs from the album:").set_thumbnail(url=tracks.artwork)
+            embed = discord.Embed(title=tracks.name, url=tracks.url, description=tracks.author, color=discord.Color.from_str(imagetools.get_accent_color(tracks.artwork)) if tracks.artwork else discord.Color.random()).set_author(name=f"Queued {added} songs from the album:").set_thumbnail(url=tracks.artwork)
             await interaction.followup.send(embed=embed)
         else:
             track: wavelink.Playable = tracks[0]
             await player.queue.put_wait(track)
             if track.artist.url:
-                embed = discord.Embed(title=track.title,url=track.uri,description=f"[{track.author}]({track.artist.url})").set_author(name="Added to the queue:").set_thumbnail(url=track.artwork)
+                embed = discord.Embed(title=track.title, url=track.uri, description=f"[{track.author}]({track.artist.url})", color=discord.Color.from_str(imagetools.get_accent_color(track.artwork)) if track.artwork else discord.Color.random()).set_author(name="Added to the queue:").set_thumbnail(url=track.artwork)
             else:
-                embed = discord.Embed(title=track.title,url=track.uri,description=f"{track.author}").set_author(name="Added to the queue:").set_thumbnail(url=track.artwork)
+                embed = discord.Embed(title=track.title, url=track.uri, description=f"{track.author}", color=discord.Color.from_str(imagetools.get_accent_color(track.artwork)) if track.artwork else discord.Color.random()).set_author(name="Added to the queue:").set_thumbnail(url=track.artwork)
             await interaction.followup.send(embed=embed)
             #await interaction.followup.send(f"Added **`{track}`** to the queue.")
 
@@ -213,6 +252,7 @@ class music(commands.GroupCog, name=module.cog_name):
         if not interaction.guild.voice_client:
             return await interaction.response.send_message(localization.external.read("no_voice",storage.guild.read(interaction.guild_id,"language")),ephemeral=True)
         else:
+            language = storage.guild.read(interaction.guild.id, "language")
             player = wavelink.Player
             player = cast(wavelink.Player, interaction.guild.voice_client)
 
@@ -222,7 +262,7 @@ class music(commands.GroupCog, name=module.cog_name):
                 queue.append(song)
 
             embed=discord.Embed(title=player.current.title, url=player.current.uri).set_thumbnail(url=player.current.artwork)
-            embed.set_author(name=localization.external.read("now_playing", storage.guild.read(interaction.guild.id,"language")))
+            embed.set_author(name=localization.external.read("now_playing", language))
             embed.description = f"[{player.current.author}]({player.current.artist.url})\n" if player.current.artist.url else player.current.author + "\n"
 
             total_chars = 0
@@ -244,18 +284,19 @@ class music(commands.GroupCog, name=module.cog_name):
             if player.queue:
                 await interaction.response.send_message(embed=embed)
             else:
-                emb = discord.Embed(title=localization.external.read("nothing_playing", storage.guild.read(interaction.guild.id,"language")),description=localization.external.read("nothing_playing_tease", storage.guild.read(interaction.guild.id,"language")))
+                emb = discord.Embed(title=localization.external.read("nothing_playing", language),description=localization.external.read("nothing_playing_tease", storage.guild.read(interaction.guild.id,"language")))
                 await interaction.response.send_message(embed=emb)
 
     #/stop
     @app_commands.command(name="stop",description="Stops playing the queue and disconnects from the voice channel")
     async def stop(self, interaction:discord.Interaction):
+        language = storage.guild.read(interaction.guild.id, "language")
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
         if not player:
-            return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
+            return await interaction.response.send_message(localization.external.read("not_connected", language))
         
         await player.disconnect()
-        await interaction.response.send_message(localization.external.read("playback_stopped",storage.guild.read(interaction.guild.id, "language")))
+        await interaction.response.send_message(localization.external.read("playback_stopped", language))
 
 async def setup(bot: commands.Bot) -> None:
     nodes = [wavelink.Node(uri=node, password=password) for node, password in zip(eval(getenv("lavalink_nodes")), eval(getenv("lavalink_passwords")))]
