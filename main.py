@@ -5,6 +5,7 @@ import time
 from os import getcwd, getenv, makedirs, path
 
 import discord
+from discord import app_commands
 from colorama import Back, Fore, Style
 from discord.ext import commands
 
@@ -16,10 +17,32 @@ import cpuinfo
 import localization
 import storage
 
+from typing import Literal
+
 class Bot(commands.Bot):
     """Initializes the bot and it's modules, as well as the error handler"""
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('>.<'), intents=discord.Intents().all())
+
+        @self.tree.command(name="reload", description="Reloads all bot modules!")
+        @app_commands.describe(resync="Sync all commands")
+        @commands.is_owner()
+        async def reload(interaction: discord.Interaction, resync:Literal["Yes","No"]):
+            await interaction.response.defer(thinking=True)
+            for key, value in settings.modules.items():
+                if value:
+                    if path.isfile(f"modules/{key}.py"):
+                        await self.reload_extension(f"modules.{key}")
+                    elif path.isdir(f"modules/{key}"):
+                        await self.reload_extension(f"modules.{key}.{key}")
+                    else:
+                        # The module {module}'s files are missing!!
+                        print(str(localization.internal.read("module_missing",settings.language)))
+            
+            if resync == "Yes":
+                await self.tree.sync()
+            
+            await interaction.followup.send("All modules were reloaded successfully!",ephemeral=True)
 
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error:discord.app_commands.CommandInvokeError):
