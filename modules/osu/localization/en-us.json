@@ -1,0 +1,27 @@
+{
+    "setup.loaded":"osu!.py was loaded!",
+        
+    "profile.followers":"Followers",
+    "profile.rank":"Rank",
+    "profile.playmode":"Playmode",
+    "profile.playstyle":"Playstyle",
+    "profile.location":"Location",
+    "profile.occupation":"Occupation",
+    "profile.interests":"Interests",
+    "profile.Twitter":"Twitter",
+    "profile.Discord":"Discord",
+
+    "no_user":"Couldn't find a user with this username/ID!",
+
+    "recent_plays":"Recent {mode} plays from:",
+
+    "replay.uploading":"Your replay is being uploaded to o!rdr...",
+    "replay.rendering":"Your replay is being rendered by o!rdr",
+    "replay.error":"Your replay couldn't be rendered! Here's a log of the occurrence:\n{}",
+    "replay.no_file":"You need to specify a osu! replay file or a url to one, to use this command!",
+
+    "playing.osu":"Clicking circles:\n{beatmap}",
+    "playing.mania":"Smashing keys:\n{beatmap}",
+    "playing.taiko":"Bashing drums:\n{beatmap}",
+    "playing.catch":"Catching fruits:\n{beatmap}"
+}
