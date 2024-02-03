@@ -23,6 +23,7 @@ else:
     import modules.fun.imagetools as imagetools
     import localization
     import re
+    from uwuipy import uwuipy
 
 class Confession(discord.ui.Modal,title="Confession"):
     user_title = discord.ui.TextInput(
@@ -51,7 +52,7 @@ class Confession(discord.ui.Modal,title="Confession"):
         storage.guild.set(interaction.guild_id,"confessions",confessions)
 
         embed.title = f"Confession #{confessions} {self.user_title.value}"
-        await interaction.response.send_message("Confession posted successfully!",ephemeral=True)
+        await interaction.response.send_message(localization.external.read("confession_sent",storage.guild.read(interaction.guild.id, "language")),ephemeral=True)
         await interaction.channel.send(embed=embed)
 
 
@@ -92,6 +93,7 @@ class fun(commands.GroupCog, name=module.cog_name):
 
     #/diceroll
     @app_commands.command(name="diceroll",description="Allows you to roll a dice")
+    @app_commands.describe(sides="How many sides do you want the dice to have, you can go up to 999 sides!")
     async def diceroll(self, interaction: discord.Interaction,sides:app_commands.Range[int,1,999]):
         dice = random.randint(1,int(sides))
         image = imagetools.dice(interaction.user.id,dice)
@@ -127,9 +129,27 @@ class fun(commands.GroupCog, name=module.cog_name):
         fact = requests.get("https://useless-facts.sameerkumar.website/api").json()["data"]
         await interaction.response.send_message(fact)
 
+    #/local_persona
+    @app_commands.command(name="local_persona", description="Allows you to send a message as another fellow user")
+    @app_commands.describe(message="What do you want them to say?", user="Who do you want to say it?", media="Do you want them to also send something?")
+    async def local_persona(self, interaction:discord.Interaction, message:str, user:discord.User, media:Optional[discord.Attachment]):
+        #DM's
+        if not interaction.guild:
+            # This command can only be used within a guild!
+            return await interaction.response.send_message(localization.internal.read("guild_only",storage.guild.read(interaction.guild.id,"language")))
+        
+        await interaction.response.send_message(localization.internal.read("thinking", storage.guild.read(interaction.guild.id, "language")),ephemeral=True)
+
+        webhook = await interaction.channel.create_webhook(name=user.display_name,avatar=requests.get(user.display_avatar.url).content)
+        await webhook.send(message)
+        
+        if media:
+            await webhook.send(media.url)
+
     #/persona
-    @app_commands.command(name="persona",description="Allows u to send a message as \"another user\"")
-    async def persona(self, interaction: discord.Interaction, message:str, username:Optional[str], pfp:Optional[discord.Attachment]):
+    @app_commands.command(name="persona",description="Allows you to send a message as \"another user\"")
+    @app_commands.describe(message="What do you want your persona to say?", username="What's the name of your persona?", pfp="How does your persona look like?", media="Do you want to also send an attachment in the chat?")
+    async def persona(self, interaction: discord.Interaction, message:str, username:Optional[str], pfp:Optional[discord.Attachment], media:Optional[discord.Attachment]):
         #DM's
         if not interaction.guild:
             # This command can only be used within a guild!
@@ -162,19 +182,20 @@ class fun(commands.GroupCog, name=module.cog_name):
 
     #/quote
     @app_commands.command(name="quote",description="Someone said something quite poetic, huh?")
+    @app_commands.describe(quote="What did they say?", user="Who here was the poetic menace?", name="How's the poetic menace called?", pfp="How does the poetic menace look?")
     async def quote(self, interaction: discord.Interaction, quote:str, user:Optional[discord.User],name:Optional[str],pfp:Optional[discord.Attachment]):
         await interaction.response.defer(thinking=True)
         if user:
-            image = imagetools.quote(user.id,user.display_name,user.display_avatar,quote)
+            image = imagetools.quote(user.id, user.name, user.display_name, user.display_avatar, quote)
         else:
-            image = imagetools.quote(id=interaction.user.id ,username=name if name else "Anonymous",pfp=pfp if pfp else None,quote=quote)
+            image = imagetools.quote(id=interaction.user.id, display_name=name if name else None, pfp=pfp if pfp else None,quote=quote)
         
         if image:
             await interaction.followup.send(file=discord.File(image))
             os.remove(image)
         else:
-            # An error has occurred generating this quote image :c
-            await interaction.followup.send(localization.external.read("quote_error",storage.guild.read(interaction.guild.id,"language")))
+            # An error has occurred trying to generate this image :c
+            await interaction.followup.send(localization.external.read("image_gen_error",storage.guild.read(interaction.guild.id,"language")))
 
     #/confess
     @app_commands.command(name="confess",description="Allows you to confess anonymously")
@@ -185,8 +206,9 @@ class fun(commands.GroupCog, name=module.cog_name):
             # This command can only be used within a guild!
             await interaction.response.send_message(localization.internal.read("guild_only",storage.guild.read(interaction.guild.id,"language")))
 
-    #/starboard_setups
+    #/starboard_setup
     @app_commands.command(name="starboard_setup",description="Setup how starboards behave")
+    @app_commands.describe(channel="Where are starboard messages getting reposted to?", emoji="What emoji will count as a vote? (external emojis are allowed!)",threshold="How many votes until a message goes to the starboard channel?")
     @app_commands.default_permissions(manage_messages=True)
     async def starboard_setup(self, interaction:discord.Interaction, channel:discord.TextChannel, emoji:str, threshold:int):
         await interaction.response.defer(thinking=True,ephemeral=True)
@@ -200,6 +222,33 @@ class fun(commands.GroupCog, name=module.cog_name):
 
         await interaction.followup.send(localization.external.read("starboard_setup", storage.guild.read(interaction.guild.id, "language")),ephemeral=True)
 
+    #/uwuify
+    @app_commands.command(name="uwuify", description="Makes everything you say KAWAII!!!")
+    @app_commands.describe(say="what do you wannya say?!!")
+    async def uwuify(self, interaction: discord.Interaction, say:str):
+        await interaction.response.send_message(str(localization.internal.read("thinking")).format(bot=self.bot.user.display_name),ephemeral=True)
+        uwu = uwuipy()
+
+        webhook = await interaction.channel.create_webhook(name=interaction.user.display_name,avatar=requests.get(interaction.user.display_avatar.url).content)
+        await webhook.send(uwu.uwuify(say))
+
+    #/rip
+    @app_commands.command(name="rip", description="Makes an image of a tombstone")
+    @app_commands.describe()
+    async def rip(self, interaction: discord.Interaction, name:Optional[str], description:Optional[str], pfp:Optional[discord.Attachment], user:Optional[discord.User]):
+        await interaction.response.defer(thinking=True)
+        
+        if user:
+            image = imagetools.rip(interaction.user.id, user.display_name, description, user.display_avatar)
+        else:
+            image = imagetools.rip(interaction.user.id, name, description, pfp.url if pfp else None)
+
+        if image:
+            await interaction.followup.send(file=discord.File(image))
+            os.remove(image)
+        else:
+            # An error has occurred trying to generate this image :c
+            await interaction.followup.send(localization.external.read("image_gen_error",storage.guild.read(interaction.guild.id,"language")))
 
 async def setup(bot: commands.Bot) -> None:
     if not os.path.isdir("./modules/fun/temp"):
