@@ -87,7 +87,7 @@ class osu(commands.GroupCog, name=module.cog_name):
         if interaction.guild:
             language = storage.guild.read(interaction.guild_id,"language")
         else:
-            language = interaction.locale
+            language = str(interaction.locale).lower()
 
         if file:
             url = file.url
@@ -109,11 +109,6 @@ class osu(commands.GroupCog, name=module.cog_name):
             if event.render_id == render.render_id:
                 await interaction.edit_original_response(content=localization.external.read("replay.rendering",language))
         
-        # @client.on_render_progress
-        # async def on_render_progress(event: aiordr.models.RenderProgressEvent) -> None:
-        #     if event.render_id == render.render_id:
-        #         print(event)
-        
         @ordr.on_render_fail
         async def on_render_fail(event: aiordr.models.RenderFailEvent) -> None:
             if event.render_id == render.render_id:
@@ -123,15 +118,6 @@ class osu(commands.GroupCog, name=module.cog_name):
         async def on_render_finish(event: aiordr.models.RenderFinishEvent) -> None:
             if event.render_id == render.render_id:
                 return await interaction.edit_original_response(content=event.video_url)
-
-    #/rpc_test
-    @app_commands.command(name="rpc_test", description="smol test with reading rpc data")
-    async def rpc_test(self, interaction: discord.Interaction):
-        user = interaction.guild.get_member_named("dorkreamer")
-
-        print(user.activity.state)
-
-        await interaction.response.send_message("UwU")
 
     #/profile
     @app_commands.command(name="profile",description="Shows the specified user's osu!profile page!")
@@ -170,11 +156,11 @@ class osu(commands.GroupCog, name=module.cog_name):
                         beatmap = api.search_beatmapsets(query=beatmap_query, explicit_content="show").beatmapsets[0]
 
         if not user.profile_colour:
-            accent_color = imagetools.get_accent_color(image=user.avatar_url)
+            average_color = imagetools.get_average_color(image=user.avatar_url)
         else:
-            accent_color = user.profile_colour
+            average_color = user.profile_colour
         
-        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}{':robot:' if user.is_bot else ''} {':x:' if user.is_deleted else ''} {user.username} {':green_circle:' if user.is_online else ':red_circle:'}",color=discord.Color.from_str(accent_color)).set_thumbnail(url=user.avatar_url).set_image(url=user.cover_url)
+        embed = discord.Embed(title=f"{get_flag(code=user.country_code)}{':robot:' if user.is_bot else ''} {':x:' if user.is_deleted else ''} {user.username} {':green_circle:' if user.is_online else ':red_circle:'}",color=discord.Color.from_str(average_color)).set_thumbnail(url=user.avatar_url).set_image(url=user.cover_url)
         
         if beatmap:
             embed.set_author(name=str(localization.external.read(f"playing.{mode}", language)).format(beatmap=beatmap.title), url=f"https://osu.ppy.sh/beatmapsets/{beatmap.id}")
