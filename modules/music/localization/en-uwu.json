@@ -1,0 +1,30 @@
+{
+    "no_voice_play":"You nyeed t-to eithew be in a voice channyew ow (・`ω´・) specify onye in the x3 `vc` awgument t-to use this command!",
+    "no_source":"You nyeed t-to pwovide eithew a seawch quewy/uww fow a song ow (・`ω´・) a fiwe t-to be queued!",
+    "unknown_format":"This fiwe fowmat is nyot suppowted, yet...",
+    "no_voice":"You nyeed t-to be in a voice channyew t-to use this command!",
+    "not_connected":"I'm nyot connyected t-to any OwO voice channyews!",
+    
+    "nothing_playing":"Thewe's nyothing *runs away* q-queued at the x3 moment!",
+    "nothing_playing_tease":"Maybe you c-can change that ;)",
+
+    "now_playing":"Nyow >w< pwaying:",
+    "volume_set":"Vowume was set t-to {volume}",
+
+    "playback_stopped":"Pwayback was stopped!",
+
+    "not_found":"Couwdn't find any OwO twacks with that quewy. Make suwe you spewwed i-it cowwectwy ÚwÚ and pwease twy again.",
+
+    "resumed":"{author} was **wesumed!**",
+
+    "queued_playlist":"Queued {added} songs fwom the x3 pwaywist:",
+    "queued_album":"Queued {added} songs fwom the x3 awbum:",
+
+    "loop":"Wooping the x3 cuwwent song!",
+    "loop_all":"Wooping this queue!",
+    "loop_disabled":"Wooping was disabwed!",
+
+    "queue_end_title":"Finyished pwaying the x3 queue!",
+    "queue_end_description":"Paused ^-^ due t-to wooping b-being disabwed"
+
+}
