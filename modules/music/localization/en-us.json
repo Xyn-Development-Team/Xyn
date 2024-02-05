@@ -9,6 +9,7 @@
     "nothing_playing_tease":"Maybe you can change that ;)",
 
     "now_playing":"Now playing:",
+    "album":"Album",
     "volume_set":"Volume was set to {volume}",
 
     "playback_stopped":"Playback was stopped!",
@@ -22,6 +23,9 @@
 
     "loop":"Looping the current song!",
     "loop_all":"Looping this queue!",
-    "loop_disabled":"Looping was disabled!"
+    "loop_disabled":"Looping was disabled!",
+
+    "queue_end_title":"Finished playing the queue!",
+    "queue_end_description":"Paused due to looping being disabled"
 
 }
