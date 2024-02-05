@@ -77,6 +77,7 @@ def rip(id, username=str, description=None, pfp=None):
 
     if pfp:
         pfp = get_pfp(pfp, (300, 300))
+        pfp = ImageEnhance.Contrast(pfp).enhance(2)
         pfp = pfp.filter(ImageFilter.EMBOSS)
         pfp = ImageEnhance.Color(pfp).degenerate
         tombstone.paste(pfp, ((450, 180)), pfp)
@@ -85,7 +86,7 @@ def rip(id, username=str, description=None, pfp=None):
     text_draw.text((600,130),textwrap.fill(username if username else "Anonymous",30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
     
     if description:
-        text_draw.text((600,520),textwrap.fill(description,30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
+        text_draw.text((600,517),textwrap.fill(description,30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
     
     text_layer = text_layer.filter(ImageFilter.EMBOSS)
     tombstone.paste(text_layer, text_layer)
