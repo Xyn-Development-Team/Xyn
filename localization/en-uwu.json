@@ -1,0 +1,25 @@
+{
+    "logged_as":"W-Wogged in as {color}{user}{reset}",
+    "running_on":"Wunnying on {color}{mode}{reset}",
+    
+    "development":"devewopment ;;w;;",
+    "retail":"wetaiw",
+    
+    "os":"OS: {color}{os} / {release}{reset}",
+    "cpu":"CPU: {color}{cpu}{reset}",
+    "python_version":"Python version: {color}{version}{reset}",
+    "discord.py_version":"Discowd.py version: {color}{version}{reset}",
+
+    "no_runtime_mode":"You fowgot t-to set the x3 wuntime mode, baka!!11",
+
+    "user_no_permission":"You awen't awwowed t-to use this command?!!",
+    "bot_no_permission":"I don't have pewmission t-to do this!!11",
+
+    "uncaught_exception":"An uncaught exception has occuwwed, this occuwwence has been w-wepowted t-to youw maintainyew!\nHewe's the x3 twaceback:\n```{log}```",
+    "interaction_acknowledged":"Intewaction has awweady been acknyowwedged?!!  {module}.{command}",
+    "import_only":"This moduwe is supposed *screams* t-to be impowted by Xyn!!11 You baka!?",
+    "guild_only":"This c-c-command c-can onwy be used within a guiwd?!?!!",
+    "module_missing":"the moduwe {moduwe}'s fiwes awe missing?!?1",
+
+    "thinking":"{bot} is thinking..."
+}
