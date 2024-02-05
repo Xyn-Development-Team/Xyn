@@ -234,7 +234,7 @@ class fun(commands.GroupCog, name=module.cog_name):
 
     #/rip
     @app_commands.command(name="rip", description="Makes an image of a tombstone")
-    @app_commands.describe()
+    @app_commands.describe(name="Who died?", description="Something to go at the bottom of their tombstone")
     async def rip(self, interaction: discord.Interaction, name:Optional[str], description:Optional[str], pfp:Optional[discord.Attachment], user:Optional[discord.User]):
         await interaction.response.defer(thinking=True)
         
