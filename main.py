@@ -92,8 +92,9 @@ class Bot(commands.Bot):
 
     # And also to ones we're already in
     async def on_interaction(self, interaction:discord.Interaction):
-        if not storage.guild.read(interaction.guild.id,"language"):
-            storage.guild.set(interaction.guild.id,"language",settings.language)
+        if interaction.guild:
+            if not storage.guild.read(interaction.guild.id,"language"):
+                storage.guild.set(interaction.guild.id,"language",settings.language)
 
     async def on_ready(self):
         #Status task, updates the bot's presence every minute
