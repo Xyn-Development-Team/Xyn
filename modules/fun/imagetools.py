@@ -46,7 +46,7 @@ def quote(id, username, display_name="Anonymous", pfp=None, quote=""):
 
     if username:
         #Username
-        draw.text((980,630),textwrap.fill("@" + username if not re.findall("#", username) else username ,45), None, font3, align="left", anchor="ms")
+        draw.text((980,630),textwrap.fill("@" + username if "@" not in username else username ,45), None, font3, align="left", anchor="ms")
 
     if __name__ == "__main__":
         background.show()
@@ -106,7 +106,8 @@ if __name__ == "__main__":
     #rip(id, "Moonlight Dorkreamer 🌓", "Was too much of a dork to be left alive! here's some more text to feasten your eyes!", "./modules/fun/temp/pfp.jpg")
     #dice(id,999)
     
-    quote(id, "@dorkreamer", "Moonlight Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","Okay let's go!")
-    quote(id, "@dorkreamer", "Not Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","Okay let's go!")
+    quote(id, "@dork", "dork", f"./modules/fun/temp/pfp.jpg", "I'll kms")
+    #quote(id, "@dorkreamer", "Moonlight Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","Okay let's go!")
+    #quote(id, "@dorkreamer", "Not Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","Okay let's go!")
     #quote(id, "@dorkreamer", "Moonlight Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","OwO!")
     #quote(id, "@dorkreamer", "Moonlight Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","I friggin love pudding, anyways here's a long thing OwO, how about we make this even longer and much more lovely, I think we just done it, it's properly wrapping rn")
