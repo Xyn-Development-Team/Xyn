@@ -23,6 +23,7 @@ def get_image(image, resize=False, size=(300, 300)):
 
 
 def quote(id, username, display_name="Anonymous", pfp=None, quote=""):
+    # I hate PIL :c
     quote = "\"" + quote + "\""
     background = Image.new("RGBA",(1280,720))
     gradient = Image.open("./modules/fun/assets/quote_gradient.png").resize((1280,720)).convert(mode="RGBA")
@@ -81,13 +82,13 @@ def rip(id, username=str, description=None, pfp=None):
         pfp = ImageEnhance.Contrast(pfp).enhance(2)
         pfp = pfp.filter(ImageFilter.EMBOSS)
         pfp = ImageEnhance.Color(pfp).degenerate
-        tombstone.paste(pfp, ((450, 180)), pfp)
+        tombstone.paste(pfp, ((450, 170)), pfp)
 
     text_draw = ImageDraw.Draw(text_layer)
-    text_draw.text((600,130),textwrap.fill(username if username else "Anonymous",30),fill="white",stroke_fill="black",stroke_width=4,font=font,anchor="ms")
+    text_draw.text((600,125),textwrap.fill(username if username else "Anonymous",30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
     
     if description:
-        text_draw.text((600,517),textwrap.fill(description,30),fill="white",stroke_fill="black",stroke_width=4,font=font,anchor="ms")
+        text_draw.text((600,505),textwrap.fill(description,30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
     
     text_layer = text_layer.filter(ImageFilter.EMBOSS)
     tombstone.paste(text_layer, text_layer)
@@ -105,9 +106,4 @@ if __name__ == "__main__":
     id = 69
     #rip(id, "Moonlight Dorkreamer 🌓", "Was too much of a dork to be left alive! here's some more text to feasten your eyes!", "./modules/fun/temp/pfp.jpg")
     #dice(id,999)
-    
-    quote(id, "@dork", "dork", f"./modules/fun/temp/pfp.jpg", "I'll kms")
-    #quote(id, "@dorkreamer", "Moonlight Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","Okay let's go!")
-    #quote(id, "@dorkreamer", "Not Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","Okay let's go!")
-    #quote(id, "@dorkreamer", "Moonlight Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","OwO!")
     #quote(id, "@dorkreamer", "Moonlight Dorkreamer 🌓",f"./modules/fun/temp/pfp.jpg","I friggin love pudding, anyways here's a long thing OwO, how about we make this even longer and much more lovely, I think we just done it, it's properly wrapping rn")
