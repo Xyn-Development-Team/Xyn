@@ -23,7 +23,6 @@ def get_image(image, resize=False, size=(300, 300)):
 
 
 def quote(id, username, display_name="Anonymous", pfp=None, quote=""):
-    # I hate PIL :c
     quote = "\"" + quote + "\""
     background = Image.new("RGBA",(1280,720))
     gradient = Image.open("./modules/fun/assets/quote_gradient.png").resize((1280,720)).convert(mode="RGBA")
