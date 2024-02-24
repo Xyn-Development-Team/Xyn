@@ -7,3 +7,5 @@ uwuipy
 wavelink
 requests
 numpy
+aiordr
+ossapi
