@@ -6,11 +6,9 @@ import inspect
 
 languages = {
     "English":"en-us",
-    "American English":"en-us",
-    "Japanese":"jp",
-    "日本語":"jp",
-    "Portuguese":"pt-br",
-    "Português":"pt-br"
+    "Deutsch":"de-de",
+    "Português":"pt-br",
+    "UwU":"en-uwu"
 }
 
 class internal:
