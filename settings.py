@@ -4,5 +4,6 @@ language = "en-us"
 modules = {
     "fun":True,
     "music":True,
-    "osu":True
+    "osu":True,
+    "scraping":True
 }
