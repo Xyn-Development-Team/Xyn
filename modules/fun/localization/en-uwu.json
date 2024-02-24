@@ -1,0 +1,23 @@
+{
+    "confession_title_label":"Titwe",
+    "confession_title_placeholder":"A nyice kawaii titwe",
+
+    "confession_label":"Confession",
+    "confession_placeholder":"Y-Y-Youw confession...",
+
+    "confession_embed_title":"Confession #{confessiona} {title}",
+    "confession_sent":"Confession posted successfuwwy",
+
+    "diceroll_embed_description":"has wowwed a **{dice}!**",
+
+    "conflip_embed_title":"{user} has fwipped **{result}!** ^-^",
+    "coinflip_heads":"heads",
+    "conflip_tails":"taiws",
+
+    "persona_no_username":"You nyeed t-to pwovide an usew nyame at weast once t-to use this command!!",
+    
+    "image_gen_error":"An ewwow occuwwed t-twying t-to genyewate this image :c",
+    "starboard_setup":"Stawboawd was setup successfuwwy!!11",
+
+    "loaded":"fun.py was woaded!"
+}
