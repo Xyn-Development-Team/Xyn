@@ -1,0 +1,31 @@
+{
+    "no_voice_play":"Du musst entweder in einem Voice-Channel sein oder in dem 'vc' Argument einen festlegen!",
+    "no_source":"Du musst entweder eine/n Suche/Link für ein Lied oder eine Datei schicken um diese in die Warteschlange zu packen!", 
+    "unknown_format":"Dieser Datei-Format ist noch nicht kompatibel...",
+    "no_voice":"Du musst zu einem Voice-Channel verbunden sein um diesen Befehlt zu nutzen!",
+    "not_connected":"Ich bin zu keinem Voice-Channel verbunden!",
+    
+    "nothing_playing":"Nichts ist in der Warteschlange!",
+    "nothing_playing_tease":"Vielleicht kannst du das ja ändern ;)",
+
+    "now_playing":"Spielt jetzt ab:",
+    "album":"Album",
+    "volume_set":"Lautstärke auf {volume} gesetzt",
+
+    "playback_stopped":"Playback wurde pausiert!",
+
+    "not_found":"Konnte kein Lied mit diesem Namen finden. Überprüf bitte ob du den richtig buchstabiert hast und versuch es nochmal.",
+
+    "resumed":"{author} wurde **fortgesetzt!**",
+
+    "queued_playlist":"{added} wurde von Playlist hinzugefügt:",
+    "queued_album":"{added} wurde vom Album hinzugefügt:",
+
+    "loop":"Lied wird geloopt!",
+    "loop_all":"Warteschlange wird geloopt!",
+    "loop_disabled":"Looping wurde ausgeschaltet!",
+
+    "queue_end_title":"Warteschlange wurde komplett abgespielt!",
+    "queue_end_description":"Pausiert, da looping ausgeschaltet wurde!"
+
+}
