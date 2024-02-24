@@ -1,0 +1,27 @@
+{
+    "setup.loaded":"osu!.py was woaded!",
+        
+    "profile.followers":"Fowwowews",
+    "profile.rank":"W-W-Wank",
+    "profile.playmode":"Pwaymode",
+    "profile.playstyle":"Pwaystywe",
+    "profile.location":"Wocation",
+    "profile.occupation":"Occupation",
+    "profile.interests":"Intewests",
+    "profile.Twitter":"Twittew",
+    "profile.Discord":"Discowd",
+
+    "no_user":"Couwdn't find a usew with this usewnyame/ID!!",
+
+    "recent_plays":"Wecent {mode} p-pways from:",
+
+    "replay.uploading":"Y-Y-Youw w-wepway is b-being upwoaded t-to o!wdw...",
+    "replay.rendering":"Y-Y-Youw w-wepway is b-being wendewed by o!wdw",
+    "replay.error":"Y-Y-Youw w-wepway couwdn't be wendewed!? Hewe's a wog of the occuwwence:\n{}",
+    "replay.no_file":"You nyeed t-to specify a osu! w-wepway fiwe ow (・`ω´・) a url t-to onye, t-to use this command!!",
+
+    "playing.osu":"C-Cwicking ciwcwes:\n{beatmap}",
+    "playing.mania":"Smashing keys:\n{beatmap}",
+    "playing.taiko":"Bashing dwums:\n{beatmap}",
+    "playing.catch":"Catching fwuits:\n{beatmap}"
+}
