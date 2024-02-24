@@ -1,0 +1,23 @@
+{
+    "confession_title_label":"Titel",
+    "confession_title_placeholder":"Ein schöner, Aufmerksamkeit erregender Titel",
+
+    "confession_label":"Beichte",
+    "confession_placeholder":"Deine Beichte...",
+
+    "confession_embed_title":"Beichte #{confessiona} {title}",
+    "confession_sent":"Beichte erfolgreich gepostet",
+
+    "diceroll_embed_description":"hat eine **{dice}!** gewürfelt!",
+
+    "coinflip_embed_title":"{user}'s Münze zeigt: **{result}!**",
+    "coinflip_heads":"Kopf",
+    "coinflip_tails":"Zahl",
+
+    "persona_no_username":"Um diesen Befehl zu nutzen musst du mindestens einmal einen Benutzernamen eintragen!",
+    
+    "image_gen_error":"Beim Versuch dieses Bild zu generieren ist ein Fehler aufgetreten :c",
+    "starboard_setup":"Starboard setup war erfolgreich!",
+
+    "loaded":"fun.py wurde geladen!"
+}
