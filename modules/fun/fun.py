@@ -55,11 +55,26 @@ class Confession(discord.ui.Modal,title="Confession"):
         await interaction.response.send_message(localization.external.read("confession_sent",storage.guild.read(interaction.guild.id, "language")),ephemeral=True)
         await interaction.channel.send(embed=embed)
 
-
 class fun(commands.GroupCog, name=module.cog_name):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         super().__init__()
+
+        bot.tree.add_command(app_commands.ContextMenu(name="Quote this!", callback=self.quote_menu))
+
+    async def quote_menu(self, interaction: discord.Interaction, message: discord.Message):
+        await interaction.response.defer(thinking=True)
+        if interaction.guild:
+            language = storage.guild.read(interaction.guild.id,"language")
+        else:
+            language = str(interaction.locale).lower()
+        image = imagetools.quote(message.author.id, message.author.name, message.author.display_name, message.author.display_avatar.url, message.content)
+        if image:
+            await interaction.followup.send(file=discord.File(image))
+            os.remove(image)
+        else:
+            # An error has occurred trying to generate this image :c
+            await interaction.followup.send(localization.external.read("image_gen_error", language))        
 
     #TODO add color based on the color most present in the user's pfp
     @commands.Cog.listener()
@@ -115,11 +130,11 @@ class fun(commands.GroupCog, name=module.cog_name):
     async def coinflip(self, interaction: discord.Interaction):
         coin = random.randint(0,1)
         if coin < 1:
-            result = localization.external.read("heads",storage.guild.read(interaction.guild.id,"language"))
+            result = localization.external.read("coinflip_heads",storage.guild.read(interaction.guild.id,"language"))
         else:
-            result = localization.external.read("tails",storage.guild.read(interaction.guild.id,"language"))
+            result = localization.external.read("coinflip_tails",storage.guild.read(interaction.guild.id,"language"))
         # **{user}** has flipped **{result}!**
-        embed = discord.Embed(title=localization.external.read("coinflip_embed_title",storage.guild.read(interaction.guild.id,"language")))
+        embed = discord.Embed(title=str(localization.external.read("coinflip_embed_title",storage.guild.read(interaction.guild.id,"language"))).format(user=interaction.user.display_name, result=result))
         await interaction.response.send_message(embed=embed)
     
     #/uselessfacts
@@ -186,7 +201,7 @@ class fun(commands.GroupCog, name=module.cog_name):
     async def quote(self, interaction: discord.Interaction, quote:str, user:Optional[discord.User],name:Optional[str],pfp:Optional[discord.Attachment]):
         await interaction.response.defer(thinking=True)
         if user:
-            image = imagetools.quote(user.id, user.name, user.display_name, user.display_avatar, quote)
+            image = imagetools.quote(user.id, user.name, user.display_name, user.display_avatar.url, quote)
         else:
             image = imagetools.quote(id=interaction.user.id, display_name=name if name else None, pfp=pfp if pfp else None,quote=quote)
         
@@ -239,7 +254,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         await interaction.response.defer(thinking=True)
         
         if user:
-            image = imagetools.rip(interaction.user.id, user.display_name, description, user.display_avatar)
+            image = imagetools.rip(interaction.user.id, user.display_name, description, user.display_avatar.url)
         else:
             image = imagetools.rip(interaction.user.id, name, description, pfp.url if pfp else None)
 
