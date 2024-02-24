@@ -1,0 +1,27 @@
+{
+    "logged_as":"Eingeloggt als {color}{user}{reset}",
+    "running_on":"Läuft auf {color}{mode}{reset}",
+    
+    "development":"Entwicklung",
+    "retail":"Verkauf",
+    
+    "os":"OS: {color}{os} / {release}{reset}",
+    "cpu":"CPU: {color}{cpu}{reset}",
+    "python_version":"Python Version: {color}{version}{reset}",
+    "discord.py_version":"Discord.py Version: {color}{version}{reset}",
+
+    "no_runtime_mode":"Du hast vergessen den runtime-modus einzustellen, dummi",
+
+    "user_no_permission":"Du darfst diesen Befehl nicht nutzen!",
+    "bot_no_permission":"Ich habe nicht die Erlaubnis dies zu tun!",
+
+    "uncaught_exception":"Ein Fehler ist passiert, dieser wurde nun deinem Maintainer gemeldet!\nHier ist der traceback:\n```{log}```",
+    "interaction_acknowledged":"Befehl ist schon am laufen! {module}.{command}",
+    "import_only":"Dieses Modul sollte von Xyn importiert werden! Du dummi!!!",
+    "guild_only":"Dieser Befehl kann nur innerhalb einer Gilde ausgeführt werden!",
+    "module_missing":"Die Dateien von dem Modul: {module} fehlt!!!",
+
+    "language_set":"Die Sprache dieser Gilde wurde auf **{language}** geändert!",
+
+    "thinking":"{bot} ist am denken..."
+}

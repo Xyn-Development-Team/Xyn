@@ -1,0 +1,27 @@
+{
+    "setup.loaded":"osu!.py wurde geladen!",
+        
+    "profile.followers":"Follower",
+    "profile.rank":"Rang",
+    "profile.playmode":"Playmode",
+    "profile.playstyle":"Playstyle",
+    "profile.location":"Standort",
+    "profile.occupation":"Beschäftigung",
+    "profile.interests":"Interessen",
+    "profile.Twitter":"Twitter",
+    "profile.Discord":"Discord",
+
+    "no_user":"Konnte keinen Nutzen mit diesem Namen/ID finden!",
+
+    "recent_plays":"Neue {mode} plays von :",
+
+    "replay.uploading":"Dein Replay wird zu o!rdr hochgeladen...",
+    "replay.rendering":"Dein Replay wird von o!rdr gerendert",
+    "replay.error":"Dein Replay konnte nicht gerendert werden! Hier ist ein Log von diesem Fehler:\n{}",
+    "replay.no_file":"Du musst ein osu!replay oder einen Link zu einem angeben um diesen Befehl zu nutzen!",
+
+    "playing.osu":"Kreise am klicken:\n{beatmap}",
+    "playing.mania":"Tasten am zerschlagen:\n{beatmap}",
+    "playing.taiko":"Trommeln am hauen:\n{beatmap}",
+    "playing.catch":"Früchte am fangen:\n{beatmap}"
+}
