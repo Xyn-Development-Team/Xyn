@@ -1,5 +1,9 @@
+<img width="128" alt="Xyn_logo" src="https://github.com/Xyn-Development-Team/Xyn/assets/124145361/bc3c447b-5af8-4987-ae86-79d9e27e43a8">
+
 # Xyn
 A bot that does a little bit of everything without being bloated.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F1UVKHA)
 
 # Commands
 - ## Fun
