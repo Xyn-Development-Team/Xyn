@@ -150,7 +150,9 @@ class osu(commands.GroupCog, name=module.cog_name):
                         mode = "taiko"
                     elif discord_user.activity.state == "Catching fruit":
                         mode = "catch"
-                    
+                    else:
+                        mode = None
+
                     if mode:
                         beatmap_query = discord_user.activity.details
                         beatmap = api.search_beatmapsets(query=beatmap_query, explicit_content="show").beatmapsets[0]
@@ -163,7 +165,7 @@ class osu(commands.GroupCog, name=module.cog_name):
         embed = discord.Embed(title=f"{get_flag(code=user.country_code)}{':robot:' if user.is_bot else ''} {':x:' if user.is_deleted else ''} {user.username} {':green_circle:' if user.is_online else ':red_circle:'}",color=discord.Color.from_str(average_color)).set_thumbnail(url=user.avatar_url).set_image(url=user.cover_url)
         
         if beatmap:
-            embed.set_author(name=str(localization.external.read(f"playing.{mode}", language)).format(beatmap=beatmap.title), url=f"https://osu.ppy.sh/beatmapsets/{beatmap.id}")
+            embed.set_author(name=str(localization.external.read(f"playing.{mode}", language)).format(beatmap=beatmap.title) if mode else None, url=f"https://osu.ppy.sh/beatmapsets/{beatmap.id}")
 
         fields = {
             f"{localization.external.read('profile.followers', language)}": '{:,}'.format(user.follower_count),
