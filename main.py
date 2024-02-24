@@ -8,6 +8,8 @@ import discord
 from discord import app_commands
 from colorama import Back, Fore, Style
 from discord.ext import commands
+from discord.ext.commands import has_permissions
+from typing import Literal
 
 from dotenv import load_dotenv ; load_dotenv()
 
@@ -43,6 +45,15 @@ class Bot(commands.Bot):
                 await self.tree.sync()
             
             await interaction.followup.send("All modules were reloaded successfully!",ephemeral=True)
+
+        @self.tree.command(name="language", description="Sets what language Xyn should use in it's responses!")
+        @has_permissions(administrator=True)
+        async def language(interaction: discord.Interaction, language:Literal[tuple(localization.languages.keys())]):
+            if not interaction.guild:
+                return await interaction.response.send_message(localization.internal.read("guild_only", str(interaction.locale).lower()))
+                
+            storage.guild.set(interaction.guild.id, "language", localization.languages[language])
+            await interaction.response.send_message(str(localization.internal.read("language_set", localization.languages[language])).format(language=language))
 
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error:discord.app_commands.CommandInvokeError):
@@ -83,7 +94,7 @@ class Bot(commands.Bot):
                 else:
                     # The module {module}'s files are missing!!
                     print(str(localization.internal.read("module_missing",settings.language)))
-        #await self.tree.sync() # Only uncomment this when implementing new commands, or you'll be rate limited pretty quickly!!
+        await self.tree.sync() # Only uncomment this when implementing new commands, or you'll be rate limited pretty quickly!!
 
     # Let's make sure we'll always have a language set for any new guilds
     async def on_guild_join(self, guild):
