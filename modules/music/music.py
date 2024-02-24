@@ -32,9 +32,9 @@ class music(commands.GroupCog, name=module.cog_name):
         self.bot = bot
         super().__init__()
 
-        self.queues = {}
-        self.queue_positions = {}
-        self.queue_modes = {}
+        self.queues = {} # Queue
+        self.queue_positions = {} # Index
+        self.queue_modes = {} # Normal / Loop / Loop All
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
@@ -106,11 +106,11 @@ class music(commands.GroupCog, name=module.cog_name):
             await player.home.send(embed=embed)
 
     #/stealth_skip
-    @app_commands.command(name="stealth_skip", description="(Debugging) Skips to the next song without replacing!")
-    async def stealth_skip(self, interaction:discord.Interaction):
-        player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-        await player.seek(player.current.length)
-        await interaction.response.send_message("skipped uwu")
+    # @app_commands.command(name="stealth_skip", description="(Debugging) Skips to the next song without replacing!")
+    # async def stealth_skip(self, interaction:discord.Interaction):
+    #     player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+    #     await player.seek(player.current.length)
+    #     await interaction.response.send_message("skipped uwu")
 
     #/skip
     @app_commands.command(name="skip",description="Skips to the next song!")
