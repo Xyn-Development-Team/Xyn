@@ -160,6 +160,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         
         if media:
             await webhook.send(media.url)
+        await webhook.delete()
 
     #/persona
     @app_commands.command(name="persona",description="Allows you to send a message as \"another user\"")
@@ -246,6 +247,7 @@ class fun(commands.GroupCog, name=module.cog_name):
 
         webhook = await interaction.channel.create_webhook(name=interaction.user.display_name,avatar=requests.get(interaction.user.display_avatar.url).content)
         await webhook.send(uwu.uwuify(say))
+        await webhook.delete()
 
     #/rip
     @app_commands.command(name="rip", description="Makes an image of a tombstone")
