@@ -1,4 +1,4 @@
-<img width="128" alt="Xyn_logo" src="https://github.com/Xyn-Development-Team/Xyn/assets/124145361/bc3c447b-5af8-4987-ae86-79d9e27e43a8">
+<img width="128" alt="Xyn_logo" src="https://github.com/Xyn-Development-Team/Xyn/assets/124145361/4fbc9e9d-40fd-4944-a980-123539c95f85">
 
 # Xyn
 A bot that does a little bit of everything without being bloated.
