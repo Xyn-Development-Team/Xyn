@@ -9,3 +9,4 @@ requests
 numpy
 aiordr
 ossapi
+python-dotenv
