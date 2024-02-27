@@ -129,13 +129,18 @@ class osu(commands.GroupCog, name=module.cog_name):
             language = str(interaction.locale).lower()
         await interaction.response.defer(thinking=True)
         
-        user = api.search(user,mode="user") ; user = user.users.data[0].expand()
+        user = api.search(user, mode="user") ; user = user.users.data[0].expand()
 
         if not user:
             user = api.user(user)
         
         if not user:
             return await interaction.followup.send(localization.external.read("no_user", language))
+
+        if not user.profile_colour:
+            accent_color = imagetools.get_average_color(image=user.avatar_url)
+        else:
+            accent_color = user.profile_colour
 
         beatmap = None
         if user.discord:
