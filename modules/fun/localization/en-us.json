@@ -5,16 +5,17 @@
     "confession_label":"Confession",
     "confession_placeholder":"Your confession...",
 
-    "confession_embed_title":"Confession #{confessiona} {title}",
+    "confession_embed_title":"Confession #{confession} {title}",
     "confession_sent":"Confession posted successfully",
 
     "diceroll_embed_description":"has rolled a **{dice}!**",
 
-    "conflip_embed_title":"{user} has flipped **{result}!**",
+    "coinflip_embed_title":"{user} has flipped **{result}!**",
     "coinflip_heads":"heads",
-    "conflip_tails":"tails",
+    "coinflip_tails":"tails",
 
-    "persona_no_username":"You need to provide an user name at least once to use this command!",
+    "persona_no_username":"You need to provide an username at least once to use this command!",
+    "love_none":"Please make sure to give names for the arguments `person1` and `person2`, or specify users for the arguments `user1` and `user2`!",
     
     "image_gen_error":"An error occurred trying to generate this image :c",
     "starboard_setup":"Starboard was setup successfully!",
