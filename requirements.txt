@@ -10,3 +10,4 @@ numpy
 aiordr
 ossapi
 python-dotenv
+pycountry
