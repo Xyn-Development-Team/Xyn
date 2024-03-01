@@ -153,7 +153,7 @@ class fun(commands.GroupCog, name=module.cog_name):
             # This command can only be used within a guild!
             return await interaction.response.send_message(localization.internal.read("guild_only",storage.guild.read(interaction.guild.id,"language")))
         
-        await interaction.response.send_message(localization.internal.read("thinking", storage.guild.read(interaction.guild.id, "language")),ephemeral=True)
+        await interaction.response.send_message(str(localization.internal.read("thinking",storage.guild.read(interaction.guild.id,"language"))).format(bot=interaction.client.user.display_name), ephemeral=True)
 
         webhook = await interaction.channel.create_webhook(name=user.display_name,avatar=requests.get(user.display_avatar.url).content)
         await webhook.send(message)
@@ -266,6 +266,48 @@ class fun(commands.GroupCog, name=module.cog_name):
         else:
             # An error has occurred trying to generate this image :c
             await interaction.followup.send(localization.external.read("image_gen_error",storage.guild.read(interaction.guild.id,"language")))
+
+    #/love
+    @app_commands.command(name="love", description="A \"totally accurate\" love meter")
+    @app_commands.describe(person1="Someone or something on slot 1!")
+    @app_commands.describe(person2="Someone or something on slot 2!")
+    @app_commands.describe(user1="A user for slot 1!")
+    @app_commands.describe(user2="A user for slot 2!")
+    async def love(self, interaction: discord.Interaction, person1: Optional[str], person2: Optional[str], user1: Optional[discord.User], user2: Optional[discord.User]):
+        if user1:
+            person1 = user1.display_name
+        if user2:
+            person2 = user2.display_name
+
+        if not person1 or not person2:
+            return await interaction.response.send_message(localization.external.read("love_none", storage.guild.read(interaction.guild.id, "language")))
+
+        # Use the full length names for the first seed.
+        random.seed(person1.lower() + person2.lower())
+
+        # This should make sure longer/shorter names don't create biases.
+        seed_length = 5
+
+        # Trim both seeds.
+        seed_person1 = person1[:seed_length].lower()
+        seed_person2 = person2[:seed_length].lower()
+
+        # Pad the shorter seed with spaces to make their lengths equal
+        seed_person1 = seed_person1.ljust(seed_length)
+        seed_person2 = seed_person2.ljust(seed_length)
+
+        total = 0
+        for seed in (seed_person1, seed_person2):
+            for character in seed:
+                points = random.uniform(0, 1)
+                total += points
+        total = round(total) * 10
+        total = min(max(total, 0), 100)
+
+        embed = discord.Embed(title=f"{person1} :pink_heart: {person2}", description=f"{total}%", color=discord.Color.from_str("#e8439c"))
+
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     if not os.path.isdir("./modules/fun/temp"):
