@@ -16,6 +16,7 @@ A bot that does a little bit of everything without being bloated.
     - /uwuify / Makes everything you say K-Kawaii!!!
     - /rip / Generates a tombstone image.
     - /starboard_setup (Admin only) / Allows you to setup how starboards will behave in your guild.
+    - /fun love / A "totally accurate" love meter.
 - ## Music
     - /play / Allows you to play/add a song to the queue!
     - /queue / Shows all the songs in the queue.
