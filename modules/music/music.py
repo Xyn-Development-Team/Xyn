@@ -38,7 +38,6 @@ class music(commands.GroupCog, name=module.cog_name):
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
-
         player: wavelink.Player | None = payload.player
         if not player:
             return
@@ -123,6 +122,8 @@ class music(commands.GroupCog, name=module.cog_name):
         if not interaction.guild.id in self.queues:
             return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
 
+        await interaction.response.defer(thinking=True)
+
         queue = self.queues[interaction.guild.id]
         self.queue_positions[interaction.guild.id]
 
@@ -144,7 +145,41 @@ class music(commands.GroupCog, name=module.cog_name):
             embed.set_thumbnail(url=player.current.artwork)
         embed.set_author(name=localization.external.read("now_playing", language))
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
+
+    #/rewind
+    @app_commands.command(name="rewind",description="Rewinds to the previous song!")
+    async def rewind(self, interaction:discord.Interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message(localization.internal.read("guild_only", str(interaction.locale).lower()))
+        else:
+            language = storage.guild.read(interaction.guild.id, "language")
+
+        if not interaction.guild.id in self.queues:
+            return await interaction.response.send_message(localization.external.read("not_connected", storage.guild.read(interaction.guild_id,"language")))
+
+        await interaction.response.defer(thinking=True)
+
+        queue = self.queues[interaction.guild.id]
+        self.queue_positions[interaction.guild.id]
+
+        player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
+        previous_song = player.current
+
+        self.queue_positions[interaction.guild.id] -= 1
+
+        await player.play(queue[self.queue_positions[interaction.guild.id]])
+
+        if player.current.artist.url:
+            embed = discord.Embed(title=player.current.title, description=f"[{player.current.author}]({player.current.artist.url})\nRewinded from:[{previous_song.title}]({previous_song.uri})", url=player.current.uri, color=discord.Color.from_str(imagetools.get_average_color(player.current.artwork)) if player.current.artwork else discord.Color.random())
+        else:
+            embed = discord.Embed(title=player.current.title, description=f"{player.current.author}\nRewinded from:[{previous_song.title}]({previous_song.uri})", url=player.current.uri, color=discord.Color.from_str(imagetools.get_average_color(player.current.artwork)) if player.current.artwork else discord.Color.random())
+        if player.current.artwork:
+            embed.set_thumbnail(url=player.current.artwork)
+        embed.set_author(name=localization.external.read("now_playing", language))
+
+        await interaction.followup.send(embed=embed)
 
     #/now_playing
     @app_commands.command(name="now_playing",description="Take a peek at what's playing right now")
