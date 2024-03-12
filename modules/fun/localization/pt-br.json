@@ -1,0 +1,26 @@
+{
+    "confession_title_label":"Título",
+    "confession_title_placeholder":"Um belo título chamativo!",
+
+    "confession_label":"Confissão",
+    "confession_placeholder":"Sua confissão...",
+
+    "confession_embed_title":"Confissão #{confession} {title}",
+    "confession_sent":"Confissão postada com sucesso!",
+
+    "diceroll_embed_description":"rolow um **{dice}!**",
+
+    "coinflip_embed_title":"a moeda de {user} caiu em **{result}!**",
+    "coinflip_heads":"cara",
+    "coinflip_tails":"coroa",
+
+    "persona_no_username":"Você precisa fornecer um nome de usuário pelo menos uma vez para usar esse comando!",
+    "love_none":"Por favor certifique-se de dar nomes aos argumentos `person1` e `person2`, ou especifique usuários aos argumentos `user1` e `user2`",
+    
+    "":"Please make sure to give names for the arguments `person1` and `person2`, or specify users for the arguments `user1` and `user2`!",
+
+    "image_gen_error":"Um erro ocorreu ao gerar essa imagem :c",
+    "starboard_setup":"Starboard configurado com sucesso!",
+
+    "loaded":"fun.py for carregado!"
+}

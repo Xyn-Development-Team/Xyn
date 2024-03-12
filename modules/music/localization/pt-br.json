@@ -1,0 +1,31 @@
+{
+    "no_voice_play":"Você precisa ou estar em um canal de voz ou especificar um no argumento `vc` para usar esse comando!",
+    "no_source":"Você precisa fornecer um termo de pesquisa ou url de uma música para adicionar na fila!",
+    "unknown_format":"Esse formato não é suportado, ainda...",
+    "no_voice":"Você precisa estar em um canal de voz para usar esse comando!",
+    "not_connected":"Não estou conectado à nenhum canal de voz!",
+    
+    "nothing_playing":"A fila está vazia no momento!",
+    "nothing_playing_tease":"Talvez você possa mudar isso ;)",
+
+    "now_playing":"Reproduzindo:",
+    "album":"Álbum",
+    "volume_set":"O volume foi ajustado para {volume}",
+
+    "playback_stopped":"A reprodução foi encerrada!",
+
+    "not_found":"Não foram encontradas músicas com esse termo. Certifique-se que você digitou corretamente e por favor tente novamente!",
+
+    "resumed":"{author} was **resumed!**",
+
+    "queued_playlist":"Foram adicionadas {added} músicas da playlist:",
+    "queued_album":"Foram adicionadas {added} músicas do álbum:",
+
+    "loop":"Repetindo a música atual!",
+    "loop_all":"Repetindo esta fila!",
+    "loop_disabled":"A repetição foi desativada!",
+
+    "queue_end_title":"Fim da fila!",
+    "queue_end_description":"A reprodução foi pausada devido à repetição estar desativada"
+
+}

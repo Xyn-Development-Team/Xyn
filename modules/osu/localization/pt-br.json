@@ -1,0 +1,27 @@
+{
+    "setup.loaded": "osu!.py foi carregado!",
+    
+    "profile.followers": "Seguidores",
+    "profile.rank": "Rank",
+    "profile.playmode": "Modo de Jogo",
+    "profile.playstyle": "Estilo de Jogo",
+    "profile.location": "Localização",
+    "profile.occupation": "Ocupação",
+    "profile.interests": "Interesses",
+    "profile.Twitter": "Twitter",
+    "profile.Discord": "Discord",
+
+    "no_user": "Não foi possível encontrar um usuário com esse nome/ID!",
+
+    "recent_plays": "Jogadas recentes no {mode} de:",
+
+    "replay.uploading": "Seu replay está sendo enviado para o o!rdr...",
+    "replay.rendering": "Seu replay está sendo renderizado pelo o!rdr.",
+    "replay.error": "Seu replay não pôde ser renderizado! Aqui está um registro do que ocorreu:\n{}",
+    "replay.no_file": "Você precisa especificar um arquivo de replay do osu! ou fornecer uma URL para um, para usar este comando!",
+
+    "playing.osu": "Clicando círculos:\n{beatmap}",
+    "playing.mania": "Esmagando teclas:\n{beatmap}",
+    "playing.taiko": "Batendo tambores:\n{beatmap}",
+    "playing.catch": "Pegando frutas:\n{beatmap}"
+}

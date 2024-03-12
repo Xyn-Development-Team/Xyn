@@ -1,0 +1,25 @@
+{
+    "logged_as":"Logado como: {color}{user}{reset}",
+    "running_on":"Rodando no modo: {color}{mode}{reset}",
+    
+    "development":"desenvolvimento",
+    "retail":"padrão",
+    
+    "os":"SO: {color}{os} / {release}{reset}",
+    "cpu":"CPU: {color}{cpu}{reset}",
+    "python_version":"Versão Python: {color}{version}{reset}",
+    "discord.py_version":"Versão Discord.py: {color}{version}{reset}",
+
+    "no_runtime_mode":"Você esqueceu de definir o modo de execução, schizo",
+
+    "user_no_permission":"Você não tem permissão para usar esse comando!",
+    "bot_no_permission":"Não tenho permissão para fazer isso!",
+
+    "uncaught_exception":"Uma exceção imprevista aconteceu!\nAqui está o traceback:\n```{log}```",
+    "interaction_acknowledged":"Interação já respondida! {module}.{command}",
+    "import_only":"Esse módulo deve ser importado pelo Xyn! Schizo!!!",
+    "guild_only":"Esse comando pode apenas ser usado em um servidor!",
+    "module_missing":"Os arquivos do módulo {module} estão faltando!",
+
+    "thinking":"{bot} está pensando..."
+}
