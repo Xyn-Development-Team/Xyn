@@ -11,16 +11,17 @@ def get_image(image, resize=False, size=(300, 300)):
     """Checks if the image is a URL and if so, loads it locally, else it tries to load from a path.
     If `resize` is True, it will resize the image to the specified `size`."""
     
-    if any(["https://" in image]):
-        response = requests.get(image)
-        image = Image.open(BytesIO(response.content))
+    if "https://" in image:
+        req = urllib.request.Request(image, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
+            image = Image.open(response)
     else:
         image = Image.open(image)
-    image = image.convert("RGBA")
+    
     if resize:
-        return image.resize(size)
-    else:
-        return image
+        image = image.resize(size)
+    
+    return image
 
 
 def quote(id:Union[int, str], username=None, display_name="Anonymous", pfp=None, quote="") -> str:

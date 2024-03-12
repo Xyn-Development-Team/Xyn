@@ -8,7 +8,8 @@ def get_image(image, resize=False, size=(300, 300)):
     If `resize` is True, it will resize the image to the specified `size`."""
     
     if "https://" in image:
-        with urllib.request.urlopen(image) as response:
+        req = urllib.request.Request(image, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
             image = Image.open(response)
     else:
         image = Image.open(image)
