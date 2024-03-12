@@ -5,6 +5,7 @@ import urllib
 import time
 from io import BytesIO
 import re
+from typing import Union
 
 def get_image(image, resize=False, size=(300, 300)):
     """Checks if the image is a URL and if so, loads it locally, else it tries to load from a path.
@@ -22,7 +23,20 @@ def get_image(image, resize=False, size=(300, 300)):
         return image
 
 
-def quote(id, username, display_name="Anonymous", pfp=None, quote=""):
+def quote(id:Union[int, str], username=None, display_name="Anonymous", pfp=None, quote="") -> str:
+    """Generates an image with a user's quote.
+
+    Args:
+        id (Union[int, str]): The user's Discord ID, used solely for easily distinguishing requests.
+        username (str, optional): The user's Discord @. Defaults to None.
+        display_name (str, optional): The user's display name. Defaults to "Anonymous".
+        pfp (str optional): A URL to the user's pfp. Defaults to None.
+        quote (str, optional): The content you want to quote. Defaults to "".
+
+    Returns:
+        str: Path for the image file.
+    """
+    
     quote = "\"" + quote + "\""
     background = Image.new("RGBA",(1280,720))
     gradient = Image.open("./modules/fun/assets/quote_gradient.png").resize((1280,720)).convert(mode="RGBA")
@@ -55,7 +69,17 @@ def quote(id, username, display_name="Anonymous", pfp=None, quote=""):
         background.save(f"./modules/fun/temp/{filename}")
         return "./modules/fun/temp/" + filename
 
-def dice(id,number):
+def dice(id:Union[int, str], number:int) -> str:
+    """Generates the image of a dice with a random number based on the number of sides
+
+    Args:
+        id (Union[int, str]): The user's Discord ID, used solely for easily distinguishing requests.
+        number (int): The number of sides the dice has from 1 - 999.
+
+    Returns:
+        str: Path for the image file.
+    """
+
     dice = Image.open("./modules/fun/assets/dice.png").convert(mode="RGBA")
     draw = ImageDraw.Draw(dice)
     font = ImageFont.truetype("./modules/fun/assets/fonts/DejaVuSans.ttf",175)
@@ -69,7 +93,19 @@ def dice(id,number):
         dice.save(f"./modules/fun/temp/{filename}")
         return f"./modules/fun/temp/{filename}"
 
-def rip(id, username=str, description=None, pfp=None):
+def rip(id:Union[int, str], display_name=str, description=None, pfp=None) -> str:
+    """Generates the image of a tombstone with the user's display name, pfp and a description.
+
+    Args:
+        id (Union[int, str]): The user's Discord ID, used solely for easily distinguishing requests.
+        display_name (str): The user's Discord display name. Defaults to str.
+        description (str, optional): The text what will go under the user's name and pfp on the gravestone. Defaults to None.
+        pfp (str, optional): A URL to the user's pfp. Defaults to None.
+
+    Returns:
+        str: A Path for the image file.
+    """
+
     tombstone = Image.open("./modules/fun/assets/tombstone.png")
 
     text_layer = Image.new("RGBA", tombstone.size)
@@ -84,7 +120,7 @@ def rip(id, username=str, description=None, pfp=None):
         tombstone.paste(pfp, ((450, 170)), pfp)
 
     text_draw = ImageDraw.Draw(text_layer)
-    text_draw.text((600,125),textwrap.fill(username if username else "Anonymous",30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
+    text_draw.text((600,125),textwrap.fill(display_name if display_name else "Anonymous",30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
     
     if description:
         text_draw.text((600,505),textwrap.fill(description,30),fill="white",stroke_fill="black",stroke_width=4,font=font,align="center",anchor="ms")
