@@ -94,7 +94,7 @@ class Bot(commands.Bot):
                 else:
                     # The module {module}'s files are missing!!
                     print(str(localization.internal.read("module_missing",settings.language)))
-        await self.tree.sync() # Only uncomment this when implementing new commands, or you'll be rate limited pretty quickly!!
+        #await self.tree.sync() # Only uncomment this when implementing new commands, or you'll be rate limited pretty quickly!!
 
     # Let's make sure we'll always have a language set for any new guilds
     async def on_guild_join(self, guild):
@@ -108,12 +108,16 @@ class Bot(commands.Bot):
                 storage.guild.set(interaction.guild.id,"language",settings.language)
 
     async def on_ready(self):
+        if not path.isdir("./logs"):
+            makedirs("./logs")
         #Status task, updates the bot's presence every minute
         async def status_task(self):
             while True:
                 await self.change_presence(activity=discord.Activity(type=discord.ActivityType.streaming,name="past you nerds!",url="https://www.youtube.com/watch?v=HZCKddHYgPM"))
                 await asyncio.sleep(60)
                 await self.change_presence(activity=discord.Activity(type=discord.ActivityType.playing,name="with you nerds!"))
+                await asyncio.sleep(60)
+                await self.change_presence(activity=discord.Activity(type=discord.ActivityType.playing,name="hide and seek with Fae!"))
                 await asyncio.sleep(60)
 
         bot.loop.create_task(status_task(self))
