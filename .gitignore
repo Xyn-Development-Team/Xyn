@@ -139,4 +139,6 @@ users/*
 
 # Lavalink config + Credentials
 Lavalink/*
+
+# Temp folders
 modules/fun/temp/*
