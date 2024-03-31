@@ -76,7 +76,6 @@ class fun(commands.GroupCog, name=module.cog_name):
             # An error has occurred trying to generate this image :c
             await interaction.followup.send(localization.external.read("image_gen_error", language))        
 
-    #TODO add color based on the color most present in the user's pfp
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload:discord.RawReactionActionEvent):
         emoji = payload.emoji
@@ -88,7 +87,7 @@ class fun(commands.GroupCog, name=module.cog_name):
             if reaction.emoji == storage.guild.read(guild.id, "starboard_emoji") and reaction.count >= int(storage.guild.read(guild.id, "starboard_threshold")):
                 starboard_channel = guild.get_channel(storage.guild.read(guild.id, "starboard_channel"))
                 
-                embed = discord.Embed(title=message.author.display_name,description=f"\"{message.content}\"").set_thumbnail(url=message.author.display_avatar.url)
+                embed = discord.Embed(title=message.author.display_name,description=f"\"{message.content}\"", color=discord.Color.from_str(imagetools.get_average_color(message.author.display_avatar.url))).set_thumbnail(url=message.author.display_avatar.url)
 
                 attachment_counter = 0
                 attachments = []
