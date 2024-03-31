@@ -104,8 +104,8 @@ class Bot(commands.Bot):
     # And also to ones we're already in
     async def on_interaction(self, interaction:discord.Interaction):
         if interaction.guild:
-            if not storage.guild.read(interaction.guild.id,"language"):
-                storage.guild.set(interaction.guild.id,"language",settings.language)
+            if not storage.guild.read(interaction.guild.id, "language"):
+                storage.guild.set(interaction.guild.id,"language", settings.language)
 
     async def on_ready(self):
         if not path.isdir("./logs"):
