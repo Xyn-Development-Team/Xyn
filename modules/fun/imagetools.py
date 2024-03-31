@@ -138,6 +138,24 @@ def rip(id:Union[int, str], display_name=str, description=None, pfp=None) -> str
         tombstone.save(f"./modules/fun/temp/{filename}")
         return f"./modules/fun/temp/{filename}"
 
+def rgb_to_hex(rgb):
+    return "#{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
+
+def get_average_color(image):
+    image = get_image(image)
+    
+    # Convert the image to RGBA if it's not already
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    # Convert the image to a numpy array for faster processing
+    pixels = np.array(image)
+
+    # Calculate the average RGB values
+    avg_color = tuple(np.average(pixels, axis=(0,1)).astype(int))
+
+    return rgb_to_hex(avg_color)
+
 if __name__ == "__main__":
     id = 69
     #rip(id, "Moonlight Dorkreamer 🌓", "Was too much of a dork to be left alive! here's some more text to feasten your eyes!", "./modules/fun/temp/pfp.jpg")
