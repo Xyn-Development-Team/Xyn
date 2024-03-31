@@ -20,7 +20,8 @@ class internal:
 
         # In case we're missing just the requested language
         if not os.path.isfile(f"./localization/{lang}.json") and lang != "en-us":
-            print(f"| Xyn/localization | No localization files for {lang}")
+            print(string_id)
+            print(f"| NoString | Xyn/localization | No localization files for {lang}")
             lang = "en-us"
 
             # In case we're missing *all* language files
@@ -59,6 +60,7 @@ class external:
 
         # In case we're missing just the requested language
         if not os.path.isfile(f"{module_root}/localization/{lang}.json"):
+            print(f"| NoLang | {string_id}")
             print(f"| Xyn/localization | No localization files for {lang}")
             lang = "en-us"
 
