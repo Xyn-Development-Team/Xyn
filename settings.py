@@ -6,5 +6,10 @@ modules = {
     "fun":True,
     "music":True,
     "osu":True,
-    "scraping":True
+    "scraping":True,
+    "social":True
+}
+
+music = {
+    "cache": 10
 }
