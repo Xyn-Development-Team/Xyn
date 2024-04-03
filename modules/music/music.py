@@ -26,6 +26,7 @@ else:
     from dotenv import load_dotenv ; load_dotenv()
     from os import getenv
     import imagetools
+    import settings
 
 class music(commands.GroupCog, name=module.cog_name):
     def __init__(self, bot: commands.Bot) -> None:
@@ -105,11 +106,12 @@ class music(commands.GroupCog, name=module.cog_name):
             await player.home.send(embed=embed)
 
     #/stealth_skip
-    # @app_commands.command(name="stealth_skip", description="(Debugging) Skips to the next song without replacing!")
-    # async def stealth_skip(self, interaction:discord.Interaction):
-    #     player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-    #     await player.seek(player.current.length)
-    #     await interaction.response.send_message("skipped uwu")
+    if settings.mode.lower() == "development":
+        @app_commands.command(name="stealth_skip", description="(Debugging) Skips to the next song without replacing!")
+        async def stealth_skip(self, interaction:discord.Interaction):
+            player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+            await player.seek(player.current.length)
+            await interaction.response.send_message("skipped uwu")
 
     #/skip
     @app_commands.command(name="skip",description="Skips to the next song!")
@@ -265,10 +267,10 @@ class music(commands.GroupCog, name=module.cog_name):
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
         language = storage.guild.read(interaction.guild.id, "language")
         
-        self.queue_modes[player.guild.id] = self.queue_modes[interaction.guild.id]
-
         if not player:
             return await interaction.response.send_message(localization.external.read("not_connected", language))
+
+        self.queue_modes[player.guild.id] = self.queue_modes[interaction.guild.id]
 
         if mode == "Song":
             self.queue_modes[player.guild.id] = "loop"
@@ -314,10 +316,10 @@ class music(commands.GroupCog, name=module.cog_name):
         player = cast(wavelink.Player, interaction.guild.voice_client)
 
         if vc:
-            player = await vc.connect(cls=wavelink.Player)
+            player = await vc.connect(cls=wavelink.Player, self_deaf=True)
         elif not player:
             if interaction.user.voice:
-                player = await interaction.user.voice.channel.connect(cls=wavelink.Player)
+                player = await interaction.user.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
             else:
                 return await interaction.followup.send(localization.external.read("no_voice_play", language))
 
@@ -343,21 +345,40 @@ class music(commands.GroupCog, name=module.cog_name):
             for track in tracks:
                 added += 1
                 self.queues[interaction.guild.id].append(track)
-            embed = discord.Embed(title=tracks.name, url=tracks.url, description=tracks.author, color=discord.Color.from_str(imagetools.get_average_color(tracks.artwork)) if tracks.artwork else discord.Color.random()).set_author(name=f"Queued {added} songs from the album:").set_thumbnail(url=tracks.artwork)
+            embed = discord.Embed(title=tracks.name, url=tracks.url, description=tracks.author, color=discord.Color.from_str(imagetools.get_average_color(tracks.artwork)) if tracks.artwork else discord.Color.random()).set_author(name=str(localization.external.read("queued_album", language)).format(added=added)).set_thumbnail(url=tracks.artwork)
             await interaction.followup.send(embed=embed)
         else:
             track: wavelink.Playable = tracks[0]
             self.queues[interaction.guild.id].append(track)
             #await player.queue.put_wait(track)
             if track.artist.url:
-                embed = discord.Embed(title=track.title, url=track.uri, description=f"[{track.author}]({track.artist.url})", color=discord.Color.from_str(imagetools.get_average_color(track.artwork)) if track.artwork else discord.Color.random()).set_author(name="Added to the queue:").set_thumbnail(url=track.artwork)
+                embed = discord.Embed(title=track.title, url=track.uri, description=f"[{track.author}]({track.artist.url})", color=discord.Color.from_str(imagetools.get_average_color(track.artwork)) if track.artwork else discord.Color.random()).set_author(name=localization.external.read("added", language)).set_thumbnail(url=track.artwork)
             else:
-                embed = discord.Embed(title=track.title, url=track.uri, description=f"{track.author}", color=discord.Color.from_str(imagetools.get_average_color(track.artwork)) if track.artwork else discord.Color.random()).set_author(name="Added to the queue:").set_thumbnail(url=track.artwork)
+                embed = discord.Embed(title=track.title, url=track.uri, description=f"{track.author}", color=discord.Color.from_str(imagetools.get_average_color(track.artwork)) if track.artwork else discord.Color.random()).set_author(name=localization.external.read("added", language)).set_thumbnail(url=track.artwork)
             await interaction.followup.send(embed=embed)
 
         if not player.playing:
             # Play now since we aren't playing anything...
             return await player.play(self.queues[interaction.guild.id][0], volume=100)
+
+    #/move
+    @app_commands.command(name="move", description="| Music | Move Xyn to another voice channel")
+    async def move(self, interaction: discord.Interaction, vc:Optional[discord.VoiceChannel]):
+        player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
+        language = storage.guild.read(interaction.guild.id, "language")
+        
+        if not player:
+            return await interaction.response.send_message(localization.external.read("not_connected", language))
+        
+        if vc:
+            await interaction.guild.change_voice_state(channel=vc)
+        elif interaction.user.voice and interaction.user.voice != interaction.guild.voice_client.channel:
+            await interaction.guild.change_voice_state(channel=interaction.user.voice.channel, self_deaf=True)
+            vc = interaction.user.voice.channel
+        else:
+            return await interaction.followup.send(localization.external.read("no_voice_play", language))        
+
+        await interaction.response.send_message(str(localization.external.read("moved", language)).format(channel=vc.mention))
 
     #/queue
     @app_commands.command(name="queue",description="| Music | Shows all the songs in the current queue")
@@ -418,7 +439,7 @@ class music(commands.GroupCog, name=module.cog_name):
 
 async def setup(bot: commands.Bot) -> None:
     nodes = [wavelink.Node(uri=node, password=password) for node, password in zip(eval(getenv("lavalink_nodes")), eval(getenv("lavalink_passwords")))]
-    await wavelink.Pool.connect(nodes=nodes, client=bot, cache_capacity=None)
+    await wavelink.Pool.connect(nodes=nodes, client=bot, cache_capacity=int(settings.music["cache"]))
     
     print("music.py was loaded!")
     await bot.add_cog(music(bot))
