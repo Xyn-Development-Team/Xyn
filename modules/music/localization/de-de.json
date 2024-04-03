@@ -11,8 +11,9 @@
     "now_playing":"Spielt jetzt ab:",
     "album":"Album",
     "volume_set":"Lautstärke auf {volume} gesetzt",
+    "added":"Zur Warteschlange hinzugefügt!",
 
-    "playback_stopped":"Playback wurde pausiert!",
+    "playback_stopped":"Wiedergabe wurde pausiert!",
 
     "not_found":"Konnte kein Lied mit diesem Namen finden. Überprüf bitte ob du den richtig buchstabiert hast und versuch es nochmal.",
 
@@ -26,6 +27,8 @@
     "loop_disabled":"Looping wurde ausgeschaltet!",
 
     "queue_end_title":"Warteschlange wurde komplett abgespielt!",
-    "queue_end_description":"Pausiert, da looping ausgeschaltet wurde!"
+    "queue_end_description":"Pausiert, da looping ausgeschaltet wurde!",
+
+    "moved":"Wiedergabe wurde zu {channel} bewegt!"
 
 }
