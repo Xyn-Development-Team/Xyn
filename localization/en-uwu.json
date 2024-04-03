@@ -21,5 +21,7 @@
     "guild_only":"This c-c-command c-can onwy be used within a guiwd?!?!!",
     "module_missing":"the moduwe {moduwe}'s fiwes awe missing?!?1",
 
+    "language_set":"This guiwd's wanguage is set t-to UwU",
+
     "thinking":"{bot} is thinking..."
 }

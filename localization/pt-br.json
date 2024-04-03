@@ -21,5 +21,7 @@
     "guild_only":"Esse comando pode apenas ser usado em um servidor!",
     "module_missing":"Os arquivos do módulo {module} estão faltando!",
 
+    "language_set":"O idioma desse servidor foi trocado para Português!",
+
     "thinking":"{bot} está pensando..."
 }

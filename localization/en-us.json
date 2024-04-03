@@ -21,5 +21,7 @@
     "guild_only":"This command can only be used within a guild!",
     "module_missing":"The module {module}'s files are missing!!",
 
+    "language_set":"This guild's language is set to English!",
+
     "thinking":"{bot} is thinking..."
 }
