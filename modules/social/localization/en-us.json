@@ -1,0 +1,10 @@
+{
+    "afk_embed_title":"{user}\nis AFK!",
+    "enable_afk":"You're now AFK everywhere!",
+    "enable_afk_guild":"You're now AFK on this guild!",
+    
+    "disable_afk_guild":"You are no longer AFK on this guild!",
+    "disable_afk":"You are no longer AFK everywhere!",
+    
+    "no_guild_afk":"This only works on DM's with the argument `everywhere`!"
+}
