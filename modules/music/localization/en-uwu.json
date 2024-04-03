@@ -9,7 +9,9 @@
     "nothing_playing_tease":"Maybe you c-can change that ;)",
 
     "now_playing":"Nyow >w< pwaying:",
+    "album":"Awbum",
     "volume_set":"Vowume was set t-to {volume}",
+    "added":"Added t-to the queue:",
 
     "playback_stopped":"Pwayback was stopped!",
 
@@ -25,6 +27,8 @@
     "loop_disabled":"Wooping was disabwed!",
 
     "queue_end_title":"Finyished pwaying the x3 queue!",
-    "queue_end_description":"Paused ^-^ due t-to wooping b-being disabwed"
+    "queue_end_description":"Paused ^-^ due t-to wooping b-being disabwed",
+
+    "moved":"Muvd pwayback t-to {channel}!!"
 
 }

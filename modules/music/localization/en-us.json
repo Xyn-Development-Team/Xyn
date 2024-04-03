@@ -11,6 +11,7 @@
     "now_playing":"Now playing:",
     "album":"Album",
     "volume_set":"Volume was set to {volume}",
+    "added":"Added to the queue:",
 
     "playback_stopped":"Playback was stopped!",
 
@@ -26,6 +27,8 @@
     "loop_disabled":"Looping was disabled!",
 
     "queue_end_title":"Finished playing the queue!",
-    "queue_end_description":"Paused due to looping being disabled"
+    "queue_end_description":"Paused due to looping being disabled",
+
+    "moved":"Playback moved to {channel}!"
 
 }

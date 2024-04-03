@@ -11,6 +11,7 @@
     "now_playing":"Reproduzindo:",
     "album":"Álbum",
     "volume_set":"O volume foi ajustado para {volume}",
+    "added":"Adicionado à fila",
 
     "playback_stopped":"A reprodução foi encerrada!",
 
@@ -26,6 +27,8 @@
     "loop_disabled":"A repetição foi desativada!",
 
     "queue_end_title":"Fim da fila!",
-    "queue_end_description":"A reprodução foi pausada devido à repetição estar desativada"
+    "queue_end_description":"A reprodução foi pausada devido à repetição estar desativada",
+
+    "moved":"O bot foi movido para o canal {channel}!"
 
 }
