@@ -3,8 +3,6 @@
 # Xyn
 A bot that does a little bit of everything without being bloated.
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F1UVKHA)
-
 # Commands
 - ## Fun
     - /diceroll / Allows you to roll a dice.
