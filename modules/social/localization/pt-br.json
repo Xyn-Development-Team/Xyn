@@ -1,0 +1,10 @@
+{
+    "afk_embed_title":"{user}\nestá AFK!",
+    "enable_afk":"Você agora está AFK globalmente!",
+    "enable_afk_guild":"Você agora está AFK neste servidor!",
+    
+    "disable_afk_guild":"Você não está mais AFK neste servidor!",
+    "disable_afk":"Você não está mais AFK globalmente!",
+    
+    "no_guild_afk":"Esse comando só funciona em DM's com o argumento `everywhere`!"
+}
