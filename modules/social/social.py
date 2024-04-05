@@ -82,17 +82,17 @@ class social(commands.GroupCog, name=module.cog_name):
 
     #/unafk
     @app_commands.command(name="unafk", description="Disables AFK")
-    async def unafk(self, interaction:discord.Interaction, everywhere:Optional[Literal["Yes", "No"]]):
+    async def unafk(self, interaction:discord.Interaction, globally:Optional[Literal["Yes", "No"]]):
         if not os.path.isdir(f"./modules/social/guilds/{interaction.guild.id}/"):
             os.makedirs(f"./modules/social/guilds/{interaction.guild.id}/afk")
         
         if interaction.guild:
             language = storage.guild.read(interaction.guild.id,"language")
         else:
-            if not str(everywhere.lower()) == "yes":
+            if not str(globally.lower()) == "yes":
                 return await interaction.response.send_message(localization.external.read("no_guild_afk", language), ephemeral=True)
         
-        if everywhere:
+        if globally:
             try:
                 os.remove(f"./modules/social/users/afk/{interaction.user.id}.json")
             except OSError as e:
@@ -107,8 +107,8 @@ class social(commands.GroupCog, name=module.cog_name):
 
     #/afk
     @app_commands.command(name="afk", description="Show an AFK message whenever someone pings you!")
-    @app_commands.describe(message="(Optional) A Message that will be shown when someone pings you while AFK", everywhere="Do you want to be AFK for every server Xyn is on?")
-    async def afk(self, interaction: discord.Interaction, message:Optional[str], everywhere:Optional[Literal["Yes", "No"]]):     
+    @app_commands.describe(message="(Optional) A Message that will be shown when someone pings you while AFK", globally="Do you want to be AFK for every server Xyn is on?")
+    async def afk(self, interaction: discord.Interaction, message:Optional[str], globally:Optional[Literal["Yes", "No"]]):     
         if not os.path.isdir(f"./modules/social/guilds/{interaction.guild.id}/"):
             os.makedirs(f"./modules/social/guilds/{interaction.guild.id}/afk")
         
@@ -116,10 +116,10 @@ class social(commands.GroupCog, name=module.cog_name):
             language = storage.guild.read(interaction.guild.id,"language")
         else:
             language = str(interaction.locale).lower()
-            if not str(everywhere.lower()) == "yes":
+            if not str(globally.lower()) == "yes":
                 return await interaction.response.send_message(localization.external.read("no_guild_afk", language))
         
-        if str(everywhere).lower() == "yes":
+        if str(globally).lower() == "yes":
             with open(f"./modules/social/users/afk/{interaction.user.id}.json", "w") as file:
                 data = objdict.ObjDict()
                 if message:
