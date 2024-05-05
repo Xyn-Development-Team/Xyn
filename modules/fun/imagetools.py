@@ -48,7 +48,7 @@ def quote(id:Union[int, str], username=None, display_name="Anonymous", pfp=None,
     draw = ImageDraw.Draw(background)
 
     if pfp:
-        pfp = get_image(pfp, True, (810, 810))
+        pfp = get_image(pfp, True, (810, 810)).convert("RGBA")
         background.paste(pfp)
 
     background.paste(gradient,(0,0),gradient)
@@ -114,7 +114,7 @@ def rip(id:Union[int, str], display_name=str, description=None, pfp=None) -> str
     font = ImageFont.truetype("./modules/fun/assets/fonts/DejaVuSans.ttf",35)
 
     if pfp:
-        pfp = get_image(pfp, (300, 300))
+        pfp = get_image(pfp, (300, 300)).convert("RGBA")
         pfp = ImageEnhance.Contrast(pfp).enhance(2)
         pfp = pfp.filter(ImageFilter.EMBOSS)
         pfp = ImageEnhance.Color(pfp).degenerate
