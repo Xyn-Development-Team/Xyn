@@ -11,3 +11,5 @@ aiordr
 ossapi
 python-dotenv
 pycountry
+argparse
+pygithub
