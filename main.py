@@ -2,29 +2,198 @@ import asyncio
 import inspect
 import platform
 import time
-from os import getcwd, getenv, makedirs, path
+import os
+from sys import exit
 
 import discord
 from discord import app_commands
 from colorama import Back, Fore, Style
 from discord.ext import commands
-from discord.ext.commands import has_permissions
+from discord.ext.commands import has_permissions, is_owner
 from typing import Literal
 
-from dotenv import load_dotenv ; load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 import settings
 import platform
 import cpuinfo
 import localization
 import storage
+import argparse
+
+from requests import get
+from shutil import rmtree
 
 from typing import Literal
+from github import Github, GithubException
+import re
+
+def generate_modulelist(quiet=False):
+    print("Generating modulelist...")
+    modulelist = {}
+   
+    if os.path.exists("./modules") and os.path.isdir("./modules"):
+        for file in os.listdir("./modules"):
+            file.rstrip(".py")
+            if file in settings.modules.keys():
+                modulelist[file] = settings.modules[file]
+            else:
+                modulelist[file] = True
+        
+        # Open the file for reading
+        with open('settings.py', 'r') as file:
+            lines = file.readlines()
+
+        # Find the line where modules is defined
+        for i, line in enumerate(lines):
+            if 'modules =' in line:
+                start_index = i
+                break
+
+        # Generate the new content with the updated modules dictionary
+        new_content = ''.join(lines[:start_index]) + f"modules = {modulelist}\n"
+
+        # Write the modified content back to the file
+        with open('settings.py', 'w') as file:
+            file.write(new_content)
+        print("Your modulelist was updated!")
+        return
+
+def module_list():
+    g = Github(os.getenv("github_username"), os.getenv("github_token"))
+    repo = g.get_repo(re.sub("https://github.com/", "", settings.module_repo).lower())
+    
+    try:
+        repo.get_contents("/.blacklist")
+        blacklist = str(get(repo.get_contents("/.blacklist").download_url).content)
+        blacklist = blacklist.lstrip("b'")
+        blacklist = blacklist.rstrip("\\n'")
+        blacklist = blacklist.split("\\n")
+    except:
+        blacklist = []
+
+    for item in repo.get_contents("/"):
+        if item.name in blacklist:
+            continue
+        print(f"{str(item.name).rstrip('.py')} / {'packaged' if item.type == 'dir' else 'legacy'}")
+    
+def module_uninstaller(name=str, gen_modulelist=True):
+    if os.path.isdir(f"./modules/{name}"):
+        rmtree(f"./modules/{name}")
+    elif os.path.isfile(f"./modules/{name.rstrip(".py")}.py"):
+        os.remove(f"./modules/{name.rstrip(".py")}.py")
+    else:
+        print(f"No module named \"{name}\"")
+        return
+    
+    if gen_modulelist:
+        generate_modulelist()
+
+def module_installer(name=str, gen_modulelist=True):
+    g = Github(os.getenv("github_username"), os.getenv("github_token"))
+    repo = g.get_repo(re.sub("https://github.com/", "", settings.module_repo).lower())
+    
+    modules = name.split(",")
+    
+    for name in modules: 
+        try:
+            contents = repo.get_contents("/" + name)
+        except GithubException as e:
+            if e.status == 404:
+                print(str(localization.internal.read("module_404", settings.language)).format(name=name))
+                continue
+            else:
+                print(str(localization.internal.read("module_install_error", settings.language)).format(name=name, status=e.status, message=e.message))
+        
+        try:
+            while len(contents) > 0:
+                file_content = contents.pop(0)
+                if file_content.type == 'dir':
+                    dir_path = os.path.join("./modules", name, file_content.path[len(name) + 1:])  # Remove redundant '{name}/' part
+                    if os.path.exists(dir_path):
+                        rmtree(dir_path)  # Remove existing directory
+                    os.makedirs(dir_path)
+                    contents.extend(repo.get_contents(file_content.path))
+                else:
+                    file_path = os.path.join("./modules", name, file_content.path[len(name) + 1:])  # Remove redundant '{name}/' part
+                    file_dir = os.path.dirname(file_path)
+                    if not os.path.exists(file_dir):
+                        os.makedirs(file_dir)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)  # Remove existing file
+                    with get(file_content.download_url) as response:
+                        with open(file_path, 'wb') as file:
+                            file.write(response.content)
+                    print(str(localization.internal.read("module_downloading", settings.language)).format(path=file_content.path))
+        except TypeError:
+            file_path = os.path.join("./modules", name)
+            name = str(name).rstrip(".py")
+            with get(contents.download_url) as response:
+                with open(file_path, 'wb') as file:
+                    file.write(response.content)
+            
+        print(str(localization.internal.read("module_installed", settings.language)).format(module=name))
+    
+    if gen_modulelist:
+        generate_modulelist()
 
 class Bot(commands.Bot):
-    """Initializes the bot and it's modules, as well as the error handler"""
-    def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('>.<'), intents=discord.Intents().all())
+    """Initializes the bot and it's modules, as well as the error handler and argument parser"""
+    def __init__(self, args=None):
+        global token
+        
+        parser = argparse.ArgumentParser(description="Xyn Discord bot")
+        parser.add_argument("--mode", default=settings.mode, choices=["development","retail"], help="Set the runtime mode (retail or development)")
+        parser.add_argument("--token", default=None, help="Allows you to use a different token for this session")
+        
+        parser.add_argument("--setup", action="store_true")
+        parser.add_argument("--generate-modulelist", action="store_true")
+        parser.add_argument("--install","-i", help="Installs a module by name from the module repo defined in the settings.py")
+        parser.add_argument("--uninstall","-u","-r", help="Uninstalls a module by it's name")
+        parser.add_argument("--list", "-l", action="store_true", help="Lists all modules available on your module repository")
+        
+        if not args:
+            args = parser.parse_args()
+        else:
+            args = parser.parse_args(args)
+        
+        if args.generate_modulelist:
+            generate_modulelist()
+            exit()
+        
+        if args.install:
+            module_installer(args.install)
+            exit()
+            
+        if args.uninstall:
+            module_uninstaller(args.uninstall)
+            exit()
+        
+        if args.mode and args.mode != settings.mode:
+            settings.mode = args.mode
+
+        if args.list:
+            module_list()
+            exit()
+        
+        if not os.path.isdir("./modules"):
+            os.makedirs("./modules")
+            
+        if not os.listdir("./modules"):
+            print("You don't have any modules installed!\nYou can install some by using the `--install` argument! Or even check some out using the `--list` argument!")
+        
+        if args.token:
+            token = args.token
+        elif settings.mode.lower() == "development":
+            token = os.getenv("development_token")
+        elif settings.mode.lower() == "retail":
+            token = os.getenv("token")
+        else:
+            print(localization.internal.read("no_runtime", settings.language))
+            exit()
+        
+        super().__init__(command_prefix=">.<>.<", intents=discord.Intents().all())
 
         @self.tree.command(name="reload", description="Reloads all bot modules!")
         @app_commands.describe(resync="Sync all commands")
@@ -33,13 +202,13 @@ class Bot(commands.Bot):
             await interaction.response.defer(thinking=True)
             for key, value in settings.modules.items():
                 if value:
-                    if path.isfile(f"modules/{key}.py"):
+                    if os.path.isfile(f"modules/{key}.py"):
                         await self.reload_extension(f"modules.{key}")
-                    elif path.isdir(f"modules/{key}"):
+                    elif os.path.isdir(f"modules/{key}"):
                         await self.reload_extension(f"modules.{key}.{key}")
                     else:
                         # The module {module}'s files are missing!!
-                        print(str(localization.internal.read("module_missing",settings.language)))
+                        print(str(localization.internal.read("module_missing",settings.language)).format(module=key))
             
             if resync == "Yes":
                 await self.tree.sync()
@@ -63,8 +232,8 @@ class Bot(commands.Bot):
             # Get information about the occurence
             line_number = frame.f_lineno
             file_path = inspect.getframeinfo(frame).filename
-            filename = path.basename(inspect.getframeinfo(frame).filename)
-            log = f"{time.strftime('%d/%m/%Y %H:%M:%S UTC')}\nException: {interaction.command.module}.{interaction.command.name}:\nFile: {filename} {'(External)' if file_path != getcwd() else ''}, line {line_number}\n{error.original}"
+            filename = os.path.basename(inspect.getframeinfo(frame).filename)
+            log = f"{time.strftime('%d/%m/%Y %H:%M:%S UTC')}\nException: {interaction.command.module}.{interaction.command.name}:\nFile: {filename} {'(External)' if file_path != os.getcwd() else ''}, line {line_number}\n{error.original}"
             
             if isinstance(error.original, discord.errors.InteractionResponded):
                 # Interaction already acknowledged, {interaction.command.module}.{interaction.command.name}
@@ -87,29 +256,44 @@ class Bot(commands.Bot):
     async def setup_hook(self):
         for key, value in settings.modules.items():
             if value:
-                if path.isfile(f"modules/{key}.py"):
+                if os.path.isfile(f"modules/{key}.py"):
                     await self.load_extension(f"modules.{key}")
-                elif path.isdir(f"modules/{key}"):
+                elif os.path.isdir(f"modules/{key}"):
                     await self.load_extension(f"modules.{key}.{key}")
                 else:
                     # The module {module}'s files are missing!!
-                    print(str(localization.internal.read("module_missing",settings.language)))
-        #await self.tree.sync() # Only uncomment this when implementing new commands, or you'll be rate limited pretty quickly!!
+                    print(str(localization.internal.read("module_missing",settings.language)).format(module=key))
+        if settings.resync:
+            await self.tree.sync()
 
     # Let's make sure we'll always have a language set for any new guilds
     async def on_guild_join(self, guild):
         if not storage.guild.read(guild.id, "language"):
-            storage.guild.set(guild.id,"language",settings.language)
+            storage.guild.set(guild.id, "language", settings.language)
+        if storage.guild.read(guild.id, "name") != guild.name and settings.guilds["log_names"]:
+            storage.guild.set(guild.id, "name", guild.name)
 
-    # And also to ones we're already in
+    # In case a guild doesn't have a language set and a command is used.
     async def on_interaction(self, interaction:discord.Interaction):
         if interaction.guild:
             if not storage.guild.read(interaction.guild.id, "language"):
-                storage.guild.set(interaction.guild.id,"language", settings.language)
+                storage.guild.set(interaction.guild.id, "language", settings.language)
+            if storage.guild.read(interaction.guild.id, "name") != interaction.guild.name and settings.guilds["log_names"]:
+                storage.guild.set(interaction.guild.id, "name", interaction.guild.name)
 
     async def on_ready(self):
-        if not path.isdir("./logs"):
-            makedirs("./logs")
+        if not os.path.isdir("./logs"):
+            os.makedirs("./logs")
+        
+        if settings.guilds["startup_check"]:
+            print("Checking guilds for broken or missing settings files...")
+            start_time = time.time()
+            for guild in self.guilds:
+                if not storage.guild.read(guild.id, "language"):
+                    storage.guild.set(guild.id, "language", settings.language)
+                    storage.guild.set(guild.id, "name", guild.name)
+            print(f"Finished checks in {round(time.time() - start_time,2)}s")
+        
         #Status task, updates the bot's presence every minute
         async def status_task(self):
             while True:
@@ -136,9 +320,4 @@ class Bot(commands.Bot):
         print(prfx + str(localization.internal.read("discord.py_version")).format(color=Fore.YELLOW,version=discord.__version__,reset=Fore.RESET))
 
 bot = Bot()
-if settings.mode.lower() == "retail":
-    bot.run(getenv("token")) 
-elif settings.mode.lower() == "development":
-    bot.run(getenv("development_token"))
-else:
-    print(localization.internal.read("no_runtime",settings.language))
+bot.run(token)
