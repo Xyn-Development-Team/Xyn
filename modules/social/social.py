@@ -4,6 +4,7 @@ class module:
     description = "Commands to make interacting with fellow users a bit easier."
     author = "Moonlight Dorkreamer 🌓"
     xyn_version = "V3"
+    version = "12042024"
 
 import os
 

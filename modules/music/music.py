@@ -4,6 +4,7 @@ class module:
     description = "Lot's of music commands!"
     author = "Moonlight Dorkreamer 🌓"
     xyn_version = "V3"
+    version = "12042024"
 
 import os
 

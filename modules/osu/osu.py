@@ -4,6 +4,7 @@ class module:
     description = "rhythm is just a *command* away"
     author = "Moonlight Dorkreamer 🌓"
     xyn_version = "V3"
+    version = "04042024"
 
 import os
 
@@ -190,6 +191,43 @@ class osu(commands.GroupCog, name=module.cog_name):
                     embed.add_field(name=name, value=value)
 
         await interaction.followup.send(embed=embed)
+
+    # API is broken :c
+   #/recent
+    # @app_commands.command(name="recent",description="Shows the most recent plays of an user!")
+    # @app_commands.describe(user="Who do you want to check? You can use either usernames or ID's!")
+    # async def recent(self, interaction: discord.Interaction, user:str,mode:Optional[Literal["osu!","osu!taiko","osu!catch","osu!mania"]]):        
+    #     await interaction.response.defer(thinking=True)
+    #     if interaction.guild:
+    #         language = storage.guild.read(interaction.guild.id, "language")
+    #     else:
+    #         language = str(interaction.locale).lower()
+    #     user = api.search(user,mode="user") ; user = user.users.data[0].expand()
+
+    #     if not user.profile_colour:
+    #         accent_color = imagetools.get_average_color(image=user.avatar_url)
+    #     else:
+    #         accent_color = user.profile_colour
+
+    #     if not mode:
+    #         mode = user.playmode
+    #         scores = api.user_scores(user,"recent",include_fails=False,limit=5)
+    #     else:
+    #         if mode != "osu!":
+    #             search_mode = re.sub("osu!","",mode)
+    #         else:
+    #             search_mode = re.sub("!","",mode)
+    #         scores = api.user_scores(user,"recent",mode=search_mode,include_fails=False,limit=5)
+
+    #     embed = discord.Embed(title=f"{get_flag(code=user.country_code)}: {user.username}",color=discord.Color.from_str(accent_color)).set_author(name=localization.external.read("recent_plays",language).format(mode=mode)).set_thumbnail(url=user.avatar_url)
+
+    #     for s in range(len(scores)):
+    #         language = scores[s].beatmap.beatmapset().language["name"]
+    #         flag = get_flag(language=language)
+    #         embed.add_field(name=f"{flag} {scores[s].beatmap.beatmapset().title} ({scores[s].beatmap.version}) * [{scores[s].beatmap.difficulty_rating}⭐]",value=f"{'{:,.0f}'.format(scores[s].score)} / {0 if not scores[s].pp else scores[s].pp}pp / {round(scores[s].accuracy * 100, 2) / 1}% {'' if  str(scores[s].mods) == 'NM' else scores[s].mods}",inline=False)
+
+    #     #message = await interaction.followup.send(f"{interaction.user.name} used /osu recent",silent=True)
+    #     await interaction.followup.send(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
     print(localization.external.read("setup.loaded",settings.language))

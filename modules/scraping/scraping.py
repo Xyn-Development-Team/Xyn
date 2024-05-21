@@ -4,6 +4,7 @@ class module:
     description = "Data scraping commands"
     author = "Moonlight Dorkreamer 🌓"
     xyn_version = "V3"
+    version = "04042024"
 
 import os
 
