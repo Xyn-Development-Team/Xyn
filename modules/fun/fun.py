@@ -204,7 +204,7 @@ class fun(commands.GroupCog, name=module.cog_name):
         if user:
             image = imagetools.quote(user.id, user.name, user.display_name, user.display_avatar.url, quote)
         else:
-            image = imagetools.quote(id=interaction.user.id, display_name=name if name else None, pfp=pfp if pfp else None,quote=quote)
+            image = imagetools.quote(id=interaction.user.id, username=interaction.user.name, display_name=name if name else interaction.user.display_name, pfp=pfp if pfp else interaction.user.display_avatar.url,quote=quote)
         
         if image:
             await interaction.followup.send(file=discord.File(image))
