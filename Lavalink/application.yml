@@ -3,19 +3,25 @@ server: # REST and WS server
   address: 0.0.0.0
 lavalink:
   plugins:
-    - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.0.1"
+    - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.1.1"
       repository: "https://maven.lavalink.dev/releases" # this is optional for lavalink v4.0.0-beta.5 or greater
       snapshot: false # set to true if you want to use snapshot builds (see below)
+
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.3.0"
+      snapshot: false
   server:
     password: "dummythicc"
     sources:
-      youtube: true
+      youtube: false
       bandcamp: true
       soundcloud: true
       twitch: true
       vimeo: true
       http: true
       local: false
+    youtubeConfig: # Required for avoiding all age restrictions by YouTube, some restricted videos still can be played without.
+      email: "" # Email of Google account
+      password: "" # Password of Google account
     bufferDurationMs: 400 # The duration of the NAS buffer. Higher values fare better against longer GC pauses
     frameBufferDurationMs: 5000 # How many milliseconds of audio to keep buffered
     youtubePlaylistLoadLimit: 6 # Number of pages at 100 each
@@ -30,26 +36,56 @@ lavalink:
       #searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
       #retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
 plugins:
-    lavasrc:
-      providers: # Custom providers for track loading. This is the default
-        # - "dzisrc:%ISRC%" # Deezer ISRC provider
-        # - "dzsearch:%QUERY%" # Deezer search provider
-        - "ytsearch:\"%ISRC%\"" # Will be ignored if track does not have an ISRC. See https://en.wikipedia.org/wiki/International_Standard_Recording_Code
-        - "ytsearch:%QUERY%" # Will be used if track has no ISRC or no track could be found for the ISRC
-        #  you can add multiple other fallback sources here
-      sources:
-        spotify: true # Enable Spotify source
-        applemusic: false # Enable Apple Music source
-        deezer: false # Enable Deezer source
-        yandexmusic: false # Enable Yandex Music source
-        flowerytts: false # Enable Flowery TTS source
-        youtube: false # Enable YouTube search source (https://github.com/topi314/LavaSearch)
-      spotify:
-        clientId: "4fc899e98fe940899496f03abece36d3"
-        clientSecret: "7aa3ea882453404aa08f9b66b6e0e87b"
-        countryCode: "US" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-        playlistLoadLimit: 6 # The number of pages at 100 tracks each
-        albumLoadLimit: 6 # The number of pages at 50 tracks each
+  lavasrc:
+    providers: # Custom providers for track loading. This is the default
+      # - "dzisrc:%ISRC%" # Deezer ISRC provider
+      # - "dzsearch:%QUERY%" # Deezer search provider
+      - "ytsearch:\"%ISRC%\"" # Will be ignored if track does not have an ISRC. See https://en.wikipedia.org/wiki/International_Standard_Recording_Code
+      - "ytsearch:%QUERY%" # Will be used if track has no ISRC or no track could be found for the ISRC
+      #  you can add multiple other fallback sources here
+    sources:
+      spotify: false # Enable Spotify source
+      applemusic: false # Enable Apple Music source
+      deezer: false # Enable Deezer source
+      yandexmusic: false # Enable Yandex Music source
+      flowerytts: false # Enable Flowery TTS source
+      youtube: true # Enable YouTube search source (https://github.com/topi314/LavaSearch)
+    lyrics-sources:
+      spotify: true # Enable Spotify lyrics source
+      deezer: false # Enable Deezer lyrics source
+      youtube: true # Enable YouTube lyrics source
+    spotify:
+      clientId: ""
+      clientSecret: ""
+      # spDc: "your sp dc cookie" # the sp dc cookie used for accessing the spotify lyrics api
+      countryCode: "US" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+      playlistLoadLimit: 6 # The number of pages at 300 tracks each
+      albumLoadLimit: 6 # The number of pages at 300 tracks each
+    youtube:
+      countryCode: "US" # the country code you want to use for searching lyrics via ISRC. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+
+  youtube:
+    enabled: true # Whether this source can be used.
+    allowSearch: true # Whether "ytsearch:" and "ytmsearch:" can be used.
+    allowDirectVideoIds: true # Whether just video IDs can match. If false, only complete URLs will be loaded.
+    allowDirectPlaylistIds: true # Whether just playlist IDs can match. If false, only complete URLs will be loaded.
+    # The clients to use for track loading. See below for a list of valid clients.
+    # Clients are queried in the order they are given (so the first client is queried first and so on...)
+    clients:
+      - MUSIC
+      - ANDROID
+      - WEB
+    # You can configure individual clients with the following.
+    # Any options or clients left unspecified will use their default values,
+    # which enables everything for all clients.
+    WEB: # names are specified as they are written below under "Available Clients".
+      # This will disable using the WEB client for video playback.
+      playback: false
+    TVHTML5EMBEDDED:
+      # The below config disables everything except playback for this client.
+      playlistLoading: false # Disables loading of playlists and mixes for this client.
+      videoLoading: false # Disables loading of videos for this client (playback is still allowed).
+      searching: false # Disables the ability to search for videos for this client.
 
 metrics:
   prometheus:
